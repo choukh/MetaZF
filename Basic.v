@@ -5,7 +5,8 @@ Require Export Meta.
 (*** 基本部件 ***)
 Section Basic.
 
-Context {𝓜} {满足ZF : ZF 𝓜}.
+(* 𝓜 ⊨ ZF *)
+Variable 𝓜 : ZF.
 Implicit Type A B C X Y Z a b c x y z : 𝓜.
 Implicit Type P : 𝓜 → Prop.
 
@@ -114,9 +115,9 @@ Proof. intros xy z zp. apply 幂集. apply 幂集 in zp. zf. Qed.
 (** 分离 **)
 
 Definition 分 A P := (λ x y, P x ∧ x = y) @ A.
-Notation "A ∩ P" := (分 A P) (at level 60).
+Notation "A ∩ₚ P" := (分 A P) (at level 60).
 
-Lemma 分离 P A x : x ∈ A ∩ P ↔ x ∈ A ∧ P x.
+Lemma 分离 P A x : x ∈ A ∩ₚ P ↔ x ∈ A ∧ P x.
 Proof.
   intros. unfold 分. rewrite 替代.
   - split.
@@ -125,16 +126,16 @@ Proof.
   - cbv. intuition congruence.
 Qed.
 
-Lemma 分离为子集 A P : A ∩ P ⊆ A.
+Lemma 分离为子集 A P : A ∩ₚ P ⊆ A.
 Proof. now intros y [yA _]%分离. Qed.
 
-Lemma 全分离 P A : (∀ x, P x) → A ∩ P = A.
+Lemma 全分离 P A : (∀ x, P x) → A ∩ₚ P = A.
 Proof.
   intros H. apply 外延. apply 分离为子集.
   intros y yA. apply 分离. now split.
 Qed.
 
-Lemma 未分离 P A : (∀ x, ¬ P x) → A ∩ P = ∅.
+Lemma 未分离 P A : (∀ x, ¬ P x) → A ∩ₚ P = ∅.
 Proof.
   intros H. apply 空集唯一.
   intros y [_ Py]%分离. apply (H y Py).
@@ -156,6 +157,6 @@ End Basic.
 Notation "[ a , b ]" := (偶 a b) : zf_scope.
 Notation "[ a ]" := (单 a) : zf_scope.
 Notation "F [ A ]" := (F替 F A) (at level 7, format "F [ A ]") : zf_scope.
-Notation "A ∩ P" := (分 A P) (at level 60) : zf_scope.
+Notation "A ∩ₚ P" := (分 A P) (at level 60) : zf_scope.
 
 Global Hint Resolve 空集是子集 : zf.

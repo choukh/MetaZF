@@ -1,1 +1,385 @@
+#! https://zhuanlan.zhihu.com/p/518762344
 # Coq集合模型论(1): 从封闭传递类构造内模型
+
+> [GitHub - choukh/MetaZF](https://github.com/choukh/MetaZF)  
+> Q群：893531731
+
+## 前置知识
+- Coq: 学完[SF第1卷](https://coq-zh.github.io/SF-zh/lf-current/toc.html)
+- 集合论: 熟悉ZF公理, 了解 **类(class)** 和 **累积分层(cumulative hierarchy)** 等基本概念
+- 了解一阶逻辑和模型论的基本概念
+
+## 前言
+在类型论背景下研究集合论一般有3种范式:
+- 浅编码(shallow embedding): 直接公理宣告集合类型存在, 如我们在[这篇文章](https://zhuanlan.zhihu.com/p/415778984)中介绍的方法
+- 深编码(deep embedding): 先形式化一阶逻辑, 再从中建立公理化集合论
+- 内定理: 直接构造模型, 并证明ZF公理, 如[HoTT Book](https://homotopytypetheory.org/book/)中介绍的方法
+
+第3种依赖于HoTT的追加特性, 超出了本文的范围. 第2种相当于把类型论当做元逻辑, 得到的是纯种的一阶集合论, 可以通过对一阶逻辑的精细控制来改变对象集合论的行为. 但其缺点是构造相当繁杂, 如果研究对象是集合论而不是一阶逻辑的话没必要框死在这个范式之下.
+
+本文介绍的内容属于第1种范式. 与[之前](https://zhuanlan.zhihu.com/p/415778984)有所不同的是, 为了研究模型间的关系, 我们对集合类型做了参数化处理(简单来说就是将关键字 Axiom 换成了 [Section](https://coq.inria.fr/refman/language/core/sections.html) 内的 Variable). 另外要注意的是, 范式1下的集合论是二阶集合论, 体现在分离公理和替代公理所用到的谓词和函数不再限定为一阶公式可定义, 而是全称量化的. [[Kirst]](https://www.ps.uni-saarland.de/Publications/documents/KirstSmolka_2017_Categoricity.pdf)认为二阶ZF是更符合策梅洛(ZF的Z)原意的, 它可能排除了一阶ZF中的一些人工的反直觉的模型.
+
+尽管非一阶, 但我们仍然工作在经典逻辑之下, 为此导入了标准库中的 Classical 和 ProofIrrelevance, 除此之外别无其他公理.
+
+## ZF结构
+结构和模型的关系可以很直接地编码为项和类型的关系. 即我们希望有
+```Coq
+ZF结构 : Type
+```
+并且有ZF模型
+```Coq
+M : ZF结构
+```
+同时, 我们也希望能访问M中的对象, 即集合
+```Coq
+x : M
+```
+那么其实我们是希望有一种多层的typing
+```Coq
+x : M : ZF结构 : Type
+```
+这无法在Coq中直接编码, 但可以通过 [Typeclass](https://coq.inria.fr/refman/addendum/type-classes.html) (它跟集合论中的类没有任何关系) 和 [Coercion](https://coq.inria.fr/refman/addendum/implicit-coercions.html) 特性来模拟实现.
+
+首先我们用 typeclass 定义ZF结构
+
+```Coq
+Class ZF结构 : Type := {
+  集 : Type;
+  属 : 集 → 集 → Prop;
+  空 : 集;
+  并 : 集 → 集;
+  幂 : 集 → 集;
+  替 : (集 → 集 → Prop) → 集 → 集
+}.
+```
+
+它声明了结构中所涉及的常量, 函数和关系. 其中, "集"是论域, 它可以是任意(arbitrary)类型. "属"即集合间的属于关系. 空集是集合常量. 并集, 幂集和替代是3种集合构造函数 (配对和分离可以从替代推出, 无穷暂不考虑, 后续文章可能会讲).
+
+接着我们声明 ZF结构 到 Sort 的强制转换
+```Coq
+Coercion 集 : ZF结构 >-> Sortclass.
+```
+
+也就是说当我们把ZF结构的项M放在类型标记位的时候它会自动指向ZF结构的论域. 这样我们就得到了
+```Coq
+x : M : ZF结构 : Type
+```
+的模拟实现.
+
+我们用Notation定义了集合论的常用符号, 如∈, ⊆, ∅, ⋃, $\mathcal{P}$等, 代码不再一一贴出. 唯一需要注意的是, 对"替代"使用了以下更为简洁的符号, 而不是集合论中常用的 {F x | x ∈ A}的形式.
+
+```Coq
+Notation "R @ A" := (替 R A) (at level 60).
+```
+
+(另外, 由于知乎不支持在代码块中使用$\mathcal{P}$符号, 在Coq代码块中我们仍使用"幂")
+
+## ZF理论
+
+ZF理论定义为如下 typeclass. 首先它**继承**了ZF结构中的所有成员, 然后用6个命题声明了结构中的成员所需满足的约束, 即ZF公理.
+
+```Coq
+Class ZF := {
+  结构 :> ZF结构;
+  外延 : ∀ x y, x ⊆ y → y ⊆ x → x = y;
+  空集 : ∀ x, x ∉ ∅;
+  并集 : ∀ x A, x ∈ ⋃ A ↔ ∃ y, x ∈ y ∧ y ∈ A;
+  幂集 : ∀ x A, x ∈ 幂 A ↔ x ⊆ A;
+  替代 : ∀ R A, 函数性 R → ∀ y, y ∈ R @ A ↔ ∃ x ∈ A, R x y;
+  正则 : ∀ x, 良基 x
+}.
+```
+
+这样, 模型满足理论 (M ⊨ ZF) 就编码为类型论 judgement (M : ZF). 同样地我们用 Coercion 约定, 当ZF的项M被放在类型标记位的时候会自动指向结构中的论域.
+
+```Coq
+Coercion 结构 : ZF >-> ZF结构.
+```
+
+于是我们可以有
+```Coq
+x : M : ZF : Type
+```
+
+最后, 我们补充解释一下ZF理论的定义用到的额外谓词. 关系的函数性定义为
+
+```Coq
+Definition 函数性 {X Y} (R : X → Y → Prop) :=
+  ∀ x y y', R x y → R x y' → y = y'.
+```
+
+良基是归纳定义的集合谓词, 其唯一构造子要求, 要判定为良基的集合里的所有成员都先具有良基性.
+```Coq
+Inductive 良基 {M : ZF结构} (A : M) : Prop :=
+  | wf_intro : (∀ x ∈ A, 良基 x) → 良基 A.
+```
+
+## 基本部件
+
+给定一个ZF模型M
+```Coq
+Variable M : ZF.
+```
+
+我们约定 A a b x y 必然指代M中的对象, P必然指代M上的谓词.
+```Coq
+Implicit Type A a b x y : M.
+Implicit Type P : M → Prop.
+```
+
+配对和单集定义如下
+```Coq
+Local Definition R a b := λ x y, (x = ∅ ∧ y = a) ∨ (x = 幂 ∅ ∧ y = b).
+Definition 偶 a b := R a b @ 幂 (幂 ∅).
+Notation "[ a , b ]" := (偶 a b).
+
+Definition 单 a := [a, a].
+Notation "[ a ]" := (单 a).
+```
+
+可以证明它们具有如下性质
+```Coq
+Lemma 配对 a b x : x ∈ [a, b] ↔ x = a ∨ x = b.
+Lemma 单集 x a : x ∈ [a] ↔ x = a.
+```
+
+分离定义如下
+```Coq
+Definition 分 A P := (λ x y, P x ∧ x = y) @ A.
+Notation "A ∩ₚ P" := (分 A P) (at level 60).
+```
+注意我们用记法 A ∩ₚ P 取代了通常的 {x ∈ A | P x}. 理解P可视作类(class)之后就可以理解这种记法的合理性.
+
+可以证明分离的性质
+```Coq
+Lemma 分离 P A x : x ∈ A ∩ₚ P ↔ x ∈ A ∧ P x.
+Lemma 分离为子集 A P : A ∩ₚ P ⊆ A.
+Lemma 全分离 P A : (∀ x, P x) → A ∩ₚ P = A.
+Lemma 未分离 P A : (∀ x, ¬ P x) → A ∩ₚ P = ∅.
+```
+
+## 封闭传递类
+现在, 给定M上的一个谓词P
+```Coq
+Variable P : M → Prop.
+```
+
+P可以视作M的一个类(class), 可以定义符号
+```Coq
+Notation "x ∈ₚ P" := (P x) (only parsing, at level 70).
+```
+传统教课书甚至直接 滥用符号(abuse of notation) 而不对∈与∈ₚ加于区分. 但必须澄清, **类P是处于M之外的, 对M中事物的一个收集(collection)**.
+
+类似地, 可以定义类的子集.
+```Coq
+Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → x ∈ₚ P) (at level 70) : zf_scope.
+```
+
+我们说P是M的封闭传递类, 当且仅当P满足
+```Coq
+Class 封闭传递类 : Prop := {
+  传递类 : ∀ x y, x ∈ y → y ∈ₚ P → x ∈ₚ P;
+  空集封闭 : ∅ ∈ₚ P;
+  并集封闭 : ∀ x, x ∈ₚ P → ⋃ x ∈ₚ P;
+  幂集封闭 : ∀ x, x ∈ₚ P → 幂 x ∈ₚ P;
+  替代封闭 : ∀ R A, 函数性 R → 
+    (∀ x y, R x y → x ∈ A → y ∈ₚ P) → A ∈ₚ P → R @ A ∈ₚ P
+}.
+```
+
+前4个条件都是自明的. 第5个, 对替代封闭是说, 对任意函数性R关系, 如果与A中的任意x满足R关系的y都在P中, 那么只要A在P中, R@A也在P中.
+
+## 子结构
+现在, 我们假设P是M的封闭传递类
+```Coq
+Hypothesis P为封闭传递类 : 封闭传递类.
+```
+
+我们的目标是**构造**出ZF结构的一个子结构, 其论域就是P. 为此, 我们首先要用P构造一个Σ类型 ℙ.
+```Coq
+Definition ℙ : Type := {x | P x}.
+```
+
+这样就可以用 ℙ 来实现 ZF结构 typeclass 中的"集".
+```Coq
+Definition 子结构 : ZF结构.
+  apply (Build_ZF结构) with (集 := ℙ).
+```
+
+接下来我们需要分别实现子结构中的如下常量, 函数和关系.
+![子结构目标](https://pic4.zhimg.com/80/v2-2fb545f0916bb52dfe02c58d9e9081f2.png)
+
+第一个是ℙ的"属"关系, 只需遵循从ℙ中解构出的集合的"属"关系即可.
+```Coq
+  - intros [x _] [y _]. apply (x ∈ y).
+```
+
+而ℙ中的"空"遵循M中的"空", 因为"空集封闭"说了M中的"空"也在P中.
+```Coq
+  - exists ∅. apply 空集封闭.
+```
+
+类似地, ℙ中的并集和幂集都直接遵循M中的即可.
+```Coq
+  - intros [x xP]. exists (⋃ x). now apply 并集封闭.
+  - intros [x xP]. exists (幂 x). now apply 幂集封闭.
+```
+
+唯一困难的是"替代"的实现. 我们首先要将ℙ上的关系R编码到M上.
+```Coq
+Definition 嵌入 (R : ℙ → ℙ → Prop) : M → M → Prop :=
+  λ x y, ∃ (xP : x ∈ₚ P) (yP : y ∈ₚ P), R (exist P x xP) (exist P y yP).
+```
+
+可以证明, 只要R是函数性的, 那么编码之后也是函数性的.
+```Coq
+Lemma 函数性嵌入 R : 函数性 R → 函数性 (嵌入 R).
+```
+
+接下来是关键性的一步. 我们将ℙ中 R@A 编码为M中的
+$$
+⌜R @ A⌝ := ⋃ \{x \in \{ ⌜R⌝ @ A \} | \mathcal{F}(R)\}
+$$
+其中 $⌜⌝$ 表示M中的编码, $\mathcal{F}$ 表示函数性.
+
+同样的内容用Coq代码表示为
+```Coq
+Definition 替代嵌入 R A := ⋃ ([嵌入 R @ A] ∩ₚ (λ _, 函数性 R)).
+```
+
+可以证明, 当R具有函数性时有 ⌜R@A⌝ = ⌜R⌝@A, 否则 ⌜R@A⌝ = ∅.
+```Coq
+Lemma 替代嵌入_函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
+Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
+```
+
+这样我们就可以完成子结构的构造. 只需将ℙ中 R@A 实现为 ⌜R@A⌝, 然后讨论R的函数性即可. 不论如何, 得到的都是M中的集合.
+```Coq
+  - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
+    + rewrite 替代嵌入_函数性; auto. apply 替代封闭; auto. (* 后略 *)
+    + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭.
+Defined.
+```
+
+## 内模型
+
+我们来证明上一节构造的ZF子结构确实是ZF模型, 我们称之为M的内模型.
+
+首先我们将ZF理论中所涉及的结构实现为上一节构造的子结构.
+```Coq
+Definition 内模型 : ZF.
+Proof.
+  apply (Build_ZF) with (结构 := 子结构).
+```
+
+接下来有6个子目标, 需要证明子结构满足6条ZF公理.
+![内模型目标](https://pic4.zhimg.com/80/v2-8ed435b1ec1aef672da3f3f06a9aa17e.png)
+
+形式地, 给定x : M和xP : x ∈ₚ P, 我们有 exist P x xP : ℙ.
+
+非形式地, 在下文(自然语言以及证明脚本)中, 我们约定小写字母x和y等始终用于类型为M的项, 而用大写字母X和Y等则始终表示对应的ℙ中的项. (注意该约定与上图不符, 不要混淆了)
+
+### 外延
+
+第1个子目标, 我们有 x ∈ₚ P, y ∈ₚ P, X ⊆ Y, Y ⊆ X, 要证 X = Y. 如果能证 x = y, 那么就可以用 **证明无关性(proof irrelevance)** 得到 X = Y.
+```Coq
+  - intros [x xP] [y yP] XY YX.
+    enough (x = y). subst y. erewrite subset_eq_compat; reflexivity.
+```
+
+为了证明 x = y, 用M中的外延公理, 我们只证对任意 z ∈ x 有 z ∈ y, 而另一个方向类似可证. 由P的传递性, 我们有 z ∈ₚ P, 于是可以构造 Z : ℙ 且有 Z ∈ X. 由 X ⊆ Y 可得Z ∈ Y. 由于ℙ中的∈遵循M中的∈, Z ∈ Y 就意味着 z ∈ y.
+```Coq
+    apply 外延.
+    + intros z zx. exact (XY (exist P z (传递类 zx xP)) zx).
+    + intros z zy. exact (YX (exist P z (传递类 zy yP)) zy).
+```
+
+### 空集
+
+第2个子目标, 空集公理的证明是最简单的. 假设存在X ∈ ∅, 这意味着x ∈ ∅, 不符合M中的空集公理, 所以对任意X, X ∉ ∅.
+```Coq
+  - intros [x xP] X0. eapply 空集. apply X0.
+```
+
+### 并集
+
+第3个子目标, 我们有 x ∈ₚ P, a ∈ₚ P, 要证 X ∈ ⋃A 当且仅当 存在Y满足 X ∈ Y ∈ A.
+```Coq
+  - intros [x xP] [a aP]. split; intros H.
+```
+
+左边到右边, 由 X ∈ ⋃A 可知(由于此处的⋃是遵循M的, 可直接用M的并集公理)存在y满足 x ∈ y ∈ a. 由P的传递性可知 y ∈ₚ P, 于是可以构造Y, 并由 x ∈ y ∈ a 得到 X ∈ Y ∈ A.
+```Coq
+    + apply (并集 x a) in H as [y [xy ya]]. now exists (exist P y (传递类 ya aP)).
+```
+
+右边到左边, 有Y满足 X ∈ Y ∈ A, 要证 X ∈ ⋃A. 只需证存在y满足 x ∈ y ∈ a. 解构Y即可得到这么一个y.
+```Coq
+    + apply (并集 x a). destruct H as [[y yP] XYA]. now exists y.
+```
+
+### 幂集
+
+第4个子目标, 我们有 x ∈ₚ P, a ∈ₚ P, 要证 X ∈ $\mathcal{P}$ A 当且仅当 X ⊆ A.
+```Coq
+  - intros [x xP] [a aP]. split; intros H.
+```
+
+左边到右边, 由 X ∈ $\mathcal{P}$ A 可知(由于此处的$\mathcal{P}$是遵循M的, 可直接用M的幂集公理)x ⊆ a. 要证对任意 Y ∈ X (即 y ∈ x) 有 Y ∈ A. 只需证 y ∈ a, 而这可由 y ∈ x 和 x ⊆ a 得到.
+```Coq
+    + apply (幂集 x a) in H. intros [y yP] YX. apply H, YX.
+```
+
+右边到左边, 有 X ⊆ A, 要证 X ∈ $\mathcal{P}$ A. 只需证 x ⊆ a. 对任意y ∈ x, 由P的传递性可知y ∈ₚ P, 于是可以构造Y满足Y ∈ X. 由 X ⊆ A 可得 Y ∈ A, 这就意味着 y ∈ a.
+```Coq
+    + apply (幂集 x a). intros y yx. exact (H (exist P y (传递类 yx xP)) yx).
+```
+
+### 替代
+
+第5个子目标, 我们有ℙ上的函数性R, 以及a ∈ₚ P, y ∈ₚ P, 要证 Y ∈ R@A 当且仅当 存在X ∈ A 满足 R X Y.
+```Coq
+  - intros R [a aP] Fun [y yP]. split; intros H.
+```
+
+左边到右边, 由 Y ∈ R@A 解码可知 y ∈ ⌜R⌝@a, 即存在x ∈ a ∈ₚ P 使得 R X Y.
+```Coq
+    + apply 并集 in H. rewrite 全分离 in H; auto.
+      apply 并集 in H. rewrite 并单 in H.
+      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 函数性嵌入.
+```
+这个X正是我们所需的见证 X ∈ A 和 R X Y 的X. 注意这里需要 **证明无关性(proof irrelevance)**.
+```Coq
+      exists (exist P x (传递类 xa aP)).
+      replace (传递类 xa aP) with xP. replace yP with yP'. now split.
+      apply proof_irrelevance. apply proof_irrelevance.
+```
+
+右边到左边, 我们有 X ∈ A 满足 R X Y, 要证 y ∈ ⌜R⌝@a, 即证 x ∈ a 且 ⌜R⌝ x y. 前者由 X ∈ A 立即得到. 后者由 x ∈ₚ P, y ∈ₚ P 且 R X Y 得到.
+```Coq
+    + apply 并集. rewrite 全分离; auto.
+      apply 并集. rewrite 并单. destruct H as [[x xP][XA RXY]].
+      apply 替代. now apply 函数性嵌入. exists x.
+      split. apply XA. exists xP, yP. apply RXY.
+```
+
+### 正则
+
+第6个子目标,我们有良基的x, 要证X良基, 即证对任意 Y ∈ X 有Y良基. 另外, 由关于良基的归纳原理有
+```Coq
+∀ Y, y ∈ x → 良基 Y
+```
+所以只需证 y ∈ x, 而这由 Y ∈ X 立即得到.
+
+```Coq
+  - intros [x xP]. induction (正则 x) as [x _ IH].
+    constructor. intros [y yP] Y. apply IH. apply Y.
+Defined.
+```
+
+## 总结
+我们证明了对ZF的任意模型M, 如果M上的类P是对ZF封闭的传递类, 那么P构成了M的一个内模型.
+
+## 参考
+[Formal Developments of Set Theory in Coq](https://www.ps.uni-saarland.de/settheory.html)  
+[Categoricity Results and Large Model Constructions for Second-Order ZF in Dependent Type Theory](https://www.ps.uni-saarland.de/Publications/documents/KirstSmolka_2018_Categoricity.pdf)  

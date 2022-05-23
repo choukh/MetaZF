@@ -5,7 +5,8 @@ Require Import Basic.
 (*** 模型的不可数性 ***)
 Section Uncountability.
 
-Context {𝓜} {满足ZF : ZF 𝓜}.
+(* 𝓜 ⊨ ZF *)
+Variable 𝓜 : ZF.
 
 Hypothesis ord : nat → 𝓜.
 Hypothesis ord_单射 : ∀ m n, ord m = ord n → m = n.
@@ -21,7 +22,7 @@ Theorem 𝓜不可数 : ¬ 可数模型 𝓜.
 Proof.
   intros [f f满射].
   (* A = {n ∈ ω | n ∉ f n} *)
-  set (ω ∩ (λ x, ∃ n, x = ord n ∧ ord n ∉ f n)) as A.
+  set (ω ∩ₚ (λ x, ∃ n, x = ord n ∧ ord n ∉ f n)) as A.
   pose proof (f满射 A) as [m fm].
   排中 (ord m ∈ A) as [mA|false].
   - apply 分离 in mA as H. destruct H as [_ [m' [eq false]]].

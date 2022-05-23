@@ -16,11 +16,11 @@ Ltac 反证 := match goal with
   |- ?G => destruct (classic G) as [?正设|?反设]; [assumption|exfalso]
 end.
 
-(** 集合模型的定义 **)
+(** ZF模型的定义 **)
 
 Class ZF结构 := {
   集 : Type;
-  成员关系 : 集 → 集 → Prop;
+  属 : 集 → 集 → Prop;
   空 : 集;
   并 : 集 → 集;
   幂 : 集 → 集;
@@ -33,22 +33,25 @@ Declare Scope zf_scope.
 Delimit Scope zf_scope with zf.
 Open Scope zf_scope.
 
-Notation "x ∈ y" := (  成员关系 x y) (at level 70) : zf_scope.
-Notation "x ∉ y" := (¬ 成员关系 x y) (at level 70) : zf_scope.
+Notation "x ∈ y" := (  属 x y) (at level 70) : zf_scope.
+Notation "x ∉ y" := (¬ 属 x y) (at level 70) : zf_scope.
 
 Notation "∀ x .. y ∈ A , P" :=
   (∀ x, x ∈ A → (.. (∀ y, y ∈ A → P) ..))
-  (at level 200, x binder, right associativity) : zf_scope.
+  (only parsing, at level 200, x binder, right associativity) : zf_scope.
 
 Notation "∃ x .. y ∈ A , P" :=
   (∃ x, x ∈ A ∧ (.. (∃ y, y ∈ A ∧ P) ..))
-  (at level 200, x binder, right associativity) : zf_scope.
+  (only parsing, at level 200, x binder, right associativity) : zf_scope.
 
 Implicit Types 𝓜 : ZF结构.
 
 Definition 包含关系 {𝓜} (A B : 𝓜) := ∀ x, x ∈ A → x ∈ B.
 Notation "A ⊆ B" := (  包含关系 A B) (at level 70) : zf_scope.
 Notation "A ⊈ B" := (¬ 包含关系 A B) (at level 70) : zf_scope.
+
+Definition 传递 {𝓜} x := ∀ y, y ∈ x → y ⊆ x.
+Definition 膨胀 {𝓜} x := ∀ y z, y ∈ x → z ⊆ y → z ∈ x.
 
 Notation "∅" := 空 : zf_scope.
 Notation "⋃ A" := (并 A) (at level 8, right associativity, format "⋃  A") : zf_scope.
@@ -59,10 +62,10 @@ Definition 函数性 {X Y} (R : X → Y → Prop) :=
   ∀ x y y', R x y → R x y' → y = y'.
 
 Inductive 良基 {𝓜} (A : 𝓜) : Prop :=
-  | WF : (∀ x ∈ A, 良基 x) → 良基 A.
+  | wf_intro : (∀ x ∈ A, 良基 x) → 良基 A.
 
-(** 𝓜 ⊨ ZF **)
-Class ZF 𝓜 : Prop := {
+Class ZF := {
+  结构 :> ZF结构;
   外延 : ∀ x y, x ⊆ y → y ⊆ x → x = y;
   空集 : ∀ x, x ∉ ∅;
   并集 : ∀ x A, x ∈ ⋃ A ↔ ∃ y, x ∈ y ∧ y ∈ A;
@@ -71,20 +74,17 @@ Class ZF 𝓜 : Prop := {
   正则 : ∀ x, 良基 x
 }.
 
-Arguments 正则 {_} {_} _.
+Coercion 结构 : ZF >-> ZF结构.
+Arguments 正则 {_} _.
 
 (** 关于类 **)
 
 Definition 集化 {𝓜} (P : 𝓜 → Prop) (A : 𝓜) := ∀ x, x ∈ A ↔ P x.
 
-Definition 传递 {𝓜} x := ∀ y, y ∈ x → y ⊆ x.
-
-Definition 膨胀 {𝓜} x := ∀ y z, y ∈ x → z ⊆ y → z ∈ x.
-
 Notation "x ∈ₚ P" := (P x) (only parsing, at level 70) : zf_scope.
-Notation "P ⊑ Q" := (∀ x, P x → Q x) (at level 70) : zf_scope.
-Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → P x) (at level 70) : zf_scope.
-Notation "P '⊆ₛ' A" := (∀ x, P x → x ∈ A) (at level 70) : zf_scope.
+Notation "P ⊑ Q" := (∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scope.
+Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → x ∈ₚ P) (at level 70) : zf_scope.
+Notation "P '⊆ₛ' A" := (∀ x, x ∈ₚ P → x ∈ A) (at level 70) : zf_scope.
 
 (** 自动化设置 **)
 

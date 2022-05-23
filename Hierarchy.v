@@ -5,7 +5,8 @@ Require Import Basic InnerModel.
 (*** 累积分层 ***)
 Section CumulativeHierarchy.
 
-Context {𝓜} {满足ZF : ZF 𝓜}.
+(* 𝓜 ⊨ ZF *)
+Variable 𝓜 : ZF.
 Implicit Type A B C X Y Z a b c x y z : 𝓜.
 Implicit Type P Q : 𝓜 → Prop.
 Implicit Type R : 𝓜 → 𝓜 → Prop.
@@ -37,7 +38,7 @@ Proof.
     apply 并集. exists b. split; auto.
 Qed.
 
-Lemma 分离_不升 x y P : x ∈ y → y ∈ₚ 层 → x ∩ P ∈ y.
+Lemma 分离_不升 x y P : x ∈ y → y ∈ₚ 层 → x ∩ₚ P ∈ y.
 Proof. intros xy yS. eapply 层膨胀; eauto. apply 分离为子集. Qed.
 
 Lemma 幂_升 x y : x ∈ y → y ∈ₚ 层 → 𝒫 x ∈ 𝒫 y.

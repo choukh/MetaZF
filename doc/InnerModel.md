@@ -187,7 +187,8 @@ Class 封闭传递类 : Prop := {
 }.
 ```
 
-前4个条件都是自明的. 第5个, 对替代封闭是说, 对任意函数性R关系, 如果与A中的任意x满足R关系的y都在P中, 那么只要A在P中, R@A也在P中.
+前4个条件都是自明的. 第5个, 对替代封闭是说, 对任意函数性R关系, 
+如果对A中的任意x, 与x满足R关系的任意y都在P中, 那么只要A在P中, R@A也在P中.
 
 ## 子结构
 现在, 我们假设P是M的封闭传递类
@@ -236,9 +237,9 @@ Definition 嵌入 (R : ℙ → ℙ → Prop) : M → M → Prop :=
 Lemma 函数性嵌入 R : 函数性 R → 函数性 (嵌入 R).
 ```
 
-接下来是关键性的一步. 我们将ℙ中 R@A 编码为M中的
+接下来是关键性的一步. 我们将ℙ中 R @ₚ A 编码为M中的
 $$
-⌜R @ A⌝ := ⋃ \{x \in \{ ⌜R⌝ @ A \} | \mathcal{F}(R)\}
+⌜R @ₚ A⌝ := ⋃ \{x \in \{ ⌜R⌝ @ A \} | \mathcal{F}(R)\}
 $$
 其中 $⌜⌝$ 表示M中的编码, $\mathcal{F}$ 表示函数性.
 
@@ -247,13 +248,14 @@ $$
 Definition 替代嵌入 R A := ⋃ ([嵌入 R @ A] ∩ₚ (λ _, 函数性 R)).
 ```
 
-可以证明, 当R具有函数性时有 ⌜R@A⌝ = ⌜R⌝@A, 否则 ⌜R@A⌝ = ∅.
+可以证明, 当R具有函数性时有 ⌜R @ₚ A⌝ = ⌜R⌝ @ A, 否则 ⌜R @ₚ A⌝ = ∅.
 ```Coq
 Lemma 替代嵌入_函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
 Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
 ```
 
-这样我们就可以完成子结构的构造. 只需将ℙ中 R@A 实现为 ⌜R@A⌝, 然后讨论R的函数性即可. 不论如何, 得到的都是M中的集合.
+这样我们就可以完成子结构的构造. 只需将ℙ中 R @ₚ A 实现为 ⌜R @ₚ A⌝, 然后讨论R的函数性即可.
+不论如何, 都可以由封闭性得到ℙ中的集合.
 ```Coq
   - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
     + rewrite 替代嵌入_函数性; auto. apply 替代封闭; auto. (* 后略 *)
@@ -337,12 +339,12 @@ Proof.
 
 ### 替代
 
-第5个子目标, 我们有ℙ上的函数性R, 以及a ∈ₚ P, y ∈ₚ P, 要证 Y ∈ R@A 当且仅当 存在X ∈ A 满足 R X Y.
+第5个子目标, 我们有ℙ上的函数性R, 以及a ∈ₚ P, y ∈ₚ P, 要证 Y ∈ R @ₚ A 当且仅当 存在X ∈ A 满足 R X Y.
 ```Coq
   - intros R [a aP] Fun [y yP]. split; intros H.
 ```
 
-左边到右边, 由 Y ∈ R@A 解码可知 y ∈ ⌜R⌝@a, 即存在x ∈ a ∈ₚ P 使得 R X Y.
+左边到右边, 由 Y ∈ R @ₚ A 解码可知 y ∈ ⌜R⌝ @ a, 即存在x ∈ a ∈ₚ P 使得 R X Y.
 ```Coq
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.
@@ -355,7 +357,8 @@ Proof.
       apply proof_irrelevance. apply proof_irrelevance.
 ```
 
-右边到左边, 我们有 X ∈ A 满足 R X Y, 要证 y ∈ ⌜R⌝@a, 即证 x ∈ a 且 ⌜R⌝ x y. 前者由 X ∈ A 立即得到. 后者由 x ∈ₚ P, y ∈ₚ P 且 R X Y 得到.
+右边到左边, 我们有 X ∈ A 满足 R X Y, 要证 y ∈ ⌜R⌝ @ a, 即证 x ∈ a 且 ⌜R⌝ x y.
+前者由 X ∈ A 立即得到. 后者由 x ∈ₚ P, y ∈ₚ P 且 R X Y 得到.
 ```Coq
     + apply 并集. rewrite 全分离; auto.
       apply 并集. rewrite 并单. destruct H as [[x xP][XA RXY]].

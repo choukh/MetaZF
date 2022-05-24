@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Basic InnerModel.
+Require Import Lite.Basic Lite.InnerModel.
 
 (*** 累积分层 ***)
 Section CumulativeHierarchy.
@@ -75,7 +75,32 @@ Proof.
   - intros x y [xy|pyx] [yx|pxy]; auto.
     + right. rewrite (外延 xy yx). zf.
     + right. now apply 幂单调.
-  - intros x y H.
-Admitted.
+  - intros x y H. 排中 (∃ z ∈ x, z ⊈ y) as [[z [zx zny]]|false].
+    + right. destruct (H z zx) as [zy|pzy]. easy.
+      enough (z ⊆ ⋃ x). zf. now apply 并得父集.
+    + left. apply 并得子集. intros z zx. 反证.
+      apply false. now exists z.
+Qed.
+
+Lemma 层_线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ⊆ x.
+Proof.
+  intros xS yS. destruct (层_线序_引理 xS yS); auto.
+  right. enough (y ⊆ 𝒫 y). zf. apply 层传递.
+  now constructor. now apply 幂集.
+Qed.
+
+Lemma 层_ϵ线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ∈ x.
+Proof.
+  intros xS yS. destruct (层_线序_引理 xS yS); auto.
+  right. apply H. now apply 幂集.
+Qed.
+
+Lemma 层_三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ∈ y ∨ x = y ∨ y ∈ x.
+Proof.
+  intros xS yS. destruct (层_ϵ线序 xS yS); auto.
+  destruct (层_ϵ线序 yS xS); auto. right. left. now apply 外延.
+Qed.
+
+
 
 End CumulativeHierarchy.

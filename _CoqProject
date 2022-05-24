@@ -1,7 +1,12 @@
 -R . ""
 
-Meta.v
-Basic.v
-Uncountability.v
-InnerModel.v
-Hierarchy.v
+Lite/Meta.v
+Lite/Basic.v
+Lite/Uncountability.v
+Lite/InnerModel.v
+Lite/Hierarchy.v
+
+Full/Meta.v
+Full/Relation.v
+Full/Structures.v
+Full/Universes.v

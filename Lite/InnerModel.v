@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Basic.
+Require Import Lite.Basic.
 
 (*** 内模型 ***)
 Section InnerModel.
@@ -23,7 +23,7 @@ Class 封闭传递类 : Prop := {
 Hypothesis P为封闭传递类 : 封闭传递类.
 
 (* 类的类型化 *)
-Definition ℙ : Type := {x | P x}.
+Definition ℙ : Type := {x | x ∈ₚ P}.
 
 (* 类P中关系R到𝓜的嵌入 *)
 Definition 嵌入 (R : ℙ → ℙ → Prop) : 𝓜 → 𝓜 → Prop :=
@@ -58,7 +58,8 @@ Definition 子结构 : ZF结构.
     + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭.
 Defined.
 
-Definition 内模型 : ZF.
+(* 内模型 ⊨ ZF *)
+Theorem 内模型 : ZF.
 Proof.
   apply (Build_ZF) with (结构 := 子结构).
   - intros [x xP] [y yP] XY YX.
@@ -86,6 +87,6 @@ Proof.
       split. apply XA. exists xP, yP. apply RXY.
   - intros [x xP]. induction (正则 x) as [x _ IH].
     constructor. intros [y yP] Y. apply IH. apply Y.
-Defined.
+Qed.
 
 End InnerModel.

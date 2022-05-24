@@ -198,7 +198,7 @@ Hypothesis P为封闭传递类 : 封闭传递类.
 
 我们的目标是**构造**出ZF结构的一个子结构, 其论域就是P. 为此, 我们首先要用P构造一个Σ类型 ℙ.
 ```Coq
-Definition ℙ : Type := {x | P x}.
+Definition ℙ : Type := {x | x ∈ₚ P}.
 ```
 
 这样就可以用 ℙ 来实现 ZF结构 typeclass 中的"集".
@@ -269,7 +269,8 @@ Defined.
 
 首先我们将ZF理论中所涉及的结构实现为上一节构造的子结构.
 ```Coq
-Definition 内模型 : ZF.
+(* 内模型 ⊨ ZF *)
+Theorem 内模型 : ZF.
 Proof.
   apply (Build_ZF) with (结构 := 子结构).
 ```
@@ -377,7 +378,7 @@ Proof.
 ```Coq
   - intros [x xP]. induction (正则 x) as [x _ IH].
     constructor. intros [y yP] Y. apply IH. apply Y.
-Defined.
+Qed.
 ```
 
 ## 总结

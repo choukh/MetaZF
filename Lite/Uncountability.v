@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Basic.
+Require Import Lite.Basic.
 
 (*** 模型的不可数性 ***)
 Section Uncountability.

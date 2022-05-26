@@ -10,6 +10,14 @@ Variable 𝓜 : ZF.
 Implicit Type A B C X Y Z a b c x y z : 𝓜.
 Implicit Type P : 𝓜 → Prop.
 
+(** 子集 **)
+
+Lemma 非子集 x y : x ⊈ y → ∃ z, z ∈ x ∧ z ∉ y.
+Proof.
+  intros ns. 反证. apply ns. intros z zx.
+  反证. apply 反设. now exists z.
+Qed.
+
 (** 空集 **)
 
 Lemma 空集是子集 x : ∅ ⊆ x.
@@ -23,7 +31,7 @@ Proof.
   - apply 空集是子集.
 Qed.
 
-Definition 非空 x := ∃ y, y ∈ x.
+Notation 非空 x := (∃ y, y ∈ x).
 
 Lemma 非非空 x : ¬ 非空 x ↔ x = ∅.
 Proof.
@@ -95,6 +103,13 @@ Proof.
   - apply 并集. exists x. split. apply H. now apply 单集.
 Qed.
 
+Lemma 并幂 x : ⋃ (𝒫 x) = x.
+Proof.
+  apply 并即上确界. split.
+  - now intros y yx%幂集.
+  - intros y ubd. now apply ubd, 幂集.
+Qed.
+
 Lemma 并传递 x : x ⊆ₚ 传递 → 传递 (⋃ x).
 Proof.
   intros tr a [b [ab bx]]%并集 y ya. apply 并集.
@@ -121,8 +136,8 @@ Lemma 分离 P A x : x ∈ A ∩ₚ P ↔ x ∈ A ∧ P x.
 Proof.
   intros. unfold 分. rewrite 替代.
   - split.
-    + intros [y [yA [Py <-]]]. auto.
-    + intros [xA Px]. eauto.
+    + intros [y [yA [yP <-]]]. auto.
+    + intros [xA xP]. eauto.
   - cbv. intuition congruence.
 Qed.
 
@@ -138,7 +153,30 @@ Qed.
 Lemma 未分离 P A : (∀ x, ¬ P x) → A ∩ₚ P = ∅.
 Proof.
   intros H. apply 空集唯一.
-  intros y [_ Py]%分离. apply (H y Py).
+  intros y [_ yP]%分离. apply (H y yP).
+Qed.
+
+(** 罗素集 **)
+
+Definition 罗素 x := x ∩ₚ (λ y, y ∉ y).
+
+Lemma 罗素集 x : 罗素 x ∉ x.
+Proof.
+  intros Rx. set (罗素 x ∈ 罗素 x) as RinR.
+  assert (H1 : RinR → ¬ RinR). {
+    unfold RinR. intros. apply 分离 in H. apply H.
+  }
+  assert (H2: ¬ ¬ RinR). {
+    unfold RinR. intros H. apply H. now apply 分离.
+  }
+  auto.
+Qed.
+
+Lemma 幂集在上 x : 𝒫 x ⊈ x.
+Proof.
+  intros false.
+  assert (罗素 x ∈ 𝒫 x). apply 幂集. apply 分离为子集.
+  apply false in H. eapply 罗素集; eauto.
 Qed.
 
 (** 替代 **)
@@ -152,8 +190,38 @@ Proof.
   cbv. congruence.
 Qed.
 
+(** 描述 **)
+
+Definition δ P := ⋃ ((λ x y, P y) @ [∅]).
+
+Lemma δ求值 P x : P x → uniqueness P → δ P = x.
+Proof.
+  intros xP uq. apply 并即上确界. split.
+  - intros y [z[zs yP]]%替代.
+    + now rewrite (uq x y xP yP).
+    + intros _. apply uq.
+  - intros y ubd. apply ubd. apply 替代.
+    + hnf. eauto.
+    + exists ∅. split; auto. apply 单集; auto.
+Qed.
+
+Lemma δ规范 P x : P x → uniqueness P → P (δ P).
+Proof. intros xP uq. now rewrite (δ求值 xP uq). Qed.
+
+(** 正则 **)
+
+Lemma 无循环1 x : x ∉ x.
+Proof. intros H. induction (正则 x) as [x _ IH]. eauto. Qed.
+
+Lemma 无循环2 x y : x ∈ y → y ∈ x → False.
+Proof. revert x. induction (正则 y) as [y _ IH]. eauto. Qed.
+
+Lemma 无循环3 x y z : x ∈ y → y ∈ z → z ∈ x → False.
+Proof. revert x y. induction (正则 z) as [z _ IH]. eauto. Qed.
+
 End Basic.
 
+Notation 非空 x := (∃ y, y ∈ x).
 Notation "[ a , b ]" := (偶 a b) : zf_scope.
 Notation "[ a ]" := (单 a) : zf_scope.
 Notation "F [ A ]" := (F替 F A) (at level 7, format "F [ A ]") : zf_scope.

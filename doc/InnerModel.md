@@ -6,7 +6,7 @@
 
 ## 前置知识
 - Coq: 学完[SF第1卷](https://coq-zh.github.io/SF-zh/lf-current/toc.html)
-- 集合论: 熟悉ZF公理, 了解 **类(class)** 和 **累积分层(cumulative hierarchy)** 等基本概念
+- 集合论: 熟悉ZF公理, 了解 **类(class)** 和 **累积层级(cumulative hierarchy)** 等基本概念
 - 了解一阶逻辑和模型论的基本概念
 
 ## 前言
@@ -108,7 +108,7 @@ Definition 函数性 {X Y} (R : X → Y → Prop) :=
   ∀ x y y', R x y → R x y' → y = y'.
 ```
 
-良基是归纳定义的集合谓词, 其唯一构造子要求, 要判定为良基的集合里的所有成员都先具有良基性.
+良基是归纳定义的集合谓词, 其唯一构造子要求, 要判定为良基的集合里的所有成员都先具有良基性. Coq根据这个归纳定义自动生成的归纳原理正是[∈-induction](https://en.wikipedia.org/wiki/Epsilon-induction).
 ```Coq
 Inductive 良基 {M : ZF结构} (A : M) : Prop :=
   | wf_intro : (∀ x ∈ A, 良基 x) → 良基 A.
@@ -369,7 +369,7 @@ Proof.
 
 ### 正则
 
-第6个子目标,我们有良基的x, 要证X良基, 即证对任意 Y ∈ X 有Y良基. 另外, 由关于良基的归纳原理有
+第6个子目标,我们有良基的x, 要证X良基, 即证对任意 Y ∈ X 有Y良基. 另外, 由[∈-induction](https://en.wikipedia.org/wiki/Epsilon-induction)有
 ```Coq
 ∀ Y, y ∈ x → 良基 Y
 ```

@@ -86,6 +86,14 @@ Notation "P ⊑ Q" := (∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scop
 Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → x ∈ₚ P) (at level 70) : zf_scope.
 Notation "P '⊆ₛ' A" := (∀ x, x ∈ₚ P → x ∈ A) (at level 70) : zf_scope.
 
+Notation "∀ x .. y ∈ₚ A , P" :=
+  (∀ x, x ∈ₚ A → (.. (∀ y, y ∈ₚ A → P) ..))
+  (only parsing, at level 200, x binder, right associativity) : zf_scope.
+
+Notation "∃ x .. y ∈ₚ A , P" :=
+  (∃ x, x ∈ₚ A ∧ (.. (∃ y, y ∈ₚ A ∧ P) ..))
+  (only parsing, at level 200, x binder, right associativity) : zf_scope.
+
 (** 自动化设置 **)
 
 Create HintDb zf discriminated.

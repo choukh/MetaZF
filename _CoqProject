@@ -2,9 +2,13 @@
 
 Lite/Meta.v
 Lite/Basic.v
-Lite/Uncountability.v
+Lite/Closure.v
+
 Lite/InnerModel.v
 Lite/Hierarchy.v
+Lite/Universe.v
+
+Lite/Uncountability.v
 
 Full/Meta.v
 Full/Relation.v

@@ -1,26 +1,17 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic.
+Require Import Lite.Basic Lite.Closure.
 
 (*** 内模型 ***)
 Section InnerModel.
 
 (* 𝓜 ⊨ ZF *)
-Variable 𝓜 : ZF.
+Context {𝓜 : ZF}.
 
 (* 𝓜上的类 *)
 Variable P : 𝓜 → Prop.
 
-Class 封闭传递类 : Prop := {
-  传递类 : ∀ x y, x ∈ y → y ∈ₚ P → x ∈ₚ P;
-  空集封闭 : ∅ ∈ₚ P;
-  并集封闭 : ∀ x, x ∈ₚ P → ⋃ x ∈ₚ P;
-  幂集封闭 : ∀ x, x ∈ₚ P → 𝒫 x ∈ₚ P;
-  替代封闭 : ∀ R A, 函数性 R → 
-    (∀ x y, R x y → x ∈ A → y ∈ₚ P) → A ∈ₚ P → R @ A ∈ₚ P
-}.
-
-Hypothesis P为封闭传递类 : 封闭传递类.
+Hypothesis P为封闭传递类 : 封闭传递类 P.
 
 (* 类的类型化 *)
 Definition ℙ : Type := {x | x ∈ₚ P}.
@@ -48,14 +39,14 @@ Proof. intros nFun. unfold 替代嵌入. now rewrite 未分离, 并空. Qed.
 Definition 子结构 : ZF结构.
   apply (Build_ZF结构) with (集 := ℙ).
   - intros [x _] [y _]. apply (x ∈ y).
-  - exists ∅. apply 空集封闭.
-  - intros [x xP]. exists (⋃ x). now apply 并集封闭.
-  - intros [x xP]. exists (𝒫 x). now apply 幂集封闭.
+  - exists ∅. apply 空集封闭类.
+  - intros [x xP]. exists (⋃ x). now apply 并集封闭类.
+  - intros [x xP]. exists (𝒫 x). now apply 幂集封闭类.
   - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
     + rewrite 替代嵌入_函数性; auto.
-      apply 替代封闭; auto. apply 函数性嵌入; auto.
+      apply 替代封闭类; auto. apply 函数性嵌入; auto.
       now intros x y [_ [yP _]] _.
-    + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭.
+    + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭类.
 Defined.
 
 (* 内模型 ⊨ ZF *)

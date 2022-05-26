@@ -118,8 +118,10 @@ Inductive 良基 {M : ZF结构} (A : M) : Prop :=
 
 给定一个ZF模型M
 ```Coq
-Variable M : ZF.
+Context {M : ZF}.
 ```
+
+([Context](https://coq.inria.fr/refman/language/core/sections.html#coq:cmd.Context)关键字与Variable类似, 只不过它在Section外是implicit的)
 
 我们约定 A a b x y 必然指代M中的对象, P必然指代M上的谓词.
 ```Coq
@@ -177,12 +179,12 @@ Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → x ∈ₚ P) (at level 70) : zf_sc
 
 我们说P是M的封闭传递类, 当且仅当P满足
 ```Coq
-Class 封闭传递类 : Prop := {
+Class 封闭传递类 P : Prop := {
   传递类 : ∀ x y, x ∈ y → y ∈ₚ P → x ∈ₚ P;
-  空集封闭 : ∅ ∈ₚ P;
-  并集封闭 : ∀ x, x ∈ₚ P → ⋃ x ∈ₚ P;
-  幂集封闭 : ∀ x, x ∈ₚ P → 幂 x ∈ₚ P;
-  替代封闭 : ∀ R A, 函数性 R → 
+  空集封闭类 : ∅ ∈ₚ P;
+  并集封闭类 : ∀ x, x ∈ₚ P → ⋃ x ∈ₚ P;
+  幂集封闭类 : ∀ x, x ∈ₚ P → 𝒫 x ∈ₚ P;
+  替代封闭类 : ∀ R A, 函数性 R → 
     (∀ x y, R x y → x ∈ A → y ∈ₚ P) → A ∈ₚ P → R @ A ∈ₚ P
 }.
 ```
@@ -193,7 +195,7 @@ Class 封闭传递类 : Prop := {
 ## 子结构
 现在, 我们假设P是M的封闭传递类
 ```Coq
-Hypothesis P为封闭传递类 : 封闭传递类.
+Hypothesis P为封闭传递类 : 封闭传递类 P.
 ```
 
 我们的目标是**构造**出ZF结构的一个子结构, 其论域就是P. 为此, 我们首先要用P构造一个Σ类型 ℙ.
@@ -215,15 +217,15 @@ Definition 子结构 : ZF结构.
   - intros [x _] [y _]. apply (x ∈ y).
 ```
 
-而ℙ中的"空"遵循M中的"空", 因为"空集封闭"说了M中的"空"也在P中.
+而ℙ中的"空"遵循M中的"空", 因为"空集封闭类"说了M中的"空"也在P中.
 ```Coq
-  - exists ∅. apply 空集封闭.
+  - exists ∅. apply 空集封闭类.
 ```
 
 类似地, ℙ中的并集和幂集都直接遵循M中的即可.
 ```Coq
-  - intros [x xP]. exists (⋃ x). now apply 并集封闭.
-  - intros [x xP]. exists (幂 x). now apply 幂集封闭.
+  - intros [x xP]. exists (⋃ x). now apply 并集封闭类.
+  - intros [x xP]. exists (幂 x). now apply 幂集封闭类.
 ```
 
 唯一困难的是"替代"的实现. 我们首先要将ℙ上的关系R编码到M上.
@@ -258,8 +260,8 @@ Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
 不论如何, 都可以由封闭性得到ℙ中的集合.
 ```Coq
   - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
-    + rewrite 替代嵌入_函数性; auto. apply 替代封闭; auto. (* 后略 *)
-    + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭.
+    + rewrite 替代嵌入_函数性; auto. apply 替代封闭类; auto. (* 后略 *)
+    + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭类.
 Defined.
 ```
 

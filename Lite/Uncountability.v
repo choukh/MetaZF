@@ -6,7 +6,7 @@ Require Import Lite.Basic.
 Section Uncountability.
 
 (* 𝓜 ⊨ ZF *)
-Variable 𝓜 : ZF.
+Context {𝓜 : ZF}.
 
 Hypothesis ord : nat → 𝓜.
 Hypothesis ord_单射 : ∀ m n, ord m = ord n → m = n.

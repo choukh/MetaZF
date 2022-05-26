@@ -1,0 +1,98 @@
+(** Coq coding by choukh, May 2022 **)
+
+Require Import Lite.Basic Lite.Closure Lite.Hierarchy.
+
+(*** 宇宙 ***)
+Section Universe.
+
+(* 𝓜 ⊨ ZF *)
+Context {𝓜 : ZF}.
+Implicit Type A a b x y z : 𝓜.
+Implicit Type P Q : 𝓜 → Prop.
+Implicit Type R : 𝓜 → 𝓜 → Prop.
+
+Definition 宇宙 u := ∃ P, 封闭传递类 P ∧ 集化 P u.
+
+Lemma 宇宙对空集封闭 : 宇宙 ⊑ 空集封闭.
+Proof. intros u [P [C S]]. apply S. apply C. Qed.
+
+Lemma 宇宙对并集封闭 : 宇宙 ⊑ 并集封闭.
+Proof. intros u [P [C S]] x xu. apply S in xu. apply S. now apply C. Qed.
+
+Lemma 宇宙对幂集封闭 : 宇宙 ⊑ 幂集封闭.
+Proof. intros u [P [C S]] x xu. apply S in xu. apply S. now apply C. Qed.
+
+Lemma 宇宙对替代封闭 : 宇宙 ⊑ 替代封闭.
+Proof.
+  intros u [P [C S]] R FR x H xu. apply S in xu. apply S.
+  apply C; auto. intros a b Rab ax. apply S. eapply H; eauto.
+Qed.
+
+Lemma 宇宙传递 : 宇宙 ⊑ 传递.
+Proof.
+  intros u [P [C S]] x xu y yx. apply S in xu.
+  apply S. eapply C; eauto.
+Qed.
+
+Lemma 宇宙膨胀 : 宇宙 ⊑ 膨胀.
+Proof.
+  intros u U x y xu yx. apply (宇宙传递 U) with (y := 𝒫 x).
+  - now apply 宇宙对幂集封闭.
+  - now apply 幂集.
+Qed.
+
+Remark 宇宙类化 u : 宇宙 u → 封闭传递类 (λ x, x ∈ u).
+Proof.
+  intros U. split.
+  - intros x y xy yu. eapply 宇宙传递; eauto.
+  - now apply 宇宙对空集封闭.
+  - now apply 宇宙对并集封闭.
+  - now apply 宇宙对幂集封闭.
+  - intros R A FR. now apply 宇宙对替代封闭.
+Qed.
+
+Lemma 宇宙对秩封闭 x u : 宇宙 u → x ∈ u → ρ x ∈ u.
+Proof.
+  intros U xu. induction (正则 x) as [x _ IH]. 
+  rewrite ρ等于ρ'. apply 宇宙对并集封闭; auto.
+  repeat apply 宇宙对替代封闭; auto; try congruence.
+  - intros a b <- [y [yx <-]]%函数式替代.
+    apply 宇宙对幂集封闭; auto.
+    apply IH; auto. eapply 宇宙传递; eauto.
+  - intros a b <- ax. apply IH; auto. eapply 宇宙传递; eauto.
+Qed.
+
+Lemma 宇宙是层的子类 : 宇宙 ⊑ 层.
+Proof.
+  intros u U. enough (⋃ (u ∩ₚ 层) = u) as <-.
+  { constructor. now intros x H%分离. }
+  apply 外延.
+  - intros x [y [xy [yu yS]%分离]]%并集. eapply 宇宙传递; eauto.
+  - intros x xu. apply 并集. exists (𝒫 (ρ x)). split.
+    + apply 幂集, ρ规范.
+    + apply 分离. split.
+      * now apply 宇宙对幂集封闭, 宇宙对秩封闭.
+      * constructor. apply ρ规范.
+Qed.
+
+Theorem 宇宙是对替代封闭的非空极限层 u : 宇宙 u ↔ (替代封闭 u ∧ 非空 u ∧ 极限层 u).
+Proof.
+  split; intros H.
+  - repeat split.
+    + now apply 宇宙对替代封闭.
+    + exists ∅. now apply 宇宙对空集封闭.
+    + now apply 宇宙是层的子类.
+    + intros x xu%宇宙对秩封闭; auto.
+      apply 并集. exists (𝒫 (ρ x)). split.
+      * apply 幂集, ρ规范.
+      * now apply 宇宙对幂集封闭.
+  - destruct H as [rc [ne [uS sub]]].
+    exists (λ x, x ∈ u). split. 2:easy. split.
+    + intros x y xy yu. eapply 层传递; eauto.
+    + now apply 非空层对空集封闭.
+    + now apply 极限层对并集封闭.
+    + now apply 极限层对幂集封闭.
+    + apply rc.
+Qed.
+
+End Universe.

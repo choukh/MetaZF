@@ -6,8 +6,8 @@ Require Export Lite.Meta.
 Section Basic.
 
 (* 𝓜 ⊨ ZF *)
-Variable 𝓜 : ZF.
-Implicit Type A B C X Y Z a b c x y z : 𝓜.
+Context {𝓜 : ZF}.
+Implicit Type A a b x y z : 𝓜.
 Implicit Type P : 𝓜 → Prop.
 
 (** 子集 **)

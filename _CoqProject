@@ -7,6 +7,7 @@ Lite/Closure.v
 Lite/InnerModel.v
 Lite/Hierarchy.v
 Lite/Universe.v
+Lite/Isomorphism.v
 
 Lite/Uncountability.v
 

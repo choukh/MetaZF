@@ -344,7 +344,7 @@ Proof.
 
 第5个子目标, 我们有ℙ上的函数性R, 以及a ∈ₚ P, y ∈ₚ P, 要证 Y ∈ R @ₚ A 当且仅当 存在X ∈ A 满足 R X Y.
 ```Coq
-  - intros R [a aP] Fun [y yP]. split; intros H.
+  - intros R [a aP] FR [y yP]. split; intros H.
 ```
 
 左边到右边, 由 Y ∈ R @ₚ A 解码可知 y ∈ ⌜R⌝ @ a, 即存在x ∈ a ∈ₚ P 使得 R X Y.

@@ -272,7 +272,7 @@ Defined.
 首先我们将ZF理论中所涉及的结构实现为上一节构造的子结构.
 ```Coq
 (* 内模型 ⊨ ZF *)
-Theorem 内模型 : ZF.
+Definition 内模型 : ZF.
 Proof.
   apply (Build_ZF) with (结构 := 子结构).
 ```
@@ -380,7 +380,7 @@ Proof.
 ```Coq
   - intros [x xP]. induction (正则 x) as [x _ IH].
     constructor. intros [y yP] Y. apply IH. apply Y.
-Qed.
+Defined.
 ```
 
 ## 总结

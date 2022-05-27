@@ -20,21 +20,32 @@ Definition ℙ : Type := {x | x ∈ₚ P}.
 Definition 嵌入 (R : ℙ → ℙ → Prop) : 𝓜 → 𝓜 → Prop :=
   λ x y, ∃ (xP : x ∈ₚ P) (yP : y ∈ₚ P), R (exist P x xP) (exist P y yP).
 
+(* 𝓜中关系R到类P的投影 *)
+Definition 投影 (R : 𝓜 → 𝓜 → Prop) : ℙ → ℙ → Prop :=
+  λ X Y : {x | P x}, R (proj1_sig X) (proj1_sig Y).
+
 Lemma 函数性嵌入 R : 函数性 R → 函数性 (嵌入 R).
 Proof.
-  intros Fun x y z [xP [yP RXY]] [xP'[Pz RXZ]].
-  eapply eq_sig_fst. eapply Fun. apply RXY.
+  intros FR x y z [xP [yP RXY]] [xP'[Pz RXZ]].
+  eapply eq_sig_fst. eapply FR. apply RXY.
   erewrite subset_eq_compat. apply RXZ. easy.
+Qed.
+
+Lemma 函数性投影 R : 函数性 R → 函数性 (投影 R).
+Proof.
+  intros FR [x xP] [y yP] [z zP] RXY RYZ.
+  unfold 投影 in *; simpl in *.
+  apply subset_eq_compat. eapply FR; eauto.
 Qed.
 
 (* ⋃ {x ∊ { ⌜R⌝ @ A } | 函数性 R} *)
 Definition 替代嵌入 R A := ⋃ ([嵌入 R @ A] ∩ₚ (λ _, 函数性 R)).
 
 Lemma 替代嵌入_函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
-Proof. intros Fun. unfold 替代嵌入. now rewrite 全分离, 并单. Qed.
+Proof. intros FR. unfold 替代嵌入. now rewrite 全分离, 并单. Qed.
 
 Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
-Proof. intros nFun. unfold 替代嵌入. now rewrite 未分离, 并空. Qed.
+Proof. intros nFR. unfold 替代嵌入. now rewrite 未分离, 并空. Qed.
 
 Definition 子结构 : ZF结构.
   apply (Build_ZF结构) with (集 := ℙ).
@@ -50,7 +61,7 @@ Definition 子结构 : ZF结构.
 Defined.
 
 (* 内模型 ⊨ ZF *)
-Theorem 内模型 : ZF.
+Definition 内模型 : ZF.
 Proof.
   apply (Build_ZF) with (结构 := 子结构).
   - intros [x xP] [y yP] XY YX.
@@ -65,7 +76,7 @@ Proof.
   - intros [x xP] [a aP]. split; intros H.
     + apply (幂集 x a) in H. intros [y yP] YX. apply H, YX.
     + apply (幂集 x a). intros y yx. exact (H (exist P y (传递类 yx xP)) yx).
-  - intros R [a aP] Fun [y yP]. split; intros H.
+  - intros R [a aP] FR [y yP]. split; intros H.
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.
       apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 函数性嵌入.
@@ -78,6 +89,6 @@ Proof.
       split. apply XA. exists xP, yP. apply RXY.
   - intros [x xP]. induction (正则 x) as [x _ IH].
     constructor. intros [y yP] Y. apply IH. apply Y.
-Qed.
+Defined.
 
 End InnerModel.

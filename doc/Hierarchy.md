@@ -78,16 +78,19 @@ Proof. induction 1. now apply 幂传递. now apply 并传递. Qed.
 
 其中, 并传递 和 幂传递 是以下引理.
 ```Coq
-Lemma 幂传递 x : x ∈ₚ 传递 → 传递 (幂 x).
-Lemma 并传递 x : x ⊆ₚ 传递 → 传递 (⋃ x).
+Lemma 幂传递 x : x ∈ₚ 传递 → 幂 x ∈ₚ 传递.
+Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
 ```
 
 ### 膨胀性
 我们知道传递集里有任意成员的任意成员. 类似地, 我们说一个集合是膨胀集, 当且仅当它里面有任意成员的任意子集.
+```Coq
+Definition 膨胀 {M : ZF结构} x := ∀ y z, y ∈ x → z ⊆ y → z ∈ x.
+```
 
 可以证明层是膨胀集. 
 ```Coq
-Definition 膨胀 {M} x := ∀ y z, y ∈ x → z ⊆ y → z ∈ x.
+Lemma 层膨胀 : 层 ⊑ 膨胀.
 ```
 
 由层的归纳法需证

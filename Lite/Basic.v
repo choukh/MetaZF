@@ -110,7 +110,7 @@ Proof.
   - intros y ubd. now apply ubd, 幂集.
 Qed.
 
-Lemma 并传递 x : x ⊆ₚ 传递 → 传递 (⋃ x).
+Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
 Proof.
   intros tr a [b [ab bx]]%并集 y ya. apply 并集.
   exists b. split; auto. eapply tr; eauto.
@@ -118,7 +118,7 @@ Qed.
 
 (** 幂集 **)
 
-Lemma 幂传递 x : x ∈ₚ 传递 → 传递 (𝒫 x).
+Lemma 幂传递 x : x ∈ₚ 传递 → 𝒫 x ∈ₚ 传递.
 Proof.
   intros tr y yp z zy.
   apply 幂集. apply 幂集 in yp. auto.

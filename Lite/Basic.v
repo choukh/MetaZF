@@ -192,7 +192,7 @@ Qed.
 
 (** 描述 **)
 
-Definition δ P := ⋃ ((λ x y, P y) @ [∅]).
+Definition δ P := ⋃ ((λ _ y, P y) @ [∅]).
 
 Lemma δ求值 P x : P x → uniqueness P → δ P = x.
 Proof.

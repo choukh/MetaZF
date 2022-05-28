@@ -1,0 +1,324 @@
+#! https://zhuanlan.zhihu.com/p/521339639
+# Coq集合模型论(2): 累积层级与集合的秩
+
+> [GitHub - choukh/MetaZF](https://github.com/choukh/MetaZF)  
+> Q群：893531731
+
+## 前置知识
+- [SF第1卷](https://coq-zh.github.io/SF-zh/lf-current/toc.html)
+- [Coq集合模型论(1): 从封闭传递类构造内模型](https://zhuanlan.zhihu.com/p/518762344)
+- 熟悉ZF公理, 了解 类(class) 和累积层级(cumulative hierarchy) 等基本概念
+
+## 累积层级
+
+我们知道, 累积层级是以序数为下标的一系列集合$V_α$所组成的类.
+$$
+V_0 := ∅ \\
+V_{β+1} := \mathcal{P}(V_β) \\
+V_λ := \bigcup_{β < λ} V_β
+$$
+
+其前几层可以直观展示如下
+![Image](https://pic4.zhimg.com/80/v2-e5a99921c52b26a0d5a633bedcaf92c8.png)
+
+一直到超限层, 粗略地, 如下图所示, 是一个不断向上扩张的层级结构
+![Image](https://pic4.zhimg.com/80/v2-6f1e87487ea5814d0f1484af94de331a.png)
+
+另外, 累积层级有以下性质
+$$
+x ∈ V_α → ∃ β, \mathcal{P}(x) ∈ V_β \\
+x ⊆ V_α → ∃ β, \cup x ∈ V_β
+$$
+稍微人话一点就是说
+- 如果x在累积层级, 那么x的幂也在累积层级
+- 如果x的成员都在累积层级, 那么x的并也在累积层级 
+
+实际上, 以上两条规则就完全刻画了累积层级, 以至于序数的概念在这里都是不必要的. 大多数情况下我们只需要层与层之间的相对关系, 而不需要访问特定的某一层.
+
+形式化地, 累积层级所组成的类定义为以下归纳谓词
+```Coq
+(* 层 = {V_α | α ∈ Ord} *)
+Inductive 层 : M → Prop :=
+  | 幂层 x : x ∈ₚ 层 → 幂 x ∈ₚ 层
+  | 并层 x : x ⊆ₚ 层 → ⋃ x ∈ₚ 层.
+```
+
+注意这里(代码中)的"层"指的是整个累积层级, 而不是里面的某一层. 但在下文(自然语言)中, 有时又会指某一层或任意一层, 读者需根据上下文自己区分, 结合代码其所指是明确的.
+
+我们来尝试证明累积层级的一些简单的性质, 体验归纳定义下的推理过程.
+
+### 空集层
+首先可以证明空集是层(实际上就是最底层V₀). 因为 ∅ ⊆ₚ 层 是空虚真(vacuously true), 由层的构造子有 ⋃∅ ∈ₚ 层, 所以 ∅ ∈ₚ 层.
+
+```Coq
+Lemma 空集层 : ∅ ∈ₚ 层.
+Proof. rewrite <- 并空. constructor. zf. Qed.
+```
+其中"并空"是如下引理. 对于这种简单的集合论事实, 我们都不会展开讲它们的证明. 想了解的读者可以直接看[本项目的Github仓库](https://github.com/choukh/MetaZF).
+```Coq
+Lemma 并空 : ⋃ ∅ = ∅.
+```
+
+### 传递性
+可以证明层是传递集. 我们知道传递集定义为
+```Coq
+Definition 传递 {M : ZF结构} x := ∀ y, y ∈ x → y ⊆ x.
+```
+
+我们定义子类的记法
+```Coq
+Notation "P ⊑ Q" := (∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scope.
+```
+
+那么"层是传递集"实际上表述为层之类(累积层级)是传递集之类的子类. 由层的归纳法, 只需证 x是传递集蕴含$\mathcal{P}$ x是传递集 且 x的成员都是传递集蕴含⋃x是传递集.
+```Coq
+Lemma 层传递 : 层 ⊑ 传递.
+Proof. induction 1. now apply 幂传递. now apply 并传递. Qed.
+```
+
+其中, 并传递 和 幂传递 是以下引理.
+```Coq
+Lemma 幂传递 x : x ∈ₚ 传递 → 传递 (幂 x).
+Lemma 并传递 x : x ⊆ₚ 传递 → 传递 (⋃ x).
+```
+
+### 膨胀性
+我们知道传递集里有任意成员的任意成员. 类似地, 我们说一个集合是膨胀集, 当且仅当它里面有任意成员的任意子集.
+
+可以证明层是膨胀集. 
+```Coq
+Definition 膨胀 {M} x := ∀ y z, y ∈ x → z ⊆ y → z ∈ x.
+```
+
+由层的归纳法需证
+
+- 对任意y, z有 y ∈ $\mathcal{P}$ x → z ⊆ y → z ∈ $\mathcal{P}$ x, 由子集的传递性立即得证.
+```Coq
+Proof.
+  induction 1 as [x _ _|x _ IH]; intros a b.
+  - intros ax%幂集 ba. apply 幂集. zf.
+```
+
+- 对任意y, z有 y ∈ ⋃ x → z ⊆ y → z ∈ ⋃ x. 由y ∈ ⋃ x, 存在a使得 y ∈ a ∈ x. 实际上, a就见证了z ∈ ⋃ x, 只需证 z ∈ a ∈ x. 后半部分已有, 只需证 z ∈ a. 由归纳假设(x的成员都是膨胀集), a是膨胀集, 所以a的成员y的子集z属于a.
+```Coq
+  - intros [a [ya ax]]%并集 zy. apply 并集.
+    exists a. split; auto. eapply IH; eauto.
+Qed.
+```
+
+### 线序
+
+按传统教科书, 需要先建立序数, 证明序数的线序, 由超限归纳法的复杂编码才能证明层的线序. 在这里, 我们可以直接证明层按⊆线序排列. 由于⊆已经是集合的偏序关系了, 我们只需证⊆对层是完全的(total): ∀ x y ∈ₚ 层, x ⊆ y ∨ y ⊆ x.
+
+首先我们将层对谓词的归纳法转换成对关系的归纳法, 这只需要嵌套induction策略即可得证.
+```Coq
+Lemma 层对关系的归纳法 R :
+  (∀ x y, R x y → R y x → R (幂 x) y) →
+  (∀ x y, (∀ z, z ∈ x → R z y) → R (⋃ x) y) →
+  ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → R x y.
+(* 证明略 *)
+```
+
+接着用层对关系的归纳法证明完全性的弱化版.
+```Coq
+Lemma 层_线序_引理 : ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ 幂 y ⊆ x.
+Proof.
+  apply 层对关系的归纳法.
+```
+需证以下两条
+- x ⊆ y ∨ $\mathcal{P}$ y ⊆ x → y ⊆ x ∨ $\mathcal{P}$ x ⊆ y → $\mathcal{P}$ x ⊆ y ∨ $\mathcal{P}$ y ⊆ $\mathcal{P}$ x. 稍微整理一下就会发现只需证以下两条
+  - x ⊆ y ⊆ x → $\mathcal{P}$ y ⊆ $\mathcal{P}$ x, 由外延公理立即得证.
+  - y ⊆ x → $\mathcal{P}$ y ⊆ $\mathcal{P}$ x, 由幂对子集关系的单调性得证.
+```Coq
+  - intros x y [xy|pyx] [yx|pxy]; auto.
+    + right. rewrite (外延 xy yx). zf.
+    + right. now apply 幂单调.
+```
+
+- (∀ z, z ∈ x → z ⊆ y ∨ $\mathcal{P}$ y ⊆ z) → ⋃ x ⊆ y ∨ $\mathcal{P}$ y ⊆ ⋃ x.
+  - 假设存在z ∈ x使得z ⊈ y, 那么$\mathcal{P}$ y ⊆ z. 由z ∈ x有z ⊆ ⋃ x, 用子集关系的传递性即得$\mathcal{P}$ y ⊆ ⋃ x.
+  - 若不存在这样的z, 即任意z ∈ x有z ⊆ y, 这就证明了⋃ x ⊆ y.
+```Coq
+  - intros x y H. 排中 (∃ z ∈ x, z ⊈ y) as [[z [zx zny]]|false].
+    + right. destruct (H z zx) as [zy|pzy]. easy.
+      enough (z ⊆ ⋃ x). zf. now apply 并得父集.
+    + left. apply 并得子集. intros z zx. 反证.
+      apply false. now exists z.
+Qed.
+```
+
+用这条引理就可以证明⊆对层的完全性. 只需证 $\mathcal{P}$ y ⊆ x → y ⊆ x. 由子集的传递性只需证y ⊆ $\mathcal{P}$ y. 由层的传递性只需证$\mathcal{P}$ y也是层且y ∈ $\mathcal{P}$ y, 显然成立.
+```Coq
+Lemma 层_线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ⊆ x.
+Proof.
+  intros xS yS. destruct (层_线序_引理 xS yS); auto.
+  right. enough (y ⊆ 幂 y). zf. apply 层传递.
+  now constructor. now apply 幂集.
+Qed.
+```
+
+由此可以立即得到 ∈构成了层的严格线序. 证明留作练习.
+```Coq
+Lemma 层_ϵ线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ∈ x.
+Lemma 层_ϵ三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ∈ y ∨ x = y ∨ y ∈ x.
+```
+
+### 良序
+有了层的线序, 只要证明层的良基性就证明了层的良序. 层的良基性是说, 累积层级的任意非空子类(层∧P)都有⊆最小层.
+
+我们说x是满足P的⊆最小元 当且仅当 x满足P且对任意满足P的y有x ⊆ y.
+```Coq
+Definition 最小 P x := x ∈ₚ P ∧ ∀ y, y ∈ₚ P → x ⊆ y.
+```
+
+于是层的良基性表述为对任意P, 如果 层∧P 非空, 那么 层∧P 有⊆最小元.
+```Coq
+Lemma 层_良基 x P : x ∈ₚ 层 → x ∈ₚ P → ex (最小 (λ y, y ∈ₚ 层 ∧ y ∈ₚ P)).
+```
+
+由∈-induction, 有归纳假设: 对x的任意成员y, 如果y见证了 层∧P 非空, 那么 层∧P 有⊆最小元. 假设存在这样的y, 那么证毕.
+```Coq
+  intros xS xP. induction (正则 x) as [x _ IH].
+  排中 (∃ y ∈ x, y ∈ₚ 层 ∧ y ∈ₚ P) as [[y [yx [yS yP]]]|].
+  - now apply (IH y).
+```
+
+若不存在, 我们说x就是 层∧P 的⊆最小元. 因为对任意y ∈ₚ 层∧P 有x ⊆ y. 若不然, 由层的ϵ线序有y ∈ x, 与假设矛盾.
+```Coq
+  - exists x. repeat split; auto. intros y [yS yP].
+    destruct (层_ϵ线序 xS yS). auto.
+    contradict H. now exists y.
+Qed.
+```
+
+## 基本部件(补充)
+我们补充集合论的两个基本部件: 描述算子δ和函数式替代F[A].
+
+### 描述算子δ
+对任意谓词P, δ P定义为⋃{λ x y, P y | x ∈ {∅}}. 也就是说, 我们将{∅}里的∅替换为满足P的y, 如果这样的y只有一个, 那么取并后就得到了y. 即, 对任意P, 如果存在唯一x满足P, 那么δP = x. δ算子允许我们将函数性的关系转化为实际的函数.
+
+```Coq
+Definition δ P := ⋃ ((λ _ y, P y) @ [∅]).
+Lemma δ求值 P x : P x → uniqueness P → δ P = x.
+Lemma δ规范 P x : P x → uniqueness P → P (δ P).
+```
+
+### 函数式替代
+函数式替代是说, 对任意F : M → M, 如果A是集合, 那么F在A上的像F[A]也是集合.
+```Coq
+Definition F替 F A := (λ x y, F x = y) @ A.
+Notation "F [ A ]" := (F替 F A) (at level 7, format "F [ A ]").
+```
+
+其性质可以从函数式替代公理得证.
+```Coq
+Lemma 函数式替代 F A y : y ∈ F[A] ↔ ∃ x ∈ A, F x = y.
+Proof.
+  unfold F替. rewrite 替代. reflexivity.
+  cbv. congruence.
+Qed.
+```
+
+### Remark
+我们不加证明地指出, 在类型论背景下的集合论形式化具有以下事实.
+> 关系式替代 ↔ δ算子 + 函数式替代
+
+## 秩
+在教科书中, 集合的秩(rank)定义为能容纳其所有成员的最低层的层号(序数). 在这里, 我们直接定义集合的秩就是能容纳其所有成员的最低层本身. 即, 我们说y是x的秩, 当且仅当x和y满足如下秩关系
+```Coq
+Definition 秩关系 x y := x ⊆ y ∧ x ∉ y ∧ y ∈ₚ 层.
+```
+
+由层的ϵ三歧性和层的膨胀性不难证明秩关系有函数性
+```Coq
+Lemma 秩关系有函数性 : 函数性 秩关系.
+Proof.
+  intros x a b [xsa [xa aS]] [xsb [xb bS]].
+  destruct (层_ϵ三歧 aS bS) as [|[]]; auto; exfalso.
+  - apply xb. eapply 层膨胀; eauto.
+  - apply xa. eapply 层膨胀; eauto.
+Qed.
+```
+
+于是可以用δ算子将秩关系转换为秩函数ρ.
+```Coq
+Definition ρ x := δ (秩关系 x).
+```
+
+直接证明x与ρ x满足秩关系是困难的, 我们先证 如果存在集合y见证x和y满足秩关系, 那么x与ρ x就满足秩关系, 这由δ规范和秩关系的函数性立即得证.
+```Coq
+Lemma ρ规范_引理 x y : 秩关系 x y → 秩关系 x (ρ x).
+Proof.
+  intros H. unfold ρ. eapply δ规范. apply H.
+  hnf. apply 秩关系有函数性.
+Qed.
+```
+
+接下来就只需构造这么一个y, 我们称之为ρ' x. 这里的技巧是, ρ'的构造可以用到ρ.
+```Coq
+Definition ρ' x := ⋃ (幂[ρ[x]]).
+```
+
+也就是说, 对x的所有成员分别取秩, 再分别取幂, 然后全部并起来, 得到的集合就是x的秩. ρ和ρ'整体构成了一个递归的定义, 也因此可以配合∈-induction证明它们性质.
+```Coq
+Lemma ρ'规范 x : 秩关系 x (ρ' x).
+Proof.
+  induction (正则 x) as [x _ IH]. repeat split.
+```
+
+我们有归纳假设: 对任意y ∈ x, y和ρ' y满足秩关系. 需要证3个子目标: x ⊆ ρ' x, x ∉ ρ' x 和 ρ' x ∈ₚ 层.
+
+- 第一个子目标: x ⊆ ρ' x. 即证对任意y ∈ x, y ∈ ρ' x. 解开ρ'定义最外层的⋃, 即证存在z使得 y ∈ z ∈ $\mathcal{P}$[ρ[x]]. 我们说 $\mathcal{P}$(ρ y) 就是这样的z.
+  - 对于y ∈ $\mathcal{P}$(ρ y), 由y ∈ x和归纳假设, y和ρ' y满足秩关系, 所以y和ρ y满足秩关系, 所以y ∈ $\mathcal{P}$(ρ y)
+  - 对于$\mathcal{P}$(ρ y) ∈ $\mathcal{P}$[ρ[x]], 由函数式替代, 只需证 ρ y ∈ ρ[x]. 再次由函数式替代, 只需证y ∈ x, 此即前提.
+```Coq
+  - intros y yx. apply 并集. exists (幂 (ρ y)). split.
+    + apply 幂集. eapply ρ规范_引理. apply IH. apply yx.
+    + apply 函数式替代. exists (ρ y). split; auto.
+      apply 函数式替代. now exists y.
+```
+
+- 第2个子目标: x ∉ ρ' x. 若不然, 存在y使得x ∈ y ∈ $\mathcal{P}$[ρ[x]], 即存在z使得x ∈ $\mathcal{P}$ z且z ∈ ρ[x], 即存在a使得x ∈ $\mathcal{P}$ (ρ a)且a ∈ x. 这意味着a ∈ ρ a. 另一方面, a ∈ x和归纳假设, a和(ρ' a)满足秩关系, 所以a和(ρ a)满足秩关系, 不可能有a ∈ ρ a.
+```Coq
+  - intros [y[xy yp]]%并集.
+    apply 函数式替代 in yp as [z [zρ <-]].
+    apply 函数式替代 in zρ as [a [ax <-]]. apply 幂集 in xy.
+    enough (秩关系 a (ρ a)). apply H, xy, ax.
+    eapply ρ规范_引理. now apply IH.
+```
+
+- 第3个子目标: ρ' x ∈ₚ 层. 由层的构造子, 只需证$\mathcal{P}$[ρ[x]] ⊆ₚ 层, 即证对任意z ∈ ρ[x]有$\mathcal{P}$ z ∈ₚ 层, 即证对任意a ∈ x有$\mathcal{P}$(ρ a) ∈ₚ 层. 再次由层的构造子, 只需证ρ a ∈ₚ 层. 这是对的, 因为由a ∈ x和归纳假设, a和(ρ' a)满足秩关系, 即a和ρ a满足秩关系.
+```Coq
+  - constructor. intros y [z [zρ <-]]%函数式替代.
+    apply 函数式替代 in zρ as [a [ax <-]].
+    constructor. eapply ρ规范_引理. now apply IH.
+Qed.
+```
+
+由ρ'规范可以立即证明ρ规范以及ρ与ρ'等价.
+```Coq
+Lemma ρ规范 x : 秩关系 x (ρ x).
+Proof. eapply ρ规范_引理. apply ρ'规范. Qed.
+
+Remark ρ等于ρ' x : ρ x = ρ' x.
+Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系有函数性. Qed.
+```
+
+我们说一个集合是可及的, 当且仅当存在一个层y来容纳它.
+```Coq
+Definition 可及 x := ∃ y, x ∈ y ∧ y ∈ₚ 层.
+```
+
+可以证明模型M中的所有集合都是可及的, 即累积层级结构遍历了所有集合, 任意集合都终将归于某一层.
+```Coq
+Theorem 全可及 x : 可及 x.
+```
+
+有了秩之后其证明相当简单. 对任意集合x, 其秩的幂就是容纳x的层. 用层的构造子和ρ规范即可得证.
+```Coq
+Proof.
+  exists (幂 (ρ x)). split.
+  - apply 幂集. apply ρ规范.
+  - constructor. apply ρ规范.
+Qed.
+```

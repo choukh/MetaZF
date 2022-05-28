@@ -11,7 +11,7 @@ Implicit Type A a b x y z : 𝓜.
 Implicit Type P Q : 𝓜 → Prop.
 Implicit Type R : 𝓜 → 𝓜 → Prop.
 
-(* 层 = {WF₀, WF₁, WF₂, ...} *)
+(* 层 = {V_α | α ∈ Ord} *)
 Inductive 层 : 𝓜 → Prop :=
   | 幂层 x : x ∈ₚ 层 → 𝒫 x ∈ₚ 层
   | 并层 x : x ⊆ₚ 层 → ⋃ x ∈ₚ 层.
@@ -24,10 +24,10 @@ Proof. induction 1. now apply 幂传递. now apply 并传递. Qed.
 
 Lemma 层膨胀 : 层 ⊑ 膨胀.
 Proof.
-  induction 1 as [x _ _|x _ IH]; intros a b.
-  - intros ax%幂集 ba. apply 幂集. zf.
-  - intros [c [ac cx]]%并集 ba. apply 并集.
-    exists c. split; auto. eapply IH; eauto.
+  induction 1 as [x _ _|x _ IH]; intros y z.
+  - intros yx%幂集 zy. apply 幂集. zf.
+  - intros [a [ya ax]]%并集 zy. apply 并集.
+    exists a. split; auto. eapply IH; eauto.
 Qed.
 
 Lemma 并_等秩 x y : x ∈ y → y ∈ₚ 层 → ⋃ x ∈ y.
@@ -56,7 +56,7 @@ Proof. intros ax bx. apply 幂集. intros c [ca|cb]%配对; now subst. Qed.
 
 (** 线序 **)
 
-Lemma 层递归原理 R :
+Lemma 层对关系的归纳法 R :
   (∀ x y, R x y → R y x → R (𝒫 x) y) →
   (∀ x y, (∀ z, z ∈ x → R z y) → R (⋃ x) y) →
   ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → R x y.
@@ -72,7 +72,7 @@ Qed.
 
 Lemma 层_线序_引理 : ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ 𝒫 y ⊆ x.
 Proof.
-  apply 层递归原理.
+  apply 层对关系的归纳法.
   - intros x y [xy|pyx] [yx|pxy]; auto.
     + right. rewrite (外延 xy yx). zf.
     + right. now apply 幂单调.
@@ -96,7 +96,7 @@ Proof.
   right. apply H. now apply 幂集.
 Qed.
 
-Lemma 层_三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ∈ y ∨ x = y ∨ y ∈ x.
+Lemma 层_ϵ三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ∈ y ∨ x = y ∨ y ∈ x.
 Proof.
   intros xS yS. destruct (层_ϵ线序 xS yS); auto.
   destruct (层_ϵ线序 yS xS); auto. right. left. now apply 外延.
@@ -123,7 +123,7 @@ Definition 秩关系 x y := x ⊆ y ∧ x ∉ y ∧ y ∈ₚ 层.
 Lemma 秩关系有函数性 : 函数性 秩关系.
 Proof.
   intros x a b [xsa [xa aS]] [xsb [xb bS]].
-  destruct (层_三歧 aS bS) as [|[]]; auto; exfalso.
+  destruct (层_ϵ三歧 aS bS) as [|[]]; auto; exfalso.
   - apply xb. eapply 层膨胀; eauto.
   - apply xa. eapply 层膨胀; eauto.
 Qed.
@@ -150,8 +150,8 @@ Proof.
     enough (秩关系 a (ρ a)). apply H, xy, ax.
     eapply ρ规范_引理. now apply IH.
   - constructor. intros y [z [zρ <-]]%函数式替代.
-    constructor. apply 函数式替代 in zρ as [a [ax <-]].
-    eapply ρ规范_引理. now apply IH.
+    apply 函数式替代 in zρ as [a [ax <-]].
+    constructor. eapply ρ规范_引理. now apply IH.
 Qed.
 
 Lemma ρ规范 x : 秩关系 x (ρ x).

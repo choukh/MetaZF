@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic Lite.Closure.
+Require Import Lite.Basic.
 
 (*** 累积层级 ***)
 Section CumulativeHierarchy.
@@ -25,8 +25,8 @@ Proof. induction 1. now apply 幂传递. now apply 并传递. Qed.
 Lemma 层膨胀 : 层 ⊑ 膨胀.
 Proof.
   induction 1 as [x _ _|x _ IH]; intros y z.
-  - intros yx%幂集 zy. apply 幂集. zf.
-  - intros [a [ya ax]]%并集 zy. apply 并集.
+  - intros zy yx%幂集. apply 幂集. zf.
+  - intros zy [a [ya ax]]%并集. apply 并集.
     exists a. split; auto. eapply IH; eauto.
 Qed.
 
@@ -120,12 +120,12 @@ Qed.
 
 Definition 秩关系 x y := x ⊆ y ∧ x ∉ y ∧ y ∈ₚ 层.
 
-Lemma 秩关系有函数性 : 函数性 秩关系.
+Lemma 秩关系_函数性 : 函数性 秩关系.
 Proof.
   intros x a b [xsa [xa aS]] [xsb [xb bS]].
   destruct (层_ϵ三歧 aS bS) as [|[]]; auto; exfalso.
-  - apply xb. eapply 层膨胀; eauto.
-  - apply xa. eapply 层膨胀; eauto.
+  - apply xb. apply 层膨胀 with a; auto.
+  - apply xa. apply 层膨胀 with b; auto.
 Qed.
 
 Definition ρ x := δ (秩关系 x).
@@ -134,7 +134,7 @@ Definition ρ' x := ⋃ (幂[ρ[x]]).
 Lemma ρ规范_引理 x y : 秩关系 x y → 秩关系 x (ρ x).
 Proof.
   intros H. unfold ρ. eapply δ规范. apply H.
-  hnf. apply 秩关系有函数性.
+  hnf. apply 秩关系_函数性.
 Qed.
 
 Lemma ρ'规范 x : 秩关系 x (ρ' x).
@@ -158,7 +158,7 @@ Lemma ρ规范 x : 秩关系 x (ρ x).
 Proof. eapply ρ规范_引理. apply ρ'规范. Qed.
 
 Remark ρ等于ρ' x : ρ x = ρ' x.
-Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系有函数性. Qed.
+Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系_函数性. Qed.
 
 Definition 可及 x := ∃ y, x ∈ y ∧ y ∈ₚ 层.
 

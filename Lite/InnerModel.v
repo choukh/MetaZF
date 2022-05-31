@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic Lite.Closure.
+Require Import Lite.Basic.
 
 (*** 内模型 ***)
 Section InnerModel.
@@ -11,7 +11,7 @@ Context {𝓜 : ZF}.
 (* 𝓜上的类 *)
 Variable P : 𝓜 → Prop.
 
-Hypothesis P为封闭传递类 : 封闭传递类 P.
+Hypothesis P为封闭类 : 封闭类 P.
 
 (* 类的类型化 *)
 Definition ℙ : Type := {x | x ∈ₚ P}.
@@ -24,7 +24,7 @@ Definition 嵌入 (R : ℙ → ℙ → Prop) : 𝓜 → 𝓜 → Prop :=
 Definition 投影 (R : 𝓜 → 𝓜 → Prop) : ℙ → ℙ → Prop :=
   λ X Y : {x | P x}, R (proj1_sig X) (proj1_sig Y).
 
-Lemma 函数性嵌入 R : 函数性 R → 函数性 (嵌入 R).
+Lemma 嵌入_函数性 R : 函数性 R → 函数性 (嵌入 R).
 Proof.
   intros FR x y z [xP [yP RXY]] [xP'[Pz RXZ]].
   eapply eq_sig_fst. eapply FR. apply RXY.
@@ -55,7 +55,7 @@ Definition 子结构 : ZF结构.
   - intros [x xP]. exists (𝒫 x). now apply 幂集封闭类.
   - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
     + rewrite 替代嵌入_函数性; auto.
-      apply 替代封闭类; auto. apply 函数性嵌入; auto.
+      apply 替代封闭类; auto. apply 嵌入_函数性; auto.
       now intros x y [_ [yP _]] _.
     + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭类.
 Defined.
@@ -67,25 +67,25 @@ Proof.
   - intros [x xP] [y yP] XY YX.
     enough (x = y). subst y. erewrite subset_eq_compat; reflexivity.
     apply 外延.
-    + intros z zx. exact (XY (exist P z (传递类 zx xP)) zx).
-    + intros z zy. exact (YX (exist P z (传递类 zy yP)) zy).
+    + intros z zx. exact (XY (exist P z (成员封闭类 zx xP)) zx).
+    + intros z zy. exact (YX (exist P z (成员封闭类 zy yP)) zy).
   - intros [x xP] X0. eapply 空集. apply X0.
   - intros [x xP] [a aP]. split; intros H.
-    + apply (并集 x a) in H as [y [xy ya]]. now exists (exist P y (传递类 ya aP)).
+    + apply (并集 x a) in H as [y [xy ya]]. now exists (exist P y (成员封闭类 ya aP)).
     + apply (并集 x a). destruct H as [[y yP] XYA]. now exists y.
   - intros [x xP] [a aP]. split; intros H.
     + apply (幂集 x a) in H. intros [y yP] YX. apply H, YX.
-    + apply (幂集 x a). intros y yx. exact (H (exist P y (传递类 yx xP)) yx).
+    + apply (幂集 x a). intros y yx. exact (H (exist P y (成员封闭类 yx xP)) yx).
   - intros R [a aP] FR [y yP]. split; intros H.
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.
-      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 函数性嵌入.
-      exists (exist P x (传递类 xa aP)).
-      replace (传递类 xa aP) with xP. replace yP with yP'. now split.
+      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入_函数性.
+      exists (exist P x (成员封闭类 xa aP)).
+      replace (成员封闭类 xa aP) with xP. replace yP with yP'. now split.
       apply proof_irrelevance. apply proof_irrelevance.
     + apply 并集. rewrite 全分离; auto.
       apply 并集. rewrite 并单. destruct H as [[x xP][XA RXY]].
-      apply 替代. now apply 函数性嵌入. exists x.
+      apply 替代. now apply 嵌入_函数性. exists x.
       split. apply XA. exists xP, yP. apply RXY.
   - intros [x xP]. induction (正则 x) as [x _ IH].
     constructor. intros [y yP] Y. apply IH. apply Y.

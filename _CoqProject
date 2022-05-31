@@ -2,7 +2,6 @@
 
 Lite/Meta.v
 Lite/Basic.v
-Lite/Closure.v
 
 Lite/InnerModel.v
 Lite/Hierarchy.v

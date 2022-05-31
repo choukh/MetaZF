@@ -219,6 +219,11 @@ Proof. revert x. induction (正则 y) as [y _ IH]. eauto. Qed.
 Lemma 无循环3 x y z : x ∈ y → y ∈ z → z ∈ x → False.
 Proof. revert x y. induction (正则 z) as [z _ IH]. eauto. Qed.
 
+(** 封闭性 **)
+
+Definition 配对封闭 x := ∀ a b ∈ x, [a, b] ∈ x.
+Definition 分离封闭 x := ∀ P, ∀ y ∈ x, y ∩ₚ P ∈ x.
+
 End Basic.
 
 Notation 非空 x := (∃ y, y ∈ x).

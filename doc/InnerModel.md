@@ -1,5 +1,5 @@
 #! https://zhuanlan.zhihu.com/p/518762344
-# Coq集合模型论(1): 从封闭传递类构造内模型
+# Coq集合模型论(1): 从封闭类构造内模型
 
 > [GitHub - choukh/MetaZF](https://github.com/choukh/MetaZF)  
 > Q群：893531731
@@ -160,7 +160,7 @@ Lemma 全分离 P A : (∀ x, P x) → A ∩ₚ P = A.
 Lemma 未分离 P A : (∀ x, ¬ P x) → A ∩ₚ P = ∅.
 ```
 
-## 封闭传递类
+## 封闭类
 现在, 给定M上的一个谓词P
 ```Coq
 Variable P : M → Prop.
@@ -177,14 +177,14 @@ Notation "x ∈ₚ P" := (P x) (only parsing, at level 70).
 Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → x ∈ₚ P) (at level 70) : zf_scope.
 ```
 
-我们说P是M的封闭传递类, 当且仅当P满足
+我们说P是M的封闭类, 当且仅当P满足
 ```Coq
-Class 封闭传递类 P : Prop := {
-  传递类 : ∀ x y, x ∈ y → y ∈ₚ P → x ∈ₚ P;
+Class 封闭类 P : Prop := {
+  成员封闭类 x y : y ∈ x → x ∈ₚ P → y ∈ₚ P;
   空集封闭类 : ∅ ∈ₚ P;
-  并集封闭类 : ∀ x, x ∈ₚ P → ⋃ x ∈ₚ P;
-  幂集封闭类 : ∀ x, x ∈ₚ P → 𝒫 x ∈ₚ P;
-  替代封闭类 : ∀ R A, 函数性 R → 
+  并集封闭类 x : x ∈ₚ P → ⋃ x ∈ₚ P;
+  幂集封闭类 x : x ∈ₚ P → 𝒫 x ∈ₚ P;
+  替代封闭类 R A : 函数性 R → 
     (∀ x y, R x y → x ∈ A → y ∈ₚ P) → A ∈ₚ P → R @ A ∈ₚ P
 }.
 ```
@@ -193,9 +193,9 @@ Class 封闭传递类 P : Prop := {
 如果对A中的任意x, 与x满足R关系的任意y都在P中, 那么只要A在P中, R@A也在P中.
 
 ## 子结构
-现在, 我们假设P是M的封闭传递类
+现在, 我们假设P是M的封闭类
 ```Coq
-Hypothesis P为封闭传递类 : 封闭传递类 P.
+Hypothesis P为封闭类 : 封闭类 P.
 ```
 
 我们的目标是**构造**出ZF结构的一个子结构, 其论域就是P. 为此, 我们首先要用P构造一个Σ类型 ℙ.
@@ -236,7 +236,7 @@ Definition 嵌入 (R : ℙ → ℙ → Prop) : M → M → Prop :=
 
 可以证明, 只要R是函数性的, 那么编码之后也是函数性的.
 ```Coq
-Lemma 函数性嵌入 R : 函数性 R → 函数性 (嵌入 R).
+Lemma 嵌入_函数性 R : 函数性 R → 函数性 (嵌入 R).
 ```
 
 接下来是关键性的一步. 我们将ℙ中 R @ₚ A 编码为M中的
@@ -295,8 +295,8 @@ Proof.
 为了证明 x = y, 用M中的外延公理, 我们只证对任意 z ∈ x 有 z ∈ y, 而另一个方向类似可证. 由P的传递性, 我们有 z ∈ₚ P, 于是可以构造 Z : ℙ 且有 Z ∈ X. 由 X ⊆ Y 可得Z ∈ Y. 由于ℙ中的∈遵循M中的∈, Z ∈ Y 就意味着 z ∈ y.
 ```Coq
     apply 外延.
-    + intros z zx. exact (XY (exist P z (传递类 zx xP)) zx).
-    + intros z zy. exact (YX (exist P z (传递类 zy yP)) zy).
+    + intros z zx. exact (XY (exist P z (成员封闭类 zx xP)) zx).
+    + intros z zy. exact (YX (exist P z (成员封闭类 zy yP)) zy).
 ```
 
 ### 空集
@@ -315,7 +315,7 @@ Proof.
 
 左边到右边, 由 X ∈ ⋃A 可知(由于此处的⋃是遵循M的, 可直接用M的并集公理)存在y满足 x ∈ y ∈ a. 由P的传递性可知 y ∈ₚ P, 于是可以构造Y, 并由 x ∈ y ∈ a 得到 X ∈ Y ∈ A.
 ```Coq
-    + apply (并集 x a) in H as [y [xy ya]]. now exists (exist P y (传递类 ya aP)).
+    + apply (并集 x a) in H as [y [xy ya]]. now exists (exist P y (成员封闭类 ya aP)).
 ```
 
 右边到左边, 有Y满足 X ∈ Y ∈ A, 要证 X ∈ ⋃A. 只需证存在y满足 x ∈ y ∈ a. 解构Y即可得到这么一个y.
@@ -337,7 +337,7 @@ Proof.
 
 右边到左边, 有 X ⊆ A, 要证 X ∈ $\mathcal{P}$ A. 只需证 x ⊆ a. 对任意y ∈ x, 由P的传递性可知y ∈ₚ P, 于是可以构造Y满足Y ∈ X. 由 X ⊆ A 可得 Y ∈ A, 这就意味着 y ∈ a.
 ```Coq
-    + apply (幂集 x a). intros y yx. exact (H (exist P y (传递类 yx xP)) yx).
+    + apply (幂集 x a). intros y yx. exact (H (exist P y (成员封闭类 yx xP)) yx).
 ```
 
 ### 替代
@@ -351,12 +351,12 @@ Proof.
 ```Coq
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.
-      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 函数性嵌入.
+      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入_函数性.
 ```
 这个X正是我们所需的见证 X ∈ A 和 R X Y 的X. 注意这里需要 **证明无关性(proof irrelevance)**.
 ```Coq
-      exists (exist P x (传递类 xa aP)).
-      replace (传递类 xa aP) with xP. replace yP with yP'. now split.
+      exists (exist P x (成员封闭类 xa aP)).
+      replace (成员封闭类 xa aP) with xP. replace yP with yP'. now split.
       apply proof_irrelevance. apply proof_irrelevance.
 ```
 
@@ -365,7 +365,7 @@ Proof.
 ```Coq
     + apply 并集. rewrite 全分离; auto.
       apply 并集. rewrite 并单. destruct H as [[x xP][XA RXY]].
-      apply 替代. now apply 函数性嵌入. exists x.
+      apply 替代. now apply 嵌入_函数性. exists x.
       split. apply XA. exists xP, yP. apply RXY.
 ```
 
@@ -384,7 +384,7 @@ Defined.
 ```
 
 ## 总结
-我们证明了对ZF的任意模型M, 如果M上的类P是对ZF封闭的传递类, 那么P构成了M的一个内模型.
+我们证明了对ZF的任意模型M, 如果M上的类P对ZF封闭, 那么P构成了M的一个内模型.
 
 ## 参考
 [Formal Developments of Set Theory in Coq](https://www.ps.uni-saarland.de/settheory.html)  

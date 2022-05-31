@@ -6,7 +6,7 @@
 
 ## 前置知识
 - [SF第1卷](https://coq-zh.github.io/SF-zh/lf-current/toc.html)
-- [Coq集合模型论(1): 从封闭传递类构造内模型](https://zhuanlan.zhihu.com/p/518762344)
+- [Coq集合模型论(1): 从封闭类构造内模型](https://zhuanlan.zhihu.com/p/518762344)
 - 熟悉ZF公理, 了解 类(class) 和累积层级(cumulative hierarchy) 等基本概念
 
 ## 累积层级
@@ -85,7 +85,7 @@ Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
 ### 膨胀性
 我们知道传递集里有任意成员的任意成员. 类似地, 我们说一个集合是膨胀集, 当且仅当它里面有任意成员的任意子集.
 ```Coq
-Definition 膨胀 {M : ZF结构} x := ∀ y z, y ∈ x → z ⊆ y → z ∈ x.
+Definition 膨胀 {M : ZF结构} x := ∀ y z, z ⊆ y → y ∈ x → z ∈ x.
 ```
 
 可以证明层是膨胀集. 
@@ -95,16 +95,16 @@ Lemma 层膨胀 : 层 ⊑ 膨胀.
 
 由层的归纳法需证
 
-- 对任意y, z有 y ∈ $\mathcal{P}$ x → z ⊆ y → z ∈ $\mathcal{P}$ x, 由子集的传递性立即得证.
+- 对任意y, z有 z ⊆ y → y ∈ $\mathcal{P}$ x → z ∈ $\mathcal{P}$ x, 由子集的传递性立即得证.
 ```Coq
 Proof.
-  induction 1 as [x _ _|x _ IH]; intros a b.
-  - intros ax%幂集 ba. apply 幂集. zf.
+  induction 1 as [x _ _|x _ IH]; intros y z.
+  - intros zy yx%幂集. apply 幂集. zf.
 ```
 
-- 对任意y, z有 y ∈ ⋃ x → z ⊆ y → z ∈ ⋃ x. 由y ∈ ⋃ x, 存在a使得 y ∈ a ∈ x. 实际上, a就见证了z ∈ ⋃ x, 只需证 z ∈ a ∈ x. 后半部分已有, 只需证 z ∈ a. 由归纳假设(x的成员都是膨胀集), a是膨胀集, 所以a的成员y的子集z属于a.
+- 对任意y, z有 z ⊆ y → y ∈ ⋃ x → z ∈ ⋃ x. 由y ∈ ⋃ x, 存在a使得 y ∈ a ∈ x. 实际上, a就见证了z ∈ ⋃ x, 只需证 z ∈ a ∈ x. 后半部分已有, 只需证 z ∈ a. 由归纳假设(x的成员都是膨胀集), a是膨胀集, 所以a的成员y的子集z属于a.
 ```Coq
-  - intros [a [ya ax]]%并集 zy. apply 并集.
+  - intros zy [a [ya ax]]%并集. apply 并集.
     exists a. split; auto. eapply IH; eauto.
 Qed.
 ```
@@ -234,12 +234,12 @@ Definition 秩关系 x y := x ⊆ y ∧ x ∉ y ∧ y ∈ₚ 层.
 
 由层的ϵ三歧性和层的膨胀性不难证明秩关系有函数性
 ```Coq
-Lemma 秩关系有函数性 : 函数性 秩关系.
+Lemma 秩关系_函数性 : 函数性 秩关系.
 Proof.
   intros x a b [xsa [xa aS]] [xsb [xb bS]].
   destruct (层_ϵ三歧 aS bS) as [|[]]; auto; exfalso.
-  - apply xb. eapply 层膨胀; eauto.
-  - apply xa. eapply 层膨胀; eauto.
+  - apply xb. apply 层膨胀 with a; auto.
+  - apply xa. apply 层膨胀 with b; auto.
 Qed.
 ```
 
@@ -253,7 +253,7 @@ Definition ρ x := δ (秩关系 x).
 Lemma ρ规范_引理 x y : 秩关系 x y → 秩关系 x (ρ x).
 Proof.
   intros H. unfold ρ. eapply δ规范. apply H.
-  hnf. apply 秩关系有函数性.
+  hnf. apply 秩关系_函数性.
 Qed.
 ```
 
@@ -304,7 +304,7 @@ Lemma ρ规范 x : 秩关系 x (ρ x).
 Proof. eapply ρ规范_引理. apply ρ'规范. Qed.
 
 Remark ρ等于ρ' x : ρ x = ρ' x.
-Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系有函数性. Qed.
+Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系_函数性. Qed.
 ```
 
 我们说一个集合是可及的, 当且仅当存在一个层y来容纳它.

@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic Lite.Closure Lite.Hierarchy.
+Require Import Lite.Basic Lite.Hierarchy.
 
 (*** 宇宙 ***)
 Section Universe.
@@ -11,7 +11,7 @@ Implicit Type A a b x y z : 𝓜.
 Implicit Type P Q : 𝓜 → Prop.
 Implicit Type R : 𝓜 → 𝓜 → Prop.
 
-Definition 宇宙 u := ∃ P, 封闭传递类 P ∧ 集化 P u.
+Definition 宇宙 u := ∃ P, 封闭类 P ∧ 集化 P u.
 
 Lemma 宇宙对空集封闭 : 宇宙 ⊑ 空集封闭.
 Proof. intros u [P [C S]]. apply S. apply C. Qed.
@@ -41,7 +41,7 @@ Proof.
   - now apply 幂集.
 Qed.
 
-Remark 宇宙类化 u : 宇宙 u → 封闭传递类 (λ x, x ∈ u).
+Remark 宇宙类化 u : 宇宙 u → 封闭类 (λ x, x ∈ u).
 Proof.
   intros U. split.
   - intros x y xy yu. eapply 宇宙传递; eauto.

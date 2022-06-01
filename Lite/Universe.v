@@ -30,13 +30,13 @@ Qed.
 
 Lemma 宇宙传递 : 宇宙 ⊑ 传递.
 Proof.
-  intros u [P [C S]] x y yx xu. apply S in xu.
+  intros u [P [C S]] x y xy yu. apply S in yu.
   apply S. eapply C; eauto.
 Qed.
 
 Lemma 宇宙膨胀 : 宇宙 ⊑ 膨胀.
 Proof.
-  intros u U x y xu yx. apply (宇宙传递 U) with (y := 𝒫 x).
+  intros u U x y xy yu. apply (宇宙传递 U) with (z := 𝒫 y).
   - now apply 幂集.
   - now apply 宇宙对幂集封闭.
 Qed.

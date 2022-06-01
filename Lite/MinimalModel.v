@@ -37,7 +37,7 @@ Proof.
       set (exist P a aP : 内模型 PC) as A.
       enough (R @ A ∈ U). apply H. apply 宇宙对替代封闭; auto.
       intros [x xP] [y yP] RXY XA. eapply rc. apply RXY. apply XA.
-    + rewrite 替代嵌入有函数性; auto.
+    + rewrite 替代嵌入_函数性; auto.
       apply 外延; intros y [x [xa rxy]]%替代; auto. 3: now apply 嵌入有函数性.
       * apply 替代. apply 嵌入有函数性; auto. exists x. split; auto.
         assert (aP: a ∈ₚ P). eapply 成员封闭类; eauto.

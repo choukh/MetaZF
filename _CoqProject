@@ -8,6 +8,7 @@ Lite/Hierarchy.v
 Lite/Universe.v
 Lite/Bisimilarity.v
 
+Lite/MinimalModel.v
 Lite/Uncountability.v
 
 Full/Meta.v

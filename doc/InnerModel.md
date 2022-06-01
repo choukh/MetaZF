@@ -232,35 +232,37 @@ Definition 子结构 : ZF结构.
 ```Coq
 Definition 嵌入 (R : ℙ → ℙ → Prop) : M → M → Prop :=
   λ x y, ∃ (xP : x ∈ₚ P) (yP : y ∈ₚ P), R (exist P x xP) (exist P y yP).
+Notation "⌜ R ⌝" := (嵌入 R) (format "⌜ R ⌝").
 ```
 
 可以证明, 只要R是函数性的, 那么编码之后也是函数性的.
 ```Coq
-Lemma 嵌入有函数性 R : 函数性 R → 函数性 (嵌入 R).
+Lemma 嵌入有函数性 R : 函数性 R → 函数性 (⌜R⌝).
 ```
 
-接下来是关键性的一步. 我们将ℙ中 R @ₚ A 编码为M中的
+接下来是关键性的一步. 我们将ℙ中 R ⌜@⌝ A 编码为M中的
 $$
-⌜R @ₚ A⌝ := ⋃ \{x \in \{ ⌜R⌝ @ A \} | \mathcal{F}(R)\}
+R ⌜ @ ⌝ A := ⋃ \{x \in \{ ⌜R⌝ @ A \} | \mathcal{F}(R)\}
 $$
-其中 $⌜⌝$ 表示M中的编码, $\mathcal{F}$ 表示函数性.
 
 同样的内容用Coq代码表示为
 ```Coq
-Definition 替代嵌入 R A := ⋃ ([嵌入 R @ A] ∩ₚ (λ _, 函数性 R)).
+(* ⋃ {x ∊ { ⌜R⌝ @ A } | 函数性 R} *)
+Definition 替代嵌入 R A := ⋃ ([⌜R⌝ @ A] ∩ₚ (λ _, 函数性 R)).
+Notation "R ⌜@⌝ A" := (替代嵌入 R A) (at level 70).
 ```
 
-可以证明, 当R具有函数性时有 ⌜R @ₚ A⌝ = ⌜R⌝ @ A, 否则 ⌜R @ₚ A⌝ = ∅.
+可以证明, 当R具有函数性时有 R ⌜@⌝ A = ⌜R⌝ @ A, 否则 R ⌜@⌝ A = ∅.
 ```Coq
-Lemma 替代嵌入有函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
-Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
+Lemma 替代嵌入_函数性 R A : 函数性 R → R ⌜@⌝ A = ⌜R⌝ @ A.
+Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → R ⌜@⌝ A = ∅.
 ```
 
-这样我们就可以完成子结构的构造. 只需将ℙ中 R @ₚ A 实现为 ⌜R @ₚ A⌝, 然后讨论R的函数性即可.
+这样我们就可以完成子结构的构造. 只需将ℙ中 R ⌜@⌝ A 实现为 R ⌜@⌝ A, 然后讨论R的函数性即可.
 不论如何, 都可以由封闭性得到ℙ中的集合.
 ```Coq
-  - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
-    + rewrite 替代嵌入有函数性; auto. apply 替代封闭类; auto. (* 后略 *)
+  - intros R [A AP]. exists (R ⌜@⌝ A). 排中 (函数性 R).
+    + rewrite 替代嵌入_函数性; auto. apply 替代封闭类; auto. (* 后略 *)
     + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭类.
 Defined.
 ```
@@ -342,12 +344,12 @@ Proof.
 
 ### 替代
 
-第5个子目标, 我们有ℙ上的函数性R, 以及a ∈ₚ P, y ∈ₚ P, 要证 Y ∈ R @ₚ A 当且仅当 存在X ∈ A 满足 R X Y.
+第5个子目标, 我们有ℙ上的函数性R, 以及a ∈ₚ P, y ∈ₚ P, 要证 Y ∈ R ⌜@⌝ A 当且仅当 存在X ∈ A 满足 R X Y.
 ```Coq
   - intros R [a aP] FR [y yP]. split; intros H.
 ```
 
-左边到右边, 由 Y ∈ R @ₚ A 解码可知 y ∈ ⌜R⌝ @ a, 即存在x ∈ a ∈ₚ P 使得 R X Y.
+左边到右边, 由 Y ∈ R ⌜@⌝ A 解码可知 y ∈ ⌜R⌝ @ a, 即存在x ∈ a ∈ₚ P 使得 R X Y.
 ```Coq
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.

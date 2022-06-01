@@ -21,16 +21,21 @@ Notation "x ≈ a" := (相似 x a) (at level 80) : zf_scope.
 Notation "x ▷ a" := (ϵ左完全 相似 x a) (at level 80) : zf_scope.
 Notation "x ◁ a" := (ϵ右完全 相似 x a) (at level 80) : zf_scope.
 
+Definition 定义域 {𝓜 𝓝 : ZF} (x : 𝓜) := ∃ a : 𝓝, x ≈ a.
+Definition 值域 {𝓜 𝓝 : ZF} (a : 𝓝) := ∃ x : 𝓜, x ≈ a.
+Notation 𝓓 := 定义域.
+Notation 𝓡 := 值域.
+
 (** 相似关系的对称性 **)
 Section Symmetry.
 Context {𝓜 𝓝 : ZF}.
 Implicit Type x y : 𝓜.
 Implicit Type a b : 𝓝.
 
-Lemma 左偏相似 x a : x ≈ a → x ▷ a.
+Lemma 左嵌入 x a : x ≈ a → x ▷ a.
 Proof. now intros []. Qed.
 
-Lemma 右偏相似 x a : x ≈ a → x ◁ a.
+Lemma 右嵌入 x a : x ≈ a → x ◁ a.
 Proof. now intros []. Qed.
 
 Lemma 相似对称 x a : x ≈ a → a ≈ x.
@@ -69,7 +74,10 @@ Proof.
   intros x x' y yx%相似对称 yx'%相似对称. eapply 相似有函数性; eauto.
 Qed.
 
-Lemma 偏相似对称 x a : x ▷ a ↔ a ◁ x.
+Lemma 相似完全性对称 : 左完全 (@相似 𝓜 𝓝) ↔ 右完全 (@相似 𝓝 𝓜).
+Proof. split; intros H x; destruct (H x) as [a ax%相似对称]; eauto. Qed.
+
+Lemma 嵌入对称 x a : x ▷ a ↔ a ◁ x.
 Proof.
   split.
   - intros l y yx. destruct (l y yx) as [b [ba yb]].
@@ -77,9 +85,6 @@ Proof.
   - intros r y yx. destruct (r y yx) as [b [ba yb]].
     exists b. split; auto. now apply 相似对称.
 Qed.
-
-Lemma 相似完全性对称 : 左完全 (@相似 𝓜 𝓝) ↔ 右完全 (@相似 𝓝 𝓜).
-Proof. split; intros H x; destruct (H x) as [a ax%相似对称]; eauto. Qed.
 
 End Symmetry_More.
 
@@ -96,10 +101,10 @@ Proof.
   now rewrite (相似有函数性 yb yc).
 Qed.
 
-Lemma 偏相似保空 : 𝓜.(结构).(空) ▷ 𝓝.(结构).(空).
+Lemma 嵌入保空 : 𝓜.(结构).(空) ▷ 𝓝.(结构).(空).
 Proof. intros x H. zf. Qed.
 
-Lemma 偏相似保并 x a : x ▷ a → ⋃ x ▷ ⋃ a.
+Lemma 嵌入保并 x a : x ▷ a → ⋃ x ▷ ⋃ a.
 Proof.
   intros H y [z [yz zx]]%并集.
   destruct (H z zx) as [b [ba [zb _]]].
@@ -107,7 +112,7 @@ Proof.
   exists c. split; auto. apply 并集. now exists b.
 Qed.
 
-Lemma 偏相似保幂 x a : x ▷ a → 𝒫 x ▷ 𝒫 a.
+Lemma 嵌入保幂 x a : x ▷ a → 𝒫 x ▷ 𝒫 a.
 Proof.
   intros xa y yx%幂集.
   set (a ∩ₚ (λ c, ∃ z ∈ y, z ≈ c)) as b.
@@ -117,13 +122,11 @@ Proof.
   - intros c cb. now apply 分离 in cb.
 Qed.
 
-Definition 定义域 x := ∃ a, x ≈ a.
-Definition 值域 a := ∃ x, x ≈ a.
-
-Definition 嵌入 (R : 𝓜 → 𝓜 → Prop) : 𝓝 → 𝓝 → Prop :=
+Definition 关系嵌入 (R : 𝓜 → 𝓜 → Prop) : 𝓝 → 𝓝 → Prop :=
   λ a b, ∃ x y, x ≈ a ∧ y ≈ b ∧ R x y.
+Notation "⌜ R ⌝" := (关系嵌入 R) (format "⌜ R ⌝").
 
-Lemma 嵌入有函数性 R : 函数性 R → 函数性 (嵌入 R).
+Lemma 关系嵌入有函数性 R : 函数性 R → 函数性 ⌜R⌝.
 Proof.
   intros FR a b c [x [y [xa [yb Rxy]]]] [x' [z [x'a [zc Rxz]]]].
   rewrite (相似单射性 x'a xa) in Rxz.
@@ -131,21 +134,19 @@ Proof.
   apply (相似有函数性 yb zc).
 Qed.
 
-Lemma 左偏相似保替代 R x a : 函数性 R →
-  R @ x ⊆ₚ 定义域 → x ▷ a → R @ x ▷ 嵌入 R @ a.
+Lemma 左嵌入保替代 R x a : 函数性 R → R @ x ⊆ₚ 𝓓 → x ▷ a → R @ x ▷ ⌜R⌝ @ a.
 Proof.
   intros FR dom xa y yR. destruct (dom y yR) as [b yb].
-  exists b. split; auto. apply 替代. now apply 嵌入有函数性.
+  exists b. split; auto. apply 替代. now apply 关系嵌入有函数性.
   apply 替代 in yR as [z [zx Rzy]]; auto.
   destruct (xa z zx) as [c [ca zc]].
   exists c. split; auto. now exists z, y.
 Qed.
 
-Fact 右偏相似保替代 R x a : 函数性 R →
-  R @ x ⊆ₚ 定义域 → x ◁ a → R @ x ◁ 嵌入 R @ a.
+Fact 右嵌入保替代 R x a : 函数性 R → R @ x ⊆ₚ 𝓓 → x ◁ a → R @ x ◁ ⌜R⌝ @ a.
 Proof.
   intros FR dom xa b br.
-  apply 替代 in br as [c [ca [z [y [zc [yb Rzy]]]]]]. 2: now apply 嵌入有函数性.
+  apply 替代 in br as [c [ca [z [y [zc [yb Rzy]]]]]]. 2: now apply 关系嵌入有函数性.
   exists y. split; auto. apply 替代; auto. exists z. split; auto.
   destruct (xa c ca) as [z' [z'x z'c]]. now rewrite (相似单射性 zc z'c).
 Qed.
@@ -156,6 +157,7 @@ Section StructurePreserving.
 Context {𝓜 𝓝 : ZF}.
 Implicit Type x y : 𝓜.
 Implicit Type a b : 𝓝.
+Notation "⌜ R ⌝" := (关系嵌入 R) (format "⌜ R ⌝").
 
 Lemma 相似保ϵ x y a b : x ≈ a → y ≈ b → (y ∈ x ↔ b ∈ a).
 Proof.
@@ -167,30 +169,29 @@ Qed.
 Lemma 相似保空 : 𝓜.(结构).(空) ≈ 𝓝.(结构).(空).
 Proof.
   split.
-  - apply 偏相似保空.
-  - now apply 偏相似对称, 偏相似保空.
+  - apply 嵌入保空.
+  - now apply 嵌入对称, 嵌入保空.
 Qed.
 
 Lemma 相似保并 x a : x ≈ a → ⋃ x ≈ ⋃ a.
 Proof.
   intros [xa ax]. split.
-  - now apply 偏相似保并.
-  - now apply 偏相似对称, 偏相似保并, 偏相似对称.
+  - now apply 嵌入保并.
+  - now apply 嵌入对称, 嵌入保并, 嵌入对称.
 Qed.
 
 Lemma 相似保幂 x a : x ≈ a → 𝒫 x ≈ 𝒫 a.
 Proof.
   intros [xa ax]. split.
-  - now apply 偏相似保幂.
-  - now apply 偏相似对称, 偏相似保幂, 偏相似对称.
+  - now apply 嵌入保幂.
+  - now apply 嵌入对称, 嵌入保幂, 嵌入对称.
 Qed.
 
-Lemma 相似保替代 R x a : 函数性 R →
-  R @ x ⊆ₚ 定义域 → x ≈ a → R @ x ≈ 嵌入 R @ a.
+Lemma 相似保替代 R x a : 函数性 R → R @ x ⊆ₚ 𝓓 → x ≈ a → R @ x ≈ ⌜R⌝ @ a.
 Proof.
   intros FR dom xa. split.
-  - now apply 左偏相似保替代, xa.
-  - now apply 右偏相似保替代, xa.
+  - now apply 左嵌入保替代, xa.
+  - now apply 右嵌入保替代, xa.
 Qed.
 
 Lemma 相似保层 x a : x ≈ a → x ∈ₚ 层 → a ∈ₚ 层.
@@ -198,14 +199,14 @@ Proof.
   intros xa xS. revert a xa.
   induction xS as [x xS IH|x xS IH].
   - intros b pxb. assert (xpx: x ∈ 𝒫 x). apply 幂集. zf.
-    destruct (左偏相似 pxb xpx) as [a [ab xa]].
+    destruct (左嵌入 pxb xpx) as [a [ab xa]].
     assert (bis: 𝒫 x ≈ 𝒫 a) by now apply 相似保幂.
     rewrite <- (相似有函数性 bis pxb). constructor. now apply IH.
   - intros b uxb. assert (xppux: x ∈ 𝒫 𝒫 ⋃ x) by apply 幂集, 幂并.
     assert (bis: 𝒫 𝒫 ⋃ x ≈ 𝒫 𝒫 b) by now apply 相似保幂, 相似保幂.
-    destruct (左偏相似 bis xppux) as [a [appb xa]]. apply 相似保并 in xa as uxua.
+    destruct (左嵌入 bis xppux) as [a [appb xa]]. apply 相似保并 in xa as uxua.
     rewrite <- (相似有函数性 uxua uxb). constructor. intros c ca. 
-    destruct (右偏相似 xa ca) as [y [yx yc]]. eapply IH; eauto.
+    destruct (右嵌入 xa ca) as [y [yx yc]]. eapply IH; eauto.
 Qed.
 
 End StructurePreserving.
@@ -215,41 +216,43 @@ Section Domain.
 Context {𝓜 𝓝 : ZF}.
 Implicit Type x y : 𝓜.
 Implicit Type a b : 𝓝.
-Notation 定义域 := (@定义域 𝓜 𝓝).
+Notation 𝓓 := (@𝓓 𝓜 𝓝).
 
-Lemma 在定义域 x a : x ≈ a → x ∈ₚ 定义域.
+Lemma 在定义域 x a : x ≈ a → x ∈ₚ 𝓓.
 Proof. intros H. now exists a. Qed.
 
+Lemma 定义域值域 x : x ∈ₚ 𝓓 ↔ x ∈ₚ @𝓡 𝓝 𝓜.
+Proof. split; intros [a xa]; exists a; now apply 相似对称. Qed.
+
 (* 对成员关系封闭 *)
-Lemma 定义域是传递类 : 传递类 定义域.
+Lemma 定义域是传递类 : 传递类 𝓓.
 Proof.
-  intros x y xD [a xa].
-  destruct (左偏相似 xa xD) as [b [_ yb]]. now exists b.
+  intros x y xy [a xa].
+  destruct (左嵌入 xa xy) as [b [_ yb]]. now exists b.
 Qed.
 
 (* 对子集关系封闭 *)
-Lemma 定义域是膨胀类 : 膨胀类 定义域.
+Lemma 定义域是膨胀类 : 膨胀类 𝓓.
 Proof.
-  intros x y yp%幂集 [a xa%相似保幂].
-  destruct (左偏相似 xa yp) as [b [_ J]]. now exists b.
+  intros x y xpy%幂集 [a xa%相似保幂].
+  destruct (左嵌入 xa xpy) as [b [_ J]]. now exists b.
 Qed.
 
-Lemma 定义域是空集封闭类 : ∅ ∈ₚ 定义域.
+Lemma 定义域是空集封闭类 : ∅ ∈ₚ 𝓓.
 Proof. exists ∅. apply 相似保空. Qed.
 
-Lemma 定义域是并集封闭类 x : x ∈ₚ 定义域 → ⋃ x ∈ₚ 定义域.
+Lemma 定义域是并集封闭类 x : x ∈ₚ 𝓓 → ⋃ x ∈ₚ 𝓓.
 Proof. intros [a H%相似保并]. now exists (⋃ a). Qed.
 
-Lemma 定义域是幂集封闭类 x : x ∈ₚ 定义域 → 𝒫 x ∈ₚ 定义域.
+Lemma 定义域是幂集封闭类 x : x ∈ₚ 𝓓 → 𝒫 x ∈ₚ 𝓓.
 Proof. intros [a H%相似保幂]. now exists (𝒫 a). Qed.
 
-Lemma 定义域是替代封闭类 R x : 函数性 R →
-  R @ x ⊆ₚ 定义域 → x ∈ₚ 定义域 → R @ x ∈ₚ 定义域.
+Lemma 定义域是替代封闭类 R x : 函数性 R → R @ x ⊆ₚ 𝓓 → x ∈ₚ 𝓓 → R @ x ∈ₚ 𝓓.
 Proof.
   intros FR dom [a H%(相似保替代 FR dom)]. eapply 在定义域, H.
 Qed.
 
-Lemma 定义域是封闭类 : 封闭类 定义域.
+Lemma 定义域是封闭类 : 封闭类 𝓓.
 Proof.
   split.
   - intros x y yx xD. eapply 定义域是传递类; eauto.
@@ -260,9 +263,9 @@ Proof.
     intros y [z [zx Rzy]]%替代; auto. eapply yD; eauto.
 Qed.
 
-Lemma 集化定义域是宇宙 : 集化 定义域 ⊑ 宇宙.
+Lemma 集化定义域是宇宙 : 集化 𝓓 ⊑ 宇宙.
 Proof.
-  intros u s. exists (λ x, x ∈ₚ 定义域). split; auto.
+  intros u s. exists (λ x, x ∈ₚ 𝓓). split; auto.
   apply 定义域是封闭类.
 Qed.
 
@@ -277,8 +280,8 @@ Implicit Type a b : 𝓝.
 Lemma 相似保传递 x a : x ≈ a → 传递 x → 传递 a.
 Proof.
   intros xa xT b c cb ba.
-  destruct (右偏相似 xa ba) as [y [yx yb]].
-  destruct (右偏相似 yb cb) as [z [zy zc]].
+  destruct (右嵌入 xa ba) as [y [yx yb]].
+  destruct (右嵌入 yb cb) as [z [zy zc]].
   eapply (@相似保ϵ 𝓜 𝓝); eauto.
 Qed.
 
@@ -287,21 +290,21 @@ Proof. intros xa xU. now apply (相似保ϵ xa 相似保空). Qed.
 
 Lemma 相似保并集封闭 x a : x ≈ a → 并集封闭 x → 并集封闭 a.
 Proof.
-  intros xa CL b ba. destruct (右偏相似 xa ba) as [y [yx yb]].
+  intros xa CL b ba. destruct (右嵌入 xa ba) as [y [yx yb]].
   apply 相似保并 in yb. now apply (相似保ϵ xa yb), CL.
 Qed.
 
 Lemma 相似保幂集封闭 x a : x ≈ a → 幂集封闭 x → 幂集封闭 a.
 Proof.
-  intros xa CL b ba. destruct (右偏相似 xa ba) as [y [yx yb]].
+  intros xa CL b ba. destruct (右嵌入 xa ba) as [y [yx yb]].
   apply 相似保幂 in yb. now apply (相似保ϵ xa yb), CL.
 Qed.
 
 Lemma 相似保替代封闭 x a : x ≈ a → 替代封闭 x → 替代封闭 a.
 Proof.
-  intros xa CL R b FR H ba. destruct (右偏相似 xa ba) as [y [yx yb]].
+  intros xa CL R b FR H ba. destruct (右嵌入 xa ba) as [y [yx yb]].
   apply 相似对称 in xa. apply 相似对称, (相似保替代 FR) in yb as bis.
-  - apply (相似保ϵ xa bis), CL; auto. now apply 嵌入有函数性.
+  - apply (相似保ϵ xa bis), CL; auto. now apply 关系嵌入有函数性.
     intros z z' [c [c' [cz [c'z' Rcc']]]] zy. apply (相似保ϵ xa c'z').
     apply (H c); auto. now apply (相似保ϵ yb cz).
   - intros c [d [db Rdc]]%替代; auto. apply 定义域是传递类 with a.
@@ -326,6 +329,19 @@ Context {𝓜 𝓝 : ZF}.
 Implicit Type x y : 𝓜.
 Implicit Type a b : 𝓝.
 
+Lemma Stage_btot x a : 最小 (λ x, x ∈ₚ 层 ∧ x ∉ₚ 𝓓) x →
+  a ∈ₚ 层 → a ∉ₚ 𝓡 → x ▷ a.
+Proof.
+Admitted.
 
+Lemma 相似关系对层的完全性 : 层 ⊑ (@𝓓 𝓜 𝓝) ∨ 层 ⊑ (@𝓓 𝓝 𝓜).
+Proof.
+  反证. apply not_or_and in 反设 as [H1 H2].
+  apply 非子类 in H1 as [x [xS ndx]].
+  apply 非子类 in H2 as [a [aS nda]].
+  (* destruct (Stage_least (p:=fun x => ~ (@domain M N) x) X1 X2) as [y HY].
+  destruct (Stage_least (p:=fun a => ~ (@domain N M) a) A1 A2) as [b HB].
+  apply HY. exists b. now apply Stage_Iso. *)
+Admitted.
 
 End Hierarchy.

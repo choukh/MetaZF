@@ -19,12 +19,13 @@ Definition ℙ : Type := {x | x ∈ₚ P}.
 (* 类P中关系R到𝓜的嵌入 *)
 Definition 嵌入 (R : ℙ → ℙ → Prop) : 𝓜 → 𝓜 → Prop :=
   λ x y, ∃ (xP : x ∈ₚ P) (yP : y ∈ₚ P), R (exist P x xP) (exist P y yP).
+Notation "⌜ R ⌝" := (嵌入 R) (format "⌜ R ⌝").
 
 (* 𝓜中关系R到类P的投影 *)
 Definition 投影 (R : 𝓜 → 𝓜 → Prop) : ℙ → ℙ → Prop :=
   λ X Y : {x | P x}, R (proj1_sig X) (proj1_sig Y).
 
-Lemma 嵌入有函数性 R : 函数性 R → 函数性 (嵌入 R).
+Lemma 嵌入有函数性 R : 函数性 R → 函数性 ⌜R⌝.
 Proof.
   intros FR x y z [xP [yP RXY]] [xP'[Pz RXZ]].
   eapply eq_sig_fst. eapply FR. apply RXY.
@@ -39,12 +40,13 @@ Proof.
 Qed.
 
 (* ⋃ {x ∊ { ⌜R⌝ @ A } | 函数性 R} *)
-Definition 替代嵌入 R A := ⋃ ([嵌入 R @ A] ∩ₚ (λ _, 函数性 R)).
+Definition 替代嵌入 R A := ⋃ ([⌜R⌝ @ A] ∩ₚ (λ _, 函数性 R)).
+Notation "R ⌜@⌝ A" := (替代嵌入 R A) (at level 70).
 
-Lemma 替代嵌入有函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
+Lemma 替代嵌入_函数性 R A : 函数性 R → R ⌜@⌝ A = ⌜R⌝ @ A.
 Proof. intros FR. unfold 替代嵌入. now rewrite 全分离, 并单. Qed.
 
-Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
+Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → R ⌜@⌝ A = ∅.
 Proof. intros nFR. unfold 替代嵌入. now rewrite 未分离, 并空. Qed.
 
 Definition 子结构 : ZF结构.
@@ -53,8 +55,8 @@ Definition 子结构 : ZF结构.
   - exists ∅. apply 空集封闭类.
   - intros [x xP]. exists (⋃ x). now apply 并集封闭类.
   - intros [x xP]. exists (𝒫 x). now apply 幂集封闭类.
-  - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
-    + rewrite 替代嵌入有函数性; auto.
+  - intros R [A AP]. exists (R ⌜@⌝ A). 排中 (函数性 R).
+    + rewrite 替代嵌入_函数性; auto.
       apply 替代封闭类; auto. apply 嵌入有函数性; auto.
       now intros x y [_ [yP _]] _.
     + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭类.
@@ -92,3 +94,5 @@ Proof.
 Defined.
 
 End InnerModel.
+
+Notation "R ⌜@⌝ A" := (替代嵌入 R A) (at level 70) : zf_scope.

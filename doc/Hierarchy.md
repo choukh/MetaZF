@@ -62,7 +62,7 @@ Lemma 并空 : ⋃ ∅ = ∅.
 ### 传递性
 可以证明层是传递集. 我们知道传递集定义为
 ```Coq
-Definition 传递 x := ∀ y z, z ∈ y → y ∈ x → z ∈ x.
+Definition 传递 x := ∀ y z, y ∈ z → z ∈ x → y ∈ x.
 ```
 
 我们定义子类的记法
@@ -85,7 +85,7 @@ Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
 ### 膨胀性
 我们知道传递集里有任意成员的任意成员. 类似地, 我们说一个集合是膨胀集, 当且仅当它里面有任意成员的任意子集.
 ```Coq
-Definition 膨胀 x := ∀ y z, z ⊆ y → y ∈ x → z ∈ x.
+Definition 膨胀 x := ∀ y z, y ⊆ z → z ∈ x → y ∈ x.
 ```
 
 可以证明层是膨胀集. 
@@ -95,16 +95,17 @@ Lemma 层膨胀 : 层 ⊑ 膨胀.
 
 由层的归纳法需证
 
-- 对任意y, z有 z ⊆ y → y ∈ $\mathcal{P}$ x → z ∈ $\mathcal{P}$ x, 由子集的传递性立即得证.
+- 对任意y, z有 y ⊆ z → z ∈ $\mathcal{P}$ x → y ∈ $\mathcal{P}$ x, 由子集的传递性立即得证.
 ```Coq
 Proof.
   induction 1 as [x _ _|x _ IH]; intros y z.
-  - intros zy yx%幂集. apply 幂集. zf.
+  - intros yz zx%幂集. apply 幂集. zf.
+Qed.
 ```
 
-- 对任意y, z有 z ⊆ y → y ∈ ⋃ x → z ∈ ⋃ x. 由y ∈ ⋃ x, 存在a使得 y ∈ a ∈ x. 实际上, a就见证了z ∈ ⋃ x, 只需证 z ∈ a ∈ x. 后半部分已有, 只需证 z ∈ a. 由归纳假设(x的成员都是膨胀集), a是膨胀集, 所以a的成员y的子集z属于a.
+- 对任意y, z有 y ⊆ z → z ∈ ⋃ x → y ∈ ⋃ x. 由z ∈ ⋃ x, 存在a使得 z ∈ a ∈ x. 实际上, a就见证了y ∈ ⋃ x, 只需证 y ∈ a ∈ x. 后半部分已有, 只需证 y ∈ a. 由归纳假设(x的成员都是膨胀集), a是膨胀集, 所以a的成员z的子集y属于a.
 ```Coq
-  - intros zy [a [ya ax]]%并集. apply 并集.
+  - intros yz [a [za ax]]%并集. apply 并集.
     exists a. split; auto. eapply IH; eauto.
 Qed.
 ```
@@ -118,13 +119,13 @@ Qed.
 Lemma 层对关系的归纳法 R :
   (∀ x y, R x y → R y x → R (幂 x) y) →
   (∀ x y, (∀ z, z ∈ x → R z y) → R (⋃ x) y) →
-  ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → R x y.
+  ∀ x y ∈ₚ 层, R x y.
 (* 证明略 *)
 ```
 
 接着用层对关系的归纳法证明完全性的弱化版.
 ```Coq
-Lemma 层线序_引理 : ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ 幂 y ⊆ x.
+Lemma 层线序_引理 : ∀ x y ∈ₚ 层, x ⊆ y ∨ 幂 y ⊆ x.
 Proof.
   apply 层对关系的归纳法.
 ```
@@ -171,7 +172,7 @@ Lemma 层ϵ三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ∈ y ∨ x = y ∨ 
 
 我们说x是满足P的⊆最小元 当且仅当 x满足P且对任意满足P的y有x ⊆ y.
 ```Coq
-Definition 最小 P x := x ∈ₚ P ∧ ∀ y, y ∈ₚ P → x ⊆ y.
+Definition 最小 P x := x ∈ₚ P ∧ ∀ y ∈ₚ P, x ⊆ y.
 ```
 
 于是层的良基性表述为对任意P, 如果 层∧P 非空, 那么 层∧P 有⊆最小元.

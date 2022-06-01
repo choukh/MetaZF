@@ -8,9 +8,15 @@ Section Basic.
 (* 𝓜 ⊨ ZF *)
 Context {𝓜 : ZF}.
 Implicit Type A a b x y z : 𝓜.
-Implicit Type P : 𝓜 → Prop.
+Implicit Type P Q : 𝓜 → Prop.
 
 (** 子集 **)
+
+Lemma 非子类 P Q : P ⋢ Q → ∃ x ∈ₚ P, x ∉ₚ Q.
+Proof.
+  intros ns. 反证. apply ns. intros z zx.
+  反证. apply 反设. now exists z.
+Qed.
 
 Lemma 非子集 x y : x ⊈ y → ∃ z, z ∈ x ∧ z ∉ y.
 Proof.

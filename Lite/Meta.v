@@ -86,7 +86,9 @@ Arguments 正则 {_} _.
 (** 涉及类的记法 **)
 
 Notation "x ∈ₚ P" := (P x) (only parsing, at level 70) : zf_scope.
+Notation "x ∉ₚ P" := (¬ P x) (only parsing, at level 70) : zf_scope.
 Notation "P ⊑ Q" := (∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scope.
+Notation "P ⋢ Q" := (¬ ∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scope.
 Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → x ∈ₚ P) (at level 70) : zf_scope.
 Notation "P '⊆ₛ' A" := (∀ x, x ∈ₚ P → x ∈ A) (at level 70) : zf_scope.
 
@@ -107,18 +109,18 @@ Implicit Type P : 𝓜 → Prop.
 Definition 集化 P A := ∀ x, x ∈ A ↔ P x.
 Definition 可集化 P := ∃ A, 集化 P A.
 
-Definition 传递 x := ∀ y z, z ∈ y → y ∈ x → z ∈ x.
-Definition 膨胀 x := ∀ y z, z ⊆ y → y ∈ x → z ∈ x.
+Definition 传递 x := ∀ y z, y ∈ z → z ∈ x → y ∈ x.
+Definition 膨胀 x := ∀ y z, y ⊆ z → z ∈ x → y ∈ x.
 
-Definition 传递类 P := ∀ x y, y ∈ x → x ∈ₚ P → y ∈ₚ P.
-Definition 膨胀类 P := ∀ x y, y ⊆ x → x ∈ₚ P → y ∈ₚ P.
+Definition 传递类 P := ∀ x y, x ∈ y → y ∈ₚ P → x ∈ₚ P.
+Definition 膨胀类 P := ∀ x y, x ⊆ y → y ∈ₚ P → x ∈ₚ P.
 
 Definition 空集封闭 x := ∅ ∈ x.
 Definition 并集封闭 x := ∀ y ∈ x, ⋃ y ∈ x.
 Definition 幂集封闭 x := ∀ y ∈ x, 𝒫 y ∈ x.
 
 Definition 替代封闭 x := ∀ R y, 函数性 R → (∀ a b, R a b → a ∈ y → b ∈ x) → y ∈ x → R @ y ∈ x.
-Definition 替代封闭' x := ∀ R y,  函数性 R → R @ y ⊆ x → y ∈ x → R @ y ∈ x.
+Definition 替代封闭' x := ∀ R y, 函数性 R → R @ y ⊆ x → y ∈ x → R @ y ∈ x.
 
 Fact 替代封闭_等价表述 x : 替代封闭 x ↔ 替代封闭' x.
 Proof.

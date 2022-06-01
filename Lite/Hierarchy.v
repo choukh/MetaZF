@@ -25,8 +25,8 @@ Proof. induction 1. now apply 幂传递. now apply 并传递. Qed.
 Lemma 层膨胀 : 层 ⊑ 膨胀.
 Proof.
   induction 1 as [x _ _|x _ IH]; intros y z.
-  - intros zy yx%幂集. apply 幂集. zf.
-  - intros zy [a [ya ax]]%并集. apply 并集.
+  - intros yz zx%幂集. apply 幂集. zf.
+  - intros yz [a [za ax]]%并集. apply 并集.
     exists a. split; auto. eapply IH; eauto.
 Qed.
 
@@ -59,9 +59,9 @@ Proof. intros ax bx. apply 幂集. intros c [ca|cb]%配对; now subst. Qed.
 Lemma 层对关系的归纳法 R :
   (∀ x y, R x y → R y x → R (𝒫 x) y) →
   (∀ x y, (∀ z, z ∈ x → R z y) → R (⋃ x) y) →
-  ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → R x y.
+  ∀ x y ∈ₚ 层, R x y.
 Proof.
-  intros H1 H2 x y xS. revert y.
+  intros H1 H2 x xS y. revert y.
   induction xS as [x xS IHx|x xS IHx]; intros y yS.
   - apply H1. apply IHx. apply yS.
     induction yS as [y yS IHy|y yS IHy].
@@ -70,7 +70,7 @@ Proof.
   - apply H2. intros z zx. now apply IHx.
 Qed.
 
-Lemma 层线序_引理 : ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ 𝒫 y ⊆ x.
+Lemma 层线序_引理 : ∀ x y ∈ₚ 层, x ⊆ y ∨ 𝒫 y ⊆ x.
 Proof.
   apply 层对关系的归纳法.
   - intros x y [xy|pyx] [yx|pxy]; auto.
@@ -104,7 +104,7 @@ Qed.
 
 (** 良基 **)
 
-Definition 最小 P x := x ∈ₚ P ∧ ∀ y, y ∈ₚ P → x ⊆ y.
+Definition 最小 P x := x ∈ₚ P ∧ ∀ y ∈ₚ P, x ⊆ y.
 
 Lemma 层良基 x P : x ∈ₚ 层 → x ∈ₚ P → ex (最小 (λ y, y ∈ₚ 层 ∧ y ∈ₚ P)).
 Proof.
@@ -232,10 +232,10 @@ Proof.
   destruct (极限层封闭 xL ax) as [y [yS [ay yx]]].
   destruct (极限层封闭 xL bx) as [z [zS [bz zx]]].
   destruct (层线序 yS zS).
-  - apply 层传递 with (y:=𝒫 z). apply xL.
+  - apply 层传递 with (z:=𝒫 z). apply xL.
     + apply 配对_升秩; auto.
     + now apply 极限层对幂集封闭.
-  - apply 层传递 with (y:=𝒫 y). apply xL.
+  - apply 层传递 with (z:=𝒫 y). apply xL.
     + apply 配对_升秩; auto.
     + now apply 极限层对幂集封闭.
 Qed.

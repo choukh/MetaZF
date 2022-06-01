@@ -6,7 +6,7 @@ Lite/Basic.v
 Lite/InnerModel.v
 Lite/Hierarchy.v
 Lite/Universe.v
-Lite/Isomorphism.v
+Lite/Bisimilarity.v
 
 Lite/Uncountability.v
 

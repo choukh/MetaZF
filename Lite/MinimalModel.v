@@ -37,9 +37,9 @@ Proof.
       set (exist P a aP : 内模型 PC) as A.
       enough (R @ A ∈ U). apply H. apply 宇宙对替代封闭; auto.
       intros [x xP] [y yP] RXY XA. eapply rc. apply RXY. apply XA.
-    + rewrite 替代嵌入_函数性; auto.
-      apply 外延; intros y [x [xa rxy]]%替代; auto. 3: now apply 嵌入_函数性.
-      * apply 替代. apply 嵌入_函数性; auto. exists x. split; auto.
+    + rewrite 替代嵌入有函数性; auto.
+      apply 外延; intros y [x [xa rxy]]%替代; auto. 3: now apply 嵌入有函数性.
+      * apply 替代. apply 嵌入有函数性; auto. exists x. split; auto.
         assert (aP: a ∈ₚ P). eapply 成员封闭类; eauto.
         assert (xP: x ∈ₚ P). eapply 成员封闭类; eauto.
         assert (yP: y ∈ₚ P). eapply 成员封闭类; eauto.
@@ -53,7 +53,7 @@ Theorem 任意模型存在极小内模型 (𝓜 : ZF) :
 Proof.
   排中 (∃ u, 宇宙 u) as [[u uU]|H].
   - apply 宇宙是层的子类 in uU as uS.
-    destruct (层_良基 uS uU) as [v [[vS [p [pc s]]] min]]. exists p, pc.
+    destruct (层良基 uS uU) as [v [[vS [p [pc s]]] min]]. exists p, pc.
     intros [[x xp] XU]. apply 内模型的宇宙是原模型的宇宙 in XU.
     apply (无循环1 (x:=x)). apply min; auto using 宇宙是层的子类. now apply s.
   - exists (λ _, True). assert (c : 封闭类 (λ _, True)) by firstorder.

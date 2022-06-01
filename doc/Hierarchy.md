@@ -62,7 +62,7 @@ Lemma 并空 : ⋃ ∅ = ∅.
 ### 传递性
 可以证明层是传递集. 我们知道传递集定义为
 ```Coq
-Definition 传递 {M : ZF结构} x := ∀ y, y ∈ x → y ⊆ x.
+Definition 传递 x := ∀ y z, z ∈ y → y ∈ x → z ∈ x.
 ```
 
 我们定义子类的记法
@@ -85,7 +85,7 @@ Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
 ### 膨胀性
 我们知道传递集里有任意成员的任意成员. 类似地, 我们说一个集合是膨胀集, 当且仅当它里面有任意成员的任意子集.
 ```Coq
-Definition 膨胀 {M : ZF结构} x := ∀ y z, z ⊆ y → y ∈ x → z ∈ x.
+Definition 膨胀 x := ∀ y z, z ⊆ y → y ∈ x → z ∈ x.
 ```
 
 可以证明层是膨胀集. 
@@ -124,7 +124,7 @@ Lemma 层对关系的归纳法 R :
 
 接着用层对关系的归纳法证明完全性的弱化版.
 ```Coq
-Lemma 层_线序_引理 : ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ 幂 y ⊆ x.
+Lemma 层线序_引理 : ∀ x y, x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ 幂 y ⊆ x.
 Proof.
   apply 层对关系的归纳法.
 ```
@@ -152,18 +152,18 @@ Qed.
 
 用这条引理就可以证明⊆对层的完全性. 只需证 $\mathcal{P}$ y ⊆ x → y ⊆ x. 由子集的传递性只需证y ⊆ $\mathcal{P}$ y. 由层的传递性只需证$\mathcal{P}$ y也是层且y ∈ $\mathcal{P}$ y, 显然成立.
 ```Coq
-Lemma 层_线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ⊆ x.
+Lemma 层线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ⊆ x.
 Proof.
-  intros xS yS. destruct (层_线序_引理 xS yS); auto.
-  right. enough (y ⊆ 幂 y). zf. apply 层传递.
+  intros xS yS. destruct (层线序_引理 xS yS); auto.
+  right. enough (y ⊆ 𝒫 y). zf. apply 传递_子集. apply 层传递.
   now constructor. now apply 幂集.
 Qed.
 ```
 
 由此可以立即得到 ∈构成了层的严格线序. 证明留作练习.
 ```Coq
-Lemma 层_ϵ线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ∈ x.
-Lemma 层_ϵ三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ∈ y ∨ x = y ∨ y ∈ x.
+Lemma 层ϵ线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ∈ x.
+Lemma 层ϵ三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ∈ y ∨ x = y ∨ y ∈ x.
 ```
 
 ### 良序
@@ -176,7 +176,7 @@ Definition 最小 P x := x ∈ₚ P ∧ ∀ y, y ∈ₚ P → x ⊆ y.
 
 于是层的良基性表述为对任意P, 如果 层∧P 非空, 那么 层∧P 有⊆最小元.
 ```Coq
-Lemma 层_良基 x P : x ∈ₚ 层 → x ∈ₚ P → ex (最小 (λ y, y ∈ₚ 层 ∧ y ∈ₚ P)).
+Lemma 层良基 x P : x ∈ₚ 层 → x ∈ₚ P → ex (最小 (λ y, y ∈ₚ 层 ∧ y ∈ₚ P)).
 ```
 
 由∈-induction, 有归纳假设: 对x的任意成员y, 如果y见证了 层∧P 非空, 那么 层∧P 有⊆最小元. 假设存在这样的y, 那么证毕.
@@ -189,7 +189,7 @@ Lemma 层_良基 x P : x ∈ₚ 层 → x ∈ₚ P → ex (最小 (λ y, y ∈�
 若不存在, 我们说x就是 层∧P 的⊆最小元. 因为对任意y ∈ₚ 层∧P 有x ⊆ y. 若不然, 由层的ϵ线序有y ∈ x, 与假设矛盾.
 ```Coq
   - exists x. repeat split; auto. intros y [yS yP].
-    destruct (层_ϵ线序 xS yS). auto.
+    destruct (层ϵ线序 xS yS). auto.
     contradict H. now exists y.
 Qed.
 ```
@@ -234,10 +234,10 @@ Definition 秩关系 x y := x ⊆ y ∧ x ∉ y ∧ y ∈ₚ 层.
 
 由层的ϵ三歧性和层的膨胀性不难证明秩关系有函数性
 ```Coq
-Lemma 秩关系_函数性 : 函数性 秩关系.
+Lemma 秩关系有函数性 : 函数性 秩关系.
 Proof.
   intros x a b [xsa [xa aS]] [xsb [xb bS]].
-  destruct (层_ϵ三歧 aS bS) as [|[]]; auto; exfalso.
+  destruct (层ϵ三歧 aS bS) as [|[]]; auto; exfalso.
   - apply xb. apply 层膨胀 with a; auto.
   - apply xa. apply 层膨胀 with b; auto.
 Qed.
@@ -253,7 +253,7 @@ Definition ρ x := δ (秩关系 x).
 Lemma ρ规范_引理 x y : 秩关系 x y → 秩关系 x (ρ x).
 Proof.
   intros H. unfold ρ. eapply δ规范. apply H.
-  hnf. apply 秩关系_函数性.
+  hnf. apply 秩关系有函数性.
 Qed.
 ```
 
@@ -304,7 +304,7 @@ Lemma ρ规范 x : 秩关系 x (ρ x).
 Proof. eapply ρ规范_引理. apply ρ'规范. Qed.
 
 Remark ρ等于ρ' x : ρ x = ρ' x.
-Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系_函数性. Qed.
+Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系有函数性. Qed.
 ```
 
 我们说一个集合是可及的, 当且仅当存在一个层y来容纳它.

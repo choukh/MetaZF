@@ -18,6 +18,9 @@ Proof.
   反证. apply 反设. now exists z.
 Qed.
 
+Lemma 传递_子集 x y : 传递 x → y ∈ x → y ⊆ x.
+Proof. intros tr yx z zy. eauto. Qed.
+
 (** 空集 **)
 
 Lemma 空集是子集 x : ∅ ⊆ x.
@@ -112,7 +115,7 @@ Qed.
 
 Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
 Proof.
-  intros tr a [b [ab bx]]%并集 y ya. apply 并集.
+  intros tr a y ya [b [ab bx]]%并集. apply 并集.
   exists b. split; auto. eapply tr; eauto.
 Qed.
 
@@ -120,12 +123,15 @@ Qed.
 
 Lemma 幂传递 x : x ∈ₚ 传递 → 𝒫 x ∈ₚ 传递.
 Proof.
-  intros tr y yp z zy.
-  apply 幂集. apply 幂集 in yp. auto.
+  intros tr y z zy yp. apply 幂集. apply 传递_子集. auto.
+  apply 幂集 in yp. auto.
 Qed.
 
 Lemma 幂单调 x y : x ⊆ y → 𝒫 x ⊆ 𝒫 y.
 Proof. intros xy z zp. apply 幂集. apply 幂集 in zp. zf. Qed.
+
+Lemma 幂并 x : x ⊆ 𝒫 ⋃ x.
+Proof. intros y Hy. apply 幂集. now apply 并得父集. Qed.
 
 (** 分离 **)
 

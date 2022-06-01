@@ -236,7 +236,7 @@ Definition 嵌入 (R : ℙ → ℙ → Prop) : M → M → Prop :=
 
 可以证明, 只要R是函数性的, 那么编码之后也是函数性的.
 ```Coq
-Lemma 嵌入_函数性 R : 函数性 R → 函数性 (嵌入 R).
+Lemma 嵌入有函数性 R : 函数性 R → 函数性 (嵌入 R).
 ```
 
 接下来是关键性的一步. 我们将ℙ中 R @ₚ A 编码为M中的
@@ -252,7 +252,7 @@ Definition 替代嵌入 R A := ⋃ ([嵌入 R @ A] ∩ₚ (λ _, 函数性 R)).
 
 可以证明, 当R具有函数性时有 ⌜R @ₚ A⌝ = ⌜R⌝ @ A, 否则 ⌜R @ₚ A⌝ = ∅.
 ```Coq
-Lemma 替代嵌入_函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
+Lemma 替代嵌入有函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
 Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
 ```
 
@@ -260,7 +260,7 @@ Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
 不论如何, 都可以由封闭性得到ℙ中的集合.
 ```Coq
   - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
-    + rewrite 替代嵌入_函数性; auto. apply 替代封闭类; auto. (* 后略 *)
+    + rewrite 替代嵌入有函数性; auto. apply 替代封闭类; auto. (* 后略 *)
     + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭类.
 Defined.
 ```
@@ -351,7 +351,7 @@ Proof.
 ```Coq
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.
-      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入_函数性.
+      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入有函数性.
 ```
 这个X正是我们所需的见证 X ∈ A 和 R X Y 的X. 注意这里需要 **证明无关性(proof irrelevance)**.
 ```Coq
@@ -365,7 +365,7 @@ Proof.
 ```Coq
     + apply 并集. rewrite 全分离; auto.
       apply 并集. rewrite 并单. destruct H as [[x xP][XA RXY]].
-      apply 替代. now apply 嵌入_函数性. exists x.
+      apply 替代. now apply 嵌入有函数性. exists x.
       split. apply XA. exists xP, yP. apply RXY.
 ```
 

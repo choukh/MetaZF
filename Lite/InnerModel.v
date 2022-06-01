@@ -24,7 +24,7 @@ Definition 嵌入 (R : ℙ → ℙ → Prop) : 𝓜 → 𝓜 → Prop :=
 Definition 投影 (R : 𝓜 → 𝓜 → Prop) : ℙ → ℙ → Prop :=
   λ X Y : {x | P x}, R (proj1_sig X) (proj1_sig Y).
 
-Lemma 嵌入_函数性 R : 函数性 R → 函数性 (嵌入 R).
+Lemma 嵌入有函数性 R : 函数性 R → 函数性 (嵌入 R).
 Proof.
   intros FR x y z [xP [yP RXY]] [xP'[Pz RXZ]].
   eapply eq_sig_fst. eapply FR. apply RXY.
@@ -41,7 +41,7 @@ Qed.
 (* ⋃ {x ∊ { ⌜R⌝ @ A } | 函数性 R} *)
 Definition 替代嵌入 R A := ⋃ ([嵌入 R @ A] ∩ₚ (λ _, 函数性 R)).
 
-Lemma 替代嵌入_函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
+Lemma 替代嵌入有函数性 R A : 函数性 R → 替代嵌入 R A = 嵌入 R @ A.
 Proof. intros FR. unfold 替代嵌入. now rewrite 全分离, 并单. Qed.
 
 Lemma 替代嵌入_非函数性 R A : ¬ 函数性 R → 替代嵌入 R A = ∅.
@@ -54,8 +54,8 @@ Definition 子结构 : ZF结构.
   - intros [x xP]. exists (⋃ x). now apply 并集封闭类.
   - intros [x xP]. exists (𝒫 x). now apply 幂集封闭类.
   - intros R [A AP]. exists (替代嵌入 R A). 排中 (函数性 R).
-    + rewrite 替代嵌入_函数性; auto.
-      apply 替代封闭类; auto. apply 嵌入_函数性; auto.
+    + rewrite 替代嵌入有函数性; auto.
+      apply 替代封闭类; auto. apply 嵌入有函数性; auto.
       now intros x y [_ [yP _]] _.
     + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭类.
 Defined.
@@ -79,13 +79,13 @@ Proof.
   - intros R [a aP] FR [y yP]. split; intros H.
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.
-      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入_函数性.
+      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入有函数性.
       exists (exist P x (成员封闭类 xa aP)).
       replace (成员封闭类 xa aP) with xP. replace yP with yP'. now split.
       apply proof_irrelevance. apply proof_irrelevance.
     + apply 并集. rewrite 全分离; auto.
       apply 并集. rewrite 并单. destruct H as [[x xP][XA RXY]].
-      apply 替代. now apply 嵌入_函数性. exists x.
+      apply 替代. now apply 嵌入有函数性. exists x.
       split. apply XA. exists xP, yP. apply RXY.
   - intros [x xP]. induction (正则 x) as [x _ IH].
     constructor. intros [y yP] Y. apply IH. apply Y.

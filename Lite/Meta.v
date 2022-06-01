@@ -107,7 +107,7 @@ Implicit Type P : 𝓜 → Prop.
 Definition 集化 P A := ∀ x, x ∈ A ↔ P x.
 Definition 可集化 P := ∃ A, 集化 P A.
 
-Definition 传递 x := ∀ y, y ∈ x → y ⊆ x.
+Definition 传递 x := ∀ y z, z ∈ y → y ∈ x → z ∈ x.
 Definition 膨胀 x := ∀ y z, z ⊆ y → y ∈ x → z ∈ x.
 
 Definition 传递类 P := ∀ x y, y ∈ x → x ∈ₚ P → y ∈ₚ P.

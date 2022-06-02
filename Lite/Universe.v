@@ -2,7 +2,7 @@
 
 Require Import Lite.Basic Lite.Hierarchy.
 
-(*** 宇宙 ***)
+(** 宇宙 **)
 Section Universe.
 
 (* 𝓜 ⊨ ZF *)
@@ -96,3 +96,20 @@ Proof.
 Qed.
 
 End Universe.
+
+(** 宇宙等级 **)
+Section UniverseLevel.
+
+(* 极小模型 *)
+Definition ZF₀ (𝓜 : ZF) := ¬ ∃ u : 𝓜, 宇宙 u.
+
+(* x里有至少n个宇宙 *)
+Fixpoint ZFₙ {𝓜 : ZF} n x := match n with
+  | O => True
+  | S n => ∃ u ∈ x, 宇宙 u ∧ ZFₙ n u
+end.
+
+(* ZF_n+1 *)
+Definition ZFₛₙ n (𝓜 : ZF) := (∃ u, 宇宙 u ∧ ZFₙ n u) ∧ (¬ ∃ u, 宇宙 u ∧ ZFₙ (S n) u).
+
+End UniverseLevel.

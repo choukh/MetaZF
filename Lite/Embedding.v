@@ -89,6 +89,18 @@ Proof.
     exists b. split; auto. now apply 相似对称.
 Qed.
 
+Lemma 域对称 x : x ∈ₚ 𝕯 ↔ x ∈ₚ @𝕹 𝓝 𝓜.
+Proof. split; intros [a xa]; exists a; now apply 相似对称. Qed.
+
+Lemma 域集化对称 x : 集化 (@𝕯 𝓜 𝓝) x ↔ 集化 (@𝕹 𝓝 𝓜) x.
+Proof.
+  split; intros sd; intros y; split; intros H.
+  - apply 域对称, sd, H.
+  - apply sd, 域对称, H.
+  - apply 域对称, sd, H.
+  - apply sd, 域对称, H.
+Qed.
+
 End Symmetry_More.
 
 (** 相似关系保持结构 **)
@@ -220,12 +232,7 @@ Context {𝓜 𝓝 : ZF}.
 Implicit Type x y : 𝓜.
 Implicit Type a b : 𝓝.
 Notation 𝕯 := (@𝕯 𝓜 𝓝).
-
-Lemma 在定义域 x a : x ≈ a → x ∈ₚ 𝕯.
-Proof. intros H. now exists a. Qed.
-
-Lemma 域对称 x : x ∈ₚ 𝕯 ↔ x ∈ₚ @𝕹 𝓝 𝓜.
-Proof. split; intros [a xa]; exists a; now apply 相似对称. Qed.
+Notation "⌜ R ⌝" := (关系嵌入 R) (format "⌜ R ⌝").
 
 (* 对成员关系封闭 *)
 Lemma 定义域是传递类 : 传递类 𝕯.
@@ -252,7 +259,7 @@ Proof. intros [a H%相似保幂]. now exists (𝒫 a). Qed.
 
 Lemma 定义域是替代封闭类 R x : 函数性 R → R @ x ⊆ₚ 𝕯 → x ∈ₚ 𝕯 → R @ x ∈ₚ 𝕯.
 Proof.
-  intros FR dom [a H%(相似保替代 FR dom)]. eapply 在定义域, H.
+  intros FR dom [a H%(相似保替代 FR dom)]. now exists (⌜R⌝ @ a).
 Qed.
 
 Lemma 定义域是封闭类 : 封闭类 𝕯.
@@ -272,9 +279,12 @@ Proof.
   apply 定义域是封闭类.
 Qed.
 
+Lemma 集化值域是宇宙 : 集化 (@𝕹 𝓝 𝓜) ⊑ 宇宙.
+Proof. intros u s. apply 域集化对称 in s. apply 集化定义域是宇宙, s. Qed.
+
 End Domain.
 
-(** 相似关系保持宇宙性 **)
+(** 相似关系与宇宙 **)
 Section Universe.
 Context {𝓜 𝓝 : ZF}.
 Implicit Type x y : 𝓜.
@@ -322,6 +332,15 @@ Proof.
   - now apply 宇宙对并集封闭, (相似保并集封闭 xa) in xU.
   - now apply 宇宙对幂集封闭, (相似保幂集封闭 xa) in xU.
   - now apply 宇宙对替代封闭, (相似保替代封闭 xa) in xU.
+Qed.
+
+Lemma 相似保宇宙等级 n x a : x ≈ a → ZFₙ n x → ZFₙ n a.
+Proof.
+  revert x a. induction n; simpl. auto.
+  intros x a xa [y [yx [yU zfn]]].
+  destruct (左嵌入 xa yx) as [b [ba yb]].
+  exists b. split; auto. split.
+  now apply (相似保宇宙 yb). now apply (IHn y).
 Qed.
 
 End Universe.
@@ -381,13 +400,10 @@ Proof.
   apply 集的子类可集化 with x, 外层包含定义域; auto.
 Qed.
 
-Lemma 集化对称 x : 集化 (@𝕯 𝓜 𝓝) x ↔ 集化 (@𝕹 𝓝 𝓜) x.
+Lemma 值域域集化 : ¬ 左完全 (相似 𝓜 𝓝) → 左完全 (相似 𝓝 𝓜) → 可集化 (@𝕹 𝓝 𝓜).
 Proof.
-  split; intros sd; intros y; split; intros H.
-  - apply 域对称, sd, H.
-  - apply sd, 域对称, H.
-  - apply 域对称, sd, H.
-  - apply sd, 域对称, H.
+  intros H1 H2. pose proof (定义域集化 H1 H2) as [x s].
+  apply 域集化对称 in s. now exists x.
 Qed.
 
 End Hierarchy.
@@ -440,8 +456,7 @@ Proof.
   - now left.
   - right. left. split. apply l.
     rewrite 相似完全性对称 in nr.
-    apply 定义域集化 in nr as [x s]; auto.
-    exists x. now apply 集化对称.
+    now apply 值域域集化.
   - right. right. split. apply r.
     rewrite 相似完全性对称 in r.
     now apply 定义域集化.

@@ -5,8 +5,6 @@ Require Import Lite.Universe Lite.InnerModel.
 
 (** 极小模型 **)
 
-Definition 极小 (𝓜 : ZF) := ¬ ∃ u : 𝓜, 宇宙 u.
-
 Lemma 内模型的宇宙是原模型的宇宙 {𝓜 : ZF} {P : 𝓜 → Prop} {PC : 封闭类 P}
   (U : 内模型 PC) : 宇宙 U → 宇宙 (proj1_sig U).
 Proof.
@@ -49,7 +47,7 @@ Proof.
 Qed.
 
 Theorem 任意模型存在极小内模型 (𝓜 : ZF) :
-  ∃ (P : 𝓜 → Prop) (PC : 封闭类 P), 极小 (内模型 PC).
+  ∃ (P : 𝓜 → Prop) (PC : 封闭类 P), ZF₀ (内模型 PC).
 Proof.
   排中 (∃ u, 宇宙 u) as [[u uU]|H].
   - apply 宇宙是层的子类 in uU as uS.

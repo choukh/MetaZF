@@ -168,6 +168,12 @@ Proof.
   intros y [_ yP]%分离. apply (H y yP).
 Qed.
 
+Lemma 集的子类可集化 P x : P ⊆ₛ x → 可集化 P.
+Proof.
+  intros H. exists (x ∩ₚ P). intros z.
+  rewrite 分离. intuition.
+Qed.
+
 (** 罗素集 **)
 
 Definition 罗素 x := x ∩ₚ (λ y, y ∉ y).

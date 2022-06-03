@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Export Lite.Meta.
+Require Export Meta.
 
 (*** 基本部件 ***)
 Section Basic.

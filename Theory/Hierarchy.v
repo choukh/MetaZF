@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic.
+Require Import Basic.
 
 (*** 累积层级 ***)
 Section CumulativeHierarchy.

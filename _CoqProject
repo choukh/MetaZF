@@ -1,18 +1,15 @@
 -R . ""
 
-Lite/Meta.v
-Lite/Basic.v
-Lite/InnerModel.v
-Lite/Uncountability.v
+Theory/Meta.v
+Theory/Basic.v
+Theory/InnerModel.v
+Theory/Uncountability.v
 
-Lite/Hierarchy.v
-Lite/Universe.v
-Lite/MinimalModel.v
+Theory/Hierarchy.v
+Theory/Universe.v
+Theory/MinimalModel.v
 
-Lite/Embedding.v
-Lite/Categoricity.v
+Theory/Embedding.v
+Theory/Categoricity.v
 
-Full/Meta.v
-Full/Relation.v
-Full/Structures.v
-Full/Universes.v
+Model/HF.v

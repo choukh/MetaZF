@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic Lite.Hierarchy.
+Require Import Basic Hierarchy.
 
 (** 宇宙 **)
 Section Universe.

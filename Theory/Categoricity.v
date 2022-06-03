@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic Lite.Embedding Lite.Universe.
+Require Import Basic Embedding Universe.
 
 (*** 范畴性 ***)
 

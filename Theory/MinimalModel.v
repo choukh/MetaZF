@@ -1,7 +1,7 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic Lite.Hierarchy.
-Require Import Lite.Universe Lite.InnerModel.
+Require Import Basic Hierarchy.
+Require Import Universe InnerModel.
 
 (** 极小模型 **)
 

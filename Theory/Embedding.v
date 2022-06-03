@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Lite.Basic Lite.Hierarchy Lite.Universe.
+Require Import Basic Hierarchy Universe.
 
 (** 不同模型的集合间的∈-相似关系 **)
 Section Bisimilarity.

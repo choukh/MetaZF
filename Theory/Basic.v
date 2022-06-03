@@ -1,11 +1,9 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Export Meta.
+Require Export Theory.Meta.
 
 (*** 基本部件 ***)
 Section Basic.
-
-(* 𝓜 ⊨ ZF *)
 Context {𝓜 : ZF}.
 Implicit Type A a b x y z : 𝓜.
 Implicit Type P Q : 𝓜 → Prop.

@@ -12,4 +12,6 @@ Theory/MinimalModel.v
 Theory/Embedding.v
 Theory/Categoricity.v
 
-Model/HF.v
+Model/HF/Meta.v
+Model/HF/HF.v
+Model/HF/Extensionality.v

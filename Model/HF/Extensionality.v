@@ -6,7 +6,6 @@ Require Import HF.
 Section Extensionality.
 Context {𝓜 : HF}.
 Implicit Types x y z : 𝓜.
-Implicit Types P : 𝓜 → Prop.
 
 Instance 为空可判定 x : 可判定 (∅ = x).
 Proof. hf_ind x; hf. Qed.
@@ -21,26 +20,26 @@ Instance 含于空可判定 x : 可判定 (x ⊆ ∅).
 Proof. hf_ind x; hf. Qed.
 
 Lemma 子集扩张可判定 x y z :
-  可判定 (x ∈ z) → 可判定 (y ⊆ z) → 可判定 (x +> y ⊆ z).
+  可判定 (x ∈ z) → 可判定 (y ⊆ z) → 可判定 (x ⨮ y ⊆ z).
 Proof. intros [] []; hf. Qed.
 
 Lemma 成员扩张可判定 x y z :
-  可判定 (x = y) → 可判定 (x ∈ z) → 可判定 (x ∈ y +> z).
+  可判定 (x = y) → 可判定 (x ∈ z) → 可判定 (x ∈ y ⨮ z).
 Proof. intros [] []; hf. Qed.
 
 Lemma 差分强存在 x y :
   (∀ z, 可判定 (x ∈ z)) →
   (∀ z, 可判定 (x = z)) →
-  x ∈ y → Σ a, y = x +> a ∧ x ∉ a.
+  x ∈ y → Σ a, y = x ⨮ a ∧ x ∉ a.
 Proof.
   intros H1 H2. hf_ind y.
   - hf. 
   - intros y z _ IH H. 判定 (x ∈ z) as [xz|xz].
     + destruct (IH xz) as [a [-> xa]].
-      assert (y ∈ y +> x +> a) by hf. 
+      assert (y ∈ y ⨮ x ⨮ a) by hf. 
       判定 (x = y) as [<-|xy].
       * exists a. hf.
-      * exists (y +> a). split. hf. contradict xy. hf.
+      * exists (y ⨮ a). split. hf. contradict xy. hf.
     + exists z. hf.
 Qed.
 
@@ -54,13 +53,13 @@ Proof.
   - intros a x IHa IHx y. hf_ind y.
     + intuition; hf.
     + intros b y IHb IHy.
-      assert (H1: 可判定 (a +> x ⊆ b +> y)). apply 子集扩张可判定. apply IHa. apply IHx.
-      assert (H2: 可判定 (b +> y ⊆ a +> x)). apply 子集扩张可判定. apply IHb. apply IHy.
-      assert (H3: a +> x ⊆ b +> y → b +> y ⊆ a +> x → a +> x = b +> y). {
+      assert (H1: 可判定 (a ⨮ x ⊆ b ⨮ y)). apply 子集扩张可判定. apply IHa. apply IHx.
+      assert (H2: 可判定 (b ⨮ y ⊆ a ⨮ x)). apply 子集扩张可判定. apply IHb. apply IHy.
+      assert (H3: a ⨮ x ⊆ b ⨮ y → b ⨮ y ⊆ a ⨮ x → a ⨮ x = b ⨮ y). {
         intros A B.
         assert (可判定 (a ∈ x)) as [ax|nax] by apply IHa.
         - rewrite ax in *. now apply IHx.
-        - destruct (@差分强存在 a (b +> y)) as [c [eq nau]].
+        - destruct (@差分强存在 a (b ⨮ y)) as [c [eq nau]].
           apply IHa. apply IHa. apply A; hf.
           rewrite eq in *. f_equal. apply IHx; hf.
       }
@@ -89,7 +88,7 @@ Proof. apply 外延可判定. Qed.
 Fact 成员关系可判定 x y : 可判定 (x ∈ y).
 Proof. apply 外延可判定. Qed.
 
-Lemma 差分 x y : x ∈ y → Σ z, y = x +> z ∧ x ∉ z.
+Lemma 差分 x y : x ∈ y → Σ z, y = x ⨮ z ∧ x ∉ z.
 Proof. apply 差分强存在; auto. Qed.
 
 Global Instance 谓词见证可判定 x P :
@@ -116,7 +115,7 @@ Proof.
     + right. intros A. apply IH. intros z zy. apply A. hf.
 Qed.
 
-Theorem ϵ归纳 P : (∀ x, (∀ z ∈ x, P z) → P x) → ∀ x, P x.
+Theorem ϵ归纳 (P : 𝓜 → Type) : (∀ x, (∀ z ∈ x, P z) → P x) → ∀ x, P x.
 Proof.
   intros A x. apply A. hf_ind x. hf.
   intros x y IHx IHy z zxy.
@@ -137,11 +136,11 @@ Proof.
   intros x IH y xy yx. revert xy. now apply IH.
 Qed.
 
-Lemma 并单射 x y : x +> x = y +> y → x = y.
+Lemma 并单射 x y : x ⨮ x = y ⨮ y → x = y.
 Proof.
   intros eq.
-  assert (xyy: x ∈ y +> y) by (rewrite <- eq; hf).
-  assert (yxx: y ∈ x +> x) by (rewrite eq; hf).
+  assert (xyy: x ∈ y ⨮ y) by (rewrite <- eq; hf).
+  assert (yxx: y ∈ x ⨮ x) by (rewrite eq; hf).
   apply 属 in xyy as [->|xyy]. reflexivity.
   apply 属 in yxx as [->|yxx]. reflexivity.
   contradict (ϵ非对称 xyy yxx).

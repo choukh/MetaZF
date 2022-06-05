@@ -27,6 +27,8 @@ Notation "x ⨮ y" := (并 x y) : hf_scope.
 Notation "x ∈ y" := (x ⨮ y = y) : hf_scope.
 Notation "x ∉ y" := (x ⨮ y ≠ y) (at level 70) : hf_scope.
 Notation "x ⊆ y" := (∀ z, z ∈ x → z ∈ y) (at level 70) : hf_scope.
+Notation "x ⊈ y" := (¬ x ⊆ y) (at level 70) : hf_scope.
+Notation "x ⁺" := (x ⨮ x) (at level 50) : hf_scope.
 Notation 栖居 x := (∃ y, y ∈ x).
 
 Notation "∀ x .. y ∈ A , P" :=

@@ -32,15 +32,13 @@ Lemma 差分强存在 x y :
   (∀ z, 可判定 (x = z)) →
   x ∈ y → Σ a, y = x ⨮ a ∧ x ∉ a.
 Proof.
-  intros H1 H2. hf_ind y.
-  - hf. 
-  - intros y z _ IH H. 判定 (x ∈ z) as [xz|xz].
-    + destruct (IH xz) as [a [-> xa]].
-      assert (y ∈ y ⨮ x ⨮ a) by hf. 
-      判定 (x = y) as [<-|xy].
-      * exists a. hf.
-      * exists (y ⨮ a). split. hf. contradict xy. hf.
-    + exists z. hf.
+  intros H1 H2. hf_ind y. hf.
+  intros y z _ IH H. 判定 (x ∈ z) as [xz|xz]; revgoals.
+  - exists z. hf.
+  - destruct (IH xz) as [a [-> xa]].
+    判定 (x = y) as [<-|xy].
+    + exists a. hf.
+    + exists (y ⨮ a). split. hf. contradict xy. hf.
 Qed.
 
 Lemma 外延可判定 x y:
@@ -48,36 +46,34 @@ Lemma 外延可判定 x y:
   可判定 (x ∈ y) * 可判定 (y ∈ x) *
   (x ⊆ y → y ⊆ x → x = y) * 可判定 (x = y).
 Proof.
-  revert y. hf_ind x.
-  - intuition; hf.
-  - intros a x IHa IHx y. hf_ind y.
-    + intuition; hf.
-    + intros b y IHb IHy.
-      assert (H1: 可判定 (a ⨮ x ⊆ b ⨮ y)). apply 子集扩张可判定. apply IHa. apply IHx.
-      assert (H2: 可判定 (b ⨮ y ⊆ a ⨮ x)). apply 子集扩张可判定. apply IHb. apply IHy.
-      assert (H3: a ⨮ x ⊆ b ⨮ y → b ⨮ y ⊆ a ⨮ x → a ⨮ x = b ⨮ y). {
-        intros A B.
-        assert (可判定 (a ∈ x)) as [ax|nax] by apply IHa.
-        - rewrite ax in *. now apply IHx.
-        - destruct (@差分强存在 a (b ⨮ y)) as [c [eq nau]].
-          apply IHa. apply IHa. apply A; hf.
-          rewrite eq in *. f_equal. apply IHx; hf.
-      }
-      repeat split. 
-      * apply H1.
-      * apply H2.
-      * apply 成员扩张可判定. apply IHb. apply IHy.
-      * apply 成员扩张可判定. apply 相等可判定_对称, IHa. apply IHx.
-      * apply H3.
-      * { destruct H1 as [H1|H1].
-          - destruct H2 as [H2|H2].
-            + left. now apply H3.
-            + right. intros eq. apply H2. congruence.
-          - right. intros eq. apply H1. congruence. }
+  revert y. hf_ind x. intuition; hf.
+  intros a x IHa IHx y. hf_ind y. intuition; hf.
+  intros b y IHb IHy.
+  assert (H1: 可判定 (a ⨮ x ⊆ b ⨮ y)). apply 子集扩张可判定. apply IHa. apply IHx.
+  assert (H2: 可判定 (b ⨮ y ⊆ a ⨮ x)). apply 子集扩张可判定. apply IHb. apply IHy.
+  assert (H5: a ⨮ x ⊆ b ⨮ y → b ⨮ y ⊆ a ⨮ x → a ⨮ x = b ⨮ y). {
+    intros A B.
+    assert (可判定 (a ∈ x)) as [ax|nax] by apply IHa.
+    - rewrite ax in *. now apply IHx.
+    - destruct (@差分强存在 a (b ⨮ y)) as [c [eq nau]].
+      apply IHa. apply IHa. apply A; hf.
+      rewrite eq in *. f_equal. apply IHx; hf.
+  }
+  repeat split. 
+  - apply H1.
+  - apply H2.
+  - apply 成员扩张可判定. apply IHb. apply IHy.
+  - apply 成员扩张可判定. apply 相等可判定_对称, IHa. apply IHx.
+  - apply H5.
+  - destruct H1 as [H1|H1].
+    + destruct H2 as [H2|H2].
+      * left. now apply H5.
+      * right. intros eq. apply H2. congruence.
+    + right. intros eq. apply H1. congruence.
 Qed.
 
 Theorem 外延 x y : (∀ z, z ∈ x ↔ z ∈ y) → x = y.
-Proof. intros H. apply 外延可判定; hf.  Qed.
+Proof. intros H. apply 外延可判定; hf. Qed.
 
 Global Instance HF可识别 : 可识别 𝓜.
 Proof. intros x y. apply 外延可判定. Qed.
@@ -85,7 +81,7 @@ Proof. intros x y. apply 外延可判定. Qed.
 Global Instance 子集关系可判定 x y : 可判定 (x ⊆ y).
 Proof. apply 外延可判定. Qed.
 
-Fact 成员关系可判定 x y : 可判定 (x ∈ y).
+Global Instance 成员关系可判定 x y : 可判定 (x ∈ y).
 Proof. apply 外延可判定. Qed.
 
 Lemma 差分 x y : x ∈ y → Σ z, y = x ⨮ z ∧ x ∉ z.
@@ -115,14 +111,14 @@ Proof.
     + right. intros A. apply IH. intros z zy. apply A. hf.
 Qed.
 
-Theorem ϵ归纳 (P : 𝓜 → Type) : (∀ x, (∀ z ∈ x, P z) → P x) → ∀ x, P x.
+Theorem 强ϵ归纳 (P : 𝓜 → Type) : (∀ x, (∀ z ∈ x, P z) → P x) → ∀ x, P x.
 Proof.
   intros A x. apply A. hf_ind x. hf.
   intros x y IHx IHy z zxy.
   判定 (z = x) as [->|nq]. auto. apply IHy. hf.
 Qed.
 
-Ltac ϵ_ind x := pattern x; revert x; apply ϵ归纳.
+Ltac ϵ_ind x := pattern x; revert x; apply 强ϵ归纳.
 
 Lemma ϵ反自反 x : x ∉ x.
 Proof. ϵ_ind x. intros x A xx. apply (A x xx xx). Qed.
@@ -136,7 +132,7 @@ Proof.
   intros x IH y xy yx. revert xy. now apply IH.
 Qed.
 
-Lemma 并单射 x y : x ⨮ x = y ⨮ y → x = y.
+Lemma 后继单射 x y : x⁺ = y⁺ → x = y.
 Proof.
   intros eq.
   assert (xyy: x ∈ y ⨮ y) by (rewrite <- eq; hf).
@@ -149,4 +145,4 @@ Qed.
 End Extensionality.
 
 Tactic Notation "外延" "as" simple_intropattern(i) := apply 外延; intros i.
-Ltac ϵ_ind x := pattern x; revert x; apply ϵ归纳.
+Ltac ϵ_ind x := pattern x; revert x; apply 强ϵ归纳.

@@ -16,7 +16,7 @@ Notation "'Σ' x .. y , p" := (sigT (fun x => .. (sigT (fun y => p)) ..))
   (at level 200, x binder, right associativity,
     format "'[' 'Σ'  '/ ' x .. y ,  '/ ' p ']'") : type_scope.
 
-(** 配合HF强归纳, 提取Σ类型见证 **)
+(* 配合HF强归纳, 提取Σ类型见证 *)
 Class 可判定 (P : Prop) : Set := 判定 : {P} + {¬ P}.
 
 Arguments 判定 P {可判定}.

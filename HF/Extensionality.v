@@ -144,5 +144,12 @@ Qed.
 
 End Extensionality.
 
-Tactic Notation "外延" "as" simple_intropattern(i) := apply 外延; intros i.
+Tactic Notation "外延" :=
+  apply 外延; split; intros.
+Tactic Notation "外延" "as" ident(H) :=
+  apply 外延; split; intros H.
+Tactic Notation "外延" "as" ident(x) ident(H) :=
+  apply 外延; intros x; split; intros H.
+Tactic Notation "外延" "as" ident(x) ident(H1) ident(H2) :=
+  apply 外延; intros x; split; [intros H1|intros H2].
 Ltac ϵ_ind x := pattern x; revert x; apply 强ϵ归纳.

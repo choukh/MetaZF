@@ -1,18 +1,19 @@
 -R . ""
 
-Theory/Meta.v
-Theory/Basic.v
-Theory/InnerModel.v
-Theory/Uncountability.v
+HF/Meta.v
+HF/HF.v
+HF/Extensionality.v
+HF/Categoricity.v
 
-Theory/Hierarchy.v
-Theory/Universe.v
-Theory/MinimalModel.v
+ZF/Meta.v
+ZF/ZF.v
+ZF/Basic.v
+ZF/InnerModel.v
+ZF/Uncountability.v
 
-Theory/Embedding.v
-Theory/Categoricity.v
+ZF/Hierarchy.v
+ZF/Universe.v
+ZF/MinimalModel.v
 
-Model/HF/Meta.v
-Model/HF/HF.v
-Model/HF/Extensionality.v
-Model/HF/Categoricity.v
+ZF/Embedding.v
+ZF/Categoricity.v

@@ -24,7 +24,12 @@ Arguments 判定 P {可判定}.
 Tactic Notation "判定" constr(P) "as" simple_intropattern(i) := 
   destruct (判定 P) as i.
 
-Notation "'可识别' T" := (∀ x y : T, 可判定 (x = y)) (at level 70) : hf_scope.
+Notation 可识别 T := (∀ x y : T, 可判定 (x = y)).
 
 Fact 相等可判定_对称 {T} (x y : T) : 可判定 (x = y) → 可判定 (y = x).
 Proof. unfold 可判定. intuition. Qed.
+
+Record 可判定谓词 T := {
+  判定谓词 :> T → Prop;
+  谓词判定 x : 可判定 (判定谓词 x)
+}.

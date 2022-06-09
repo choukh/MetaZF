@@ -5,6 +5,8 @@ HF/HF.v
 HF/Extensionality.v
 HF/Categoricity.v
 
+HF/Basic.v
+
 ZF/Meta.v
 ZF/ZF.v
 ZF/Basic.v

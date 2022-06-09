@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Basic.
+Require Import ZF.Basic.
 
 (*** 累积层级 ***)
 Section CumulativeHierarchy.
@@ -120,7 +120,7 @@ Qed.
 
 Definition 秩关系 x y := x ⊆ y ∧ x ∉ y ∧ y ∈ₚ 层.
 
-Lemma 秩关系有函数性 : 函数性 秩关系.
+Lemma 秩关系的函数性 : 函数性 秩关系.
 Proof.
   intros x a b [xsa [xa aS]] [xsb [xb bS]].
   destruct (层ϵ三歧 aS bS) as [|[]]; auto; exfalso.
@@ -134,7 +134,7 @@ Definition ρ' x := ⋃ (幂[ρ[x]]).
 Lemma ρ规范_引理 x y : 秩关系 x y → 秩关系 x (ρ x).
 Proof.
   intros H. unfold ρ. eapply δ规范. apply H.
-  hnf. apply 秩关系有函数性.
+  hnf. apply 秩关系的函数性.
 Qed.
 
 Lemma ρ'规范 x : 秩关系 x (ρ' x).
@@ -158,10 +158,11 @@ Lemma ρ规范 x : 秩关系 x (ρ x).
 Proof. eapply ρ规范_引理. apply ρ'规范. Qed.
 
 Remark ρ等于ρ' x : ρ x = ρ' x.
-Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系有函数性. Qed.
+Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系的函数性. Qed.
 
 Definition 可及 x := ∃ y, x ∈ y ∧ y ∈ₚ 层.
 
+(* V = WF *)
 Theorem 全可及 x : 可及 x.
 Proof.
   exists (𝒫 (ρ x)). split.

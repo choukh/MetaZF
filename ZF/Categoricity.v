@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Basic Embedding Universe.
+Require Import ZF.Basic Embedding Universe.
 
 (*** 范畴性 ***)
 
@@ -78,7 +78,7 @@ Proof.
     apply Mn. exists x; simpl. split.
     + apply 集化定义域是宇宙, s.
     + exists (j u). split. now apply s, j定义域.
-      assert (u ≈ j u) by apply 相似对称, j规范, r. split.
+      assert (u ≈ j u) by apply 相似的对称性, j规范, r. split.
       * apply (相似保宇宙 (x:=u)); auto.
       * apply (相似保宇宙等级 (x:=u)); auto.
 Qed.

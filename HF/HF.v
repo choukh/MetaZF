@@ -29,6 +29,8 @@ Notation "x ∉ y" := (x ⨮ y ≠ y) (at level 70) : hf_scope.
 Notation "x ⊆ y" := (∀ z, z ∈ x → z ∈ y) (at level 70) : hf_scope.
 Notation "x ⊈ y" := (¬ x ⊆ y) (at level 70) : hf_scope.
 Notation "x ⁺" := (x ⨮ x) (at level 50) : hf_scope.
+Notation "[ x ]" := (x ⨮ ∅) : hf_scope.
+Notation "[ x , y ]" := (x ⨮ [y]) : hf_scope.
 Notation 栖居 x := (∃ y, y ∈ x).
 
 Notation "∀ x .. y ∈ A , P" :=
@@ -49,7 +51,7 @@ Implicit Types x y z : 𝓜.
 Theorem 空集定理 x : x ∉ ∅.
 Proof. intros []%栖. Qed.
 
-Example 并运算测试 : (∅ ⨮ ∅) ⨮ ∅ ≠ ∅ ⨮ ∅.
+Example 并运算测试 : [[∅]] ≠ [∅].
 Proof.
   intros H. assert (H' := H). rewrite <- 入, H in H'.
   apply 属 in H' as [H'|H']; now apply 空集定理 in H'.

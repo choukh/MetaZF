@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Basic Hierarchy Universe.
+Require Import ZF.Basic Hierarchy Universe.
 
 (** 不同模型的集合间的∈-相似关系 **)
 Section Bisimilarity.
@@ -41,7 +41,7 @@ Proof. now intros []. Qed.
 Lemma 右嵌入 x a : x ≈ a → x ◁ a.
 Proof. now intros []. Qed.
 
-Lemma 相似对称 x a : x ≈ a → a ≈ x.
+Lemma 相似的对称性 x a : x ≈ a → a ≈ x.
 Proof.
   pose proof (正则 x) as WF. revert a.
   induction WF as [x _ IH].
@@ -52,7 +52,7 @@ Proof.
     exists b. split; auto.
 Qed.
 
-Lemma 相似有函数性 : 函数性 (@相似 𝓜 𝓝).
+Lemma 相似的函数性 : 函数性 (@相似 𝓜 𝓝).
 Proof.
   intros x. induction (正则 x) as [x _ IH].
   intros a b [xa ax] [xb bx].
@@ -72,25 +72,25 @@ Context {𝓜 𝓝 : ZF}.
 Implicit Type x y : 𝓜.
 Implicit Type a b : 𝓝.
 
-Lemma 相似有单射性 : 单射性 (@相似 𝓜 𝓝).
+Lemma 相似的单射性 : 单射性 (@相似 𝓜 𝓝).
 Proof.
-  intros x x' y yx%相似对称 yx'%相似对称. eapply 相似有函数性; eauto.
+  intros x x' y yx%相似的对称性 yx'%相似的对称性. eapply 相似的函数性; eauto.
 Qed.
 
-Lemma 相似完全性对称 : 右完全 (@相似 𝓜 𝓝) ↔ 左完全 (@相似 𝓝 𝓜).
-Proof. split; intros H x; destruct (H x) as [a ax%相似对称]; eauto. Qed.
+Lemma 相似的完全性性对称 : 右完全 (@相似 𝓜 𝓝) ↔ 左完全 (@相似 𝓝 𝓜).
+Proof. split; intros H x; destruct (H x) as [a ax%相似的对称性]; eauto. Qed.
 
 Lemma 嵌入对称 x a : x ▷ a ↔ a ◁ x.
 Proof.
   split.
   - intros l y yx. destruct (l y yx) as [b [ba yb]].
-    exists b. split; auto. now apply 相似对称.
+    exists b. split; auto. now apply 相似的对称性.
   - intros r y yx. destruct (r y yx) as [b [ba yb]].
-    exists b. split; auto. now apply 相似对称.
+    exists b. split; auto. now apply 相似的对称性.
 Qed.
 
 Lemma 域对称 x : x ∈ₚ 𝕯 ↔ x ∈ₚ @𝕹 𝓝 𝓜.
-Proof. split; intros [a xa]; exists a; now apply 相似对称. Qed.
+Proof. split; intros [a xa]; exists a; now apply 相似的对称性. Qed.
 
 Lemma 域集化对称 x : 集化 (@𝕯 𝓜 𝓝) x ↔ 集化 (@𝕹 𝓝 𝓜) x.
 Proof.
@@ -113,7 +113,7 @@ Lemma 相似保ϵ_偏 x y a b : x ≈ a → y ≈ b → y ∈ x → b ∈ a.
 Proof.
   intros [xa _] yb yx.
   destruct (xa y yx) as [c [ca yc]].
-  now rewrite (相似有函数性 yb yc).
+  now rewrite (相似的函数性 yb yc).
 Qed.
 
 Lemma 嵌入保空 : 𝓜.(结构).(空) ▷ 𝓝.(结构).(空).
@@ -141,18 +141,18 @@ Definition 关系嵌入 (R : 𝓜 → 𝓜 → Prop) : 𝓝 → 𝓝 → Prop :=
   λ a b, ∃ x y, x ≈ a ∧ y ≈ b ∧ R x y.
 Notation "⌜ R ⌝" := (关系嵌入 R) (format "⌜ R ⌝").
 
-Lemma 关系嵌入有函数性 R : 函数性 R → 函数性 ⌜R⌝.
+Lemma 关系嵌入的函数性 R : 函数性 R → 函数性 ⌜R⌝.
 Proof.
   intros FR a b c [x [y [xa [yb Rxy]]]] [x' [z [x'a [zc Rxz]]]].
-  rewrite (相似有单射性 x'a xa) in Rxz.
+  rewrite (相似的单射性 x'a xa) in Rxz.
   rewrite (FR x y z Rxy Rxz) in yb.
-  apply (相似有函数性 yb zc).
+  apply (相似的函数性 yb zc).
 Qed.
 
 Lemma 左嵌入保替代 R x a : 函数性 R → R @ x ⊆ₚ 𝕯 → x ▷ a → R @ x ▷ ⌜R⌝ @ a.
 Proof.
   intros FR dom xa y yR. destruct (dom y yR) as [b yb].
-  exists b. split; auto. apply 替代. now apply 关系嵌入有函数性.
+  exists b. split; auto. apply 替代. now apply 关系嵌入的函数性.
   apply 替代 in yR as [z [zx Rzy]]; auto.
   destruct (xa z zx) as [c [ca zc]].
   exists c. split; auto. now exists z, y.
@@ -161,9 +161,9 @@ Qed.
 Fact 右嵌入保替代 R x a : 函数性 R → R @ x ⊆ₚ 𝕯 → x ◁ a → R @ x ◁ ⌜R⌝ @ a.
 Proof.
   intros FR dom xa b br.
-  apply 替代 in br as [c [ca [z [y [zc [yb Rzy]]]]]]. 2: now apply 关系嵌入有函数性.
+  apply 替代 in br as [c [ca [z [y [zc [yb Rzy]]]]]]. 2: now apply 关系嵌入的函数性.
   exists y. split; auto. apply 替代; auto. exists z. split; auto.
-  destruct (xa c ca) as [z' [z'x z'c]]. now rewrite (相似有单射性 zc z'c).
+  destruct (xa c ca) as [z' [z'x z'c]]. now rewrite (相似的单射性 zc z'c).
 Qed.
 
 End StructurePreserving_Partial.
@@ -178,7 +178,7 @@ Lemma 相似保ϵ x y a b : x ≈ a → y ≈ b → (y ∈ x ↔ b ∈ a).
 Proof.
   intros xa yb. split; intros H.
   - now apply (相似保ϵ_偏 xa yb).
-  - now apply (相似保ϵ_偏 (相似对称 xa) (相似对称 yb)).
+  - now apply (相似保ϵ_偏 (相似的对称性 xa) (相似的对称性 yb)).
 Qed.
 
 Lemma 相似保空 : 𝓜.(结构).(空) ≈ 𝓝.(结构).(空).
@@ -216,11 +216,11 @@ Proof.
   - intros b pxb. assert (xpx: x ∈ 𝒫 x). apply 幂集. zf.
     destruct (左嵌入 pxb xpx) as [a [ab xa]].
     assert (bis: 𝒫 x ≈ 𝒫 a) by now apply 相似保幂.
-    rewrite <- (相似有函数性 bis pxb). constructor. now apply IH.
+    rewrite <- (相似的函数性 bis pxb). constructor. now apply IH.
   - intros b uxb. assert (xppux: x ∈ 𝒫 𝒫 ⋃ x) by apply 幂集, 幂并.
     assert (bis: 𝒫 𝒫 ⋃ x ≈ 𝒫 𝒫 b) by now apply 相似保幂, 相似保幂.
     destruct (左嵌入 bis xppux) as [a [appb xa]]. apply 相似保并 in xa as uxua.
-    rewrite <- (相似有函数性 uxua uxb). constructor. intros c ca. 
+    rewrite <- (相似的函数性 uxua uxb). constructor. intros c ca. 
     destruct (右嵌入 xa ca) as [y [yx yc]]. eapply IH; eauto.
 Qed.
 
@@ -316,8 +316,8 @@ Qed.
 Lemma 相似保替代封闭 x a : x ≈ a → 替代封闭 x → 替代封闭 a.
 Proof.
   intros xa CL R b FR H ba. destruct (右嵌入 xa ba) as [y [yx yb]].
-  apply 相似对称 in xa. apply 相似对称, (相似保替代 FR) in yb as bis.
-  - apply (相似保ϵ xa bis), CL; auto. now apply 关系嵌入有函数性.
+  apply 相似的对称性 in xa. apply 相似的对称性, (相似保替代 FR) in yb as bis.
+  - apply (相似保ϵ xa bis), CL; auto. now apply 关系嵌入的函数性.
     intros z z' [c [c' [cz [c'z' Rcc']]]] zy. apply (相似保ϵ xa c'z').
     apply (H c); auto. now apply (相似保ϵ yb cz).
   - intros c [d [db Rdc]]%替代; auto. apply 定义域是传递类 with a.
@@ -367,7 +367,7 @@ Proof.
     + assert (cS : c ∈ₚ 层). apply 相似保层 with z; auto.
       destruct (层ϵ线序 aS cS) as [ac|ca].
       * exfalso. apply aR, 定义域是膨胀类 with c.
-        apply ac. exists z. now apply 相似对称.
+        apply ac. exists z. now apply 相似的对称性.
       * destruct (左嵌入 zc yz) as [b [ba yb]].
         exists b. split; auto. eapply 层传递; eauto.
     + exfalso. apply 无循环1 with z. apply min; auto.
@@ -388,7 +388,7 @@ Proof.
   intros sur xS ndx y [a ya].
   destruct (全可及 a) as [b [ab bS]].
   destruct (sur b) as [z bz].
-  assert (zS : z ∈ₚ 层). eapply 相似保层; eauto. apply 相似对称 in bz.
+  assert (zS : z ∈ₚ 层). eapply 相似保层; eauto. apply 相似的对称性 in bz.
   assert (yz : y ∈ z). eapply 相似保ϵ; eauto.
   destruct (层ϵ线序 zS xS); auto. contradict ndx.
   apply 定义域是传递类 with z; auto. now exists b.
@@ -440,7 +440,7 @@ Qed.
 Theorem 相似的完全性 : 左完全 (相似 𝓜 𝓝) ∨ 右完全 (相似 𝓜 𝓝).
 Proof.
   反证. apply not_or_and in 反设 as [H1 H2].
-  rewrite 相似完全性对称 in H2.
+  rewrite 相似的完全性性对称 in H2.
   apply 存在外层 in H1 as [x [xS ndx]].
   apply 存在外层 in H2 as [a [aS nda]].
   destruct 相似对层的完全性; auto.
@@ -455,10 +455,10 @@ Proof.
   排中 (右完全 (相似 𝓜 𝓝)) as [r|nr].
   - now left.
   - right. left. split. apply l.
-    rewrite 相似完全性对称 in nr.
+    rewrite 相似的完全性性对称 in nr.
     now apply 值域域集化.
   - right. right. split. apply r.
-    rewrite 相似完全性对称 in r.
+    rewrite 相似的完全性性对称 in r.
     now apply 定义域集化.
   - destruct 相似的完全性; easy.
 Qed.
@@ -480,27 +480,27 @@ Definition j a := δ (λ x, x ≈ a).
 Lemma i规范 x : x ∈ₚ 𝕯 → x ≈ i x.
 Proof.
   intros [a xa]. unfold i. apply δ规范 with a; auto.
-  intros b c xb xc. apply (相似有函数性 xb xc).
+  intros b c xb xc. apply (相似的函数性 xb xc).
 Qed.
 
 Lemma j规范 a : a ∈ₚ 𝕹 → j a ≈ a.
 Proof.
   intros [x xa]. unfold j. apply δ规范 with x; auto.
-  intros y z ya za. apply (相似有单射性 ya za).
+  intros y z ya za. apply (相似的单射性 ya za).
 Qed.
 
 Lemma ij a : a ∈ₚ 𝕹 → i (j a) = a.
 Proof.
   intros aR. apply δ求值.
   - apply j规范, aR.
-  - hnf. apply 相似有函数性.
+  - hnf. apply 相似的函数性.
 Qed.
 
 Lemma ji x : x ∈ₚ 𝕯 → j (i x) = x.
 Proof.
   intros aR. apply δ求值.
   - apply i规范, aR.
-  - hnf. intros. eapply 相似有单射性; eauto.
+  - hnf. intros. eapply 相似的单射性; eauto.
 Qed.
 
 Lemma j定义域 a : 右完全 (相似 𝓜 𝓝) → j a ∈ₚ 𝕯.

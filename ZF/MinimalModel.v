@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Basic Hierarchy.
+Require Import ZF.Basic Hierarchy.
 Require Import Universe InnerModel.
 
 (** 极小模型 **)
@@ -36,8 +36,8 @@ Proof.
       enough (R @ A ∈ U). apply H. apply 宇宙对替代封闭; auto.
       intros [x xP] [y yP] RXY XA. eapply rc. apply RXY. apply XA.
     + rewrite 替代嵌入_函数性; auto.
-      apply 外延; intros y [x [xa rxy]]%替代; auto. 3: now apply 嵌入有函数性.
-      * apply 替代. apply 嵌入有函数性; auto. exists x. split; auto.
+      apply 外延; intros y [x [xa rxy]]%替代; auto. 3: now apply 嵌入的函数性.
+      * apply 替代. apply 嵌入的函数性; auto. exists x. split; auto.
         assert (aP: a ∈ₚ P). eapply 成员封闭类; eauto.
         assert (xP: x ∈ₚ P). eapply 成员封闭类; eauto.
         assert (yP: y ∈ₚ P). eapply 成员封闭类; eauto.

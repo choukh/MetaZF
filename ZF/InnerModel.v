@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import Basic.
+Require Import ZF.Basic.
 
 (*** 内模型 ***)
 Section InnerModel.
@@ -25,7 +25,7 @@ Notation "⌜ R ⌝" := (嵌入 R) (format "⌜ R ⌝").
 Definition 投影 (R : 𝓜 → 𝓜 → Prop) : ℙ → ℙ → Prop :=
   λ X Y : {x | P x}, R (proj1_sig X) (proj1_sig Y).
 
-Lemma 嵌入有函数性 R : 函数性 R → 函数性 ⌜R⌝.
+Lemma 嵌入的函数性 R : 函数性 R → 函数性 ⌜R⌝.
 Proof.
   intros FR x y z [xP [yP RXY]] [xP'[Pz RXZ]].
   eapply eq_sig_fst. eapply FR. apply RXY.
@@ -57,7 +57,7 @@ Definition 子结构 : ZF结构.
   - intros [x xP]. exists (𝒫 x). now apply 幂集封闭类.
   - intros R [A AP]. exists (R ⌜@⌝ A). 排中 (函数性 R).
     + rewrite 替代嵌入_函数性; auto.
-      apply 替代封闭类; auto. apply 嵌入有函数性; auto.
+      apply 替代封闭类; auto. apply 嵌入的函数性; auto.
       now intros x y [_ [yP _]] _.
     + rewrite 替代嵌入_非函数性; auto. now apply 空集封闭类.
 Defined.
@@ -81,13 +81,13 @@ Proof.
   - intros R [a aP] FR [y yP]. split; intros H.
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.
-      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入有函数性.
+      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入的函数性.
       exists (exist P x (成员封闭类 xa aP)).
       replace (成员封闭类 xa aP) with xP. replace yP with yP'. now split.
       apply proof_irrelevance. apply proof_irrelevance.
     + apply 并集. rewrite 全分离; auto.
       apply 并集. rewrite 并单. destruct H as [[x xP][XA RXY]].
-      apply 替代. now apply 嵌入有函数性. exists x.
+      apply 替代. now apply 嵌入的函数性. exists x.
       split. apply XA. exists xP, yP. apply RXY.
   - intros [x xP]. induction (正则 x) as [x _ IH].
     constructor. intros [y yP] Y. apply IH. apply Y.

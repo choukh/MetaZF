@@ -1,6 +1,17 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Export ZF.ZF.
+Require Export ZF.ZF Classical ProofIrrelevance.
+
+(** 经典逻辑 **)
+
+Tactic Notation "排中" constr(P) :=
+  destruct (classic P).
+Tactic Notation "排中" constr(P) "as" simple_intropattern(L) :=
+  destruct (classic P) as L.
+
+Ltac 反证 := match goal with
+  |- ?G => destruct (classic G) as [?正设|?反设]; [assumption|exfalso]
+end.
 
 (*** 基本部件 ***)
 Section Basic.

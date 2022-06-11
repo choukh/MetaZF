@@ -76,7 +76,7 @@ Proof.
   - intros x y xyx yfy. rewrite fxy. now constructor.
 Qed.
 
-Fact 同态唯一 f g x : 同态 f → 同态 g → f x = g x.
+Fact 同态映射唯一 f g x : 同态 f → 同态 g → f x = g x.
 Proof.
   intros xfx%(同态蕴含相似 x) xgx% (同态蕴含相似 x).
   apply (相似的函数性 xfx xgx).

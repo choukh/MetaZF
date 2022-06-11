@@ -362,7 +362,7 @@ Proof.
   - exfalso. 排中 (x ∈ₚ 𝕯).
     + now apply xD, 定义域是幂集封闭类.
     + now apply 幂集在上 with x, min.
-  - destruct (层二歧_引理 xS) as [suc|lim]. apply IH; auto.
+  - destruct (层之集二分 xS) as [suc|lim]. apply IH; auto.
     intros y [z [yz zx]]%并集. 排中 (z ∈ₚ 𝕯) as [[c zc]|].
     + assert (cS : c ∈ₚ 层). apply 相似保层 with z; auto.
       destruct (层ϵ线序 aS cS) as [ac|ca].

@@ -24,16 +24,18 @@ Proof. intros u [P [C S]] x xu. apply S in xu. apply S. now apply C. Qed.
 
 Lemma 宇宙对替代封闭 : 宇宙 ⊑ 替代封闭.
 Proof.
-  intros u [P [C S]] R FR x H xu. apply S in xu. apply S.
+  intros u [P [C S]] R x FR H xu. apply S in xu. apply S.
   apply C; auto. intros a b Rab ax. apply S. eapply H; eauto.
 Qed.
 
+(* 对成员关系封闭 *)
 Lemma 宇宙传递 : 宇宙 ⊑ 传递.
 Proof.
   intros u [P [C S]] x y xy yu. apply S in yu.
   apply S. eapply C; eauto.
 Qed.
 
+(* 对子集关系封闭 *)
 Lemma 宇宙膨胀 : 宇宙 ⊑ 膨胀.
 Proof.
   intros u U x y xy yu. apply (宇宙传递 U) with (z := 𝒫 y).
@@ -53,7 +55,7 @@ Qed.
 
 Lemma 宇宙对秩封闭 x u : 宇宙 u → x ∈ u → ρ x ∈ u.
 Proof.
-  intros U xu. induction (正则 x) as [x _ IH]. 
+  intros U xu. induction (正则 x) as [x _ IH].
   rewrite ρ等于ρ'. apply 宇宙对并集封闭; auto.
   repeat apply 宇宙对替代封闭; auto; try congruence.
   - intros a b <- [y [yx <-]]%函数式替代.
@@ -62,12 +64,12 @@ Proof.
   - intros a b <- ax. apply IH; auto. eapply 宇宙传递; eauto.
 Qed.
 
-Lemma 宇宙是层的子类 : 宇宙 ⊑ 层.
+Lemma 宇宙是层 : 宇宙 ⊑ 层.
 Proof.
   intros u U. enough (⋃ (u ∩ₚ 层) = u) as <-.
   { constructor. now intros x H%分离. }
   apply 外延.
-  - intros x [y [xy [yu yS]%分离]]%并集. eapply 宇宙传递; eauto.
+  - intros x [y [xy [yu _]%分离]]%并集. eapply 宇宙传递; eauto.
   - intros x xu. apply 并集. exists (𝒫 (ρ x)). split.
     + apply 幂集, ρ规范.
     + apply 分离. split.
@@ -81,7 +83,7 @@ Proof.
   - repeat split.
     + now apply 宇宙对替代封闭.
     + exists ∅. now apply 宇宙对空集封闭.
-    + now apply 宇宙是层的子类.
+    + now apply 宇宙是层.
     + intros x xu%宇宙对秩封闭; auto.
       apply 并集. exists (𝒫 (ρ x)). split.
       * apply 幂集, ρ规范.

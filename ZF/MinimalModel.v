@@ -50,10 +50,10 @@ Theorem 任意模型存在极小内模型 (𝓜 : ZF) :
   ∃ (P : 𝓜 → Prop) (PC : 封闭类 P), ZF₀ (内模型 PC).
 Proof.
   排中 (∃ u, 宇宙 u) as [[u uU]|H].
-  - apply 宇宙是层的子类 in uU as uS.
+  - apply 宇宙是层 in uU as uS.
     destruct (层良基 uS uU) as [v [[vS [p [pc s]]] min]]. exists p, pc.
     intros [[x xp] XU]. apply 内模型的宇宙是原模型的宇宙 in XU.
-    apply (无循环1 (x:=x)). apply min; auto using 宇宙是层的子类. now apply s.
+    apply (无循环1 (x:=x)). apply min; auto using 宇宙是层. now apply s.
   - exists (λ _, True). assert (c : 封闭类 (λ _, True)) by firstorder.
     exists c. intros [[u true] U]. apply H. exists u.
     apply 内模型的宇宙是原模型的宇宙 in U. apply U.

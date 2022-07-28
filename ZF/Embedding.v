@@ -77,10 +77,10 @@ Proof.
   intros x x' y yx%相似的对称性 yx'%相似的对称性. eapply 相似的函数性; eauto.
 Qed.
 
-Lemma 相似的完全性性对称 : 右完全 (@相似 𝓜 𝓝) ↔ 左完全 (@相似 𝓝 𝓜).
+Lemma 相似的完全性对称 : 右完全 (@相似 𝓜 𝓝) ↔ 左完全 (@相似 𝓝 𝓜).
 Proof. split; intros H x; destruct (H x) as [a ax%相似的对称性]; eauto. Qed.
 
-Lemma 嵌入对称 x a : x ▷ a ↔ a ◁ x.
+Lemma 嵌入的对称性 x a : x ▷ a ↔ a ◁ x.
 Proof.
   split.
   - intros l y yx. destruct (l y yx) as [b [ba yb]].
@@ -161,7 +161,7 @@ Qed.
 Fact 右嵌入保替代 R x a : 函数性 R → R @ x ⊆ₚ 𝕯 → x ◁ a → R @ x ◁ ⌜R⌝ @ a.
 Proof.
   intros FR dom xa b br.
-  apply 替代 in br as [c [ca [z [y [zc [yb Rzy]]]]]]. 2: now apply 关系嵌入的函数性.
+  apply 替代 in br as [c [ca [z [y [zc [yb Rzy]]]]]]. 2:now apply 关系嵌入的函数性.
   exists y. split; auto. apply 替代; auto. exists z. split; auto.
   destruct (xa c ca) as [z' [z'x z'c]]. now rewrite (相似的单射性 zc z'c).
 Qed.
@@ -185,21 +185,21 @@ Lemma 相似保空 : 𝓜.(结构).(空) ≈ 𝓝.(结构).(空).
 Proof.
   split.
   - apply 嵌入保空.
-  - now apply 嵌入对称, 嵌入保空.
+  - now apply 嵌入的对称性, 嵌入保空.
 Qed.
 
 Lemma 相似保并 x a : x ≈ a → ⋃ x ≈ ⋃ a.
 Proof.
   intros [xa ax]. split.
   - now apply 嵌入保并.
-  - now apply 嵌入对称, 嵌入保并, 嵌入对称.
+  - now apply 嵌入的对称性, 嵌入保并, 嵌入的对称性.
 Qed.
 
 Lemma 相似保幂 x a : x ≈ a → 𝒫 x ≈ 𝒫 a.
 Proof.
   intros [xa ax]. split.
   - now apply 嵌入保幂.
-  - now apply 嵌入对称, 嵌入保幂, 嵌入对称.
+  - now apply 嵌入的对称性, 嵌入保幂, 嵌入的对称性.
 Qed.
 
 Lemma 相似保替代 R x a : 函数性 R → R @ x ⊆ₚ 𝕯 → x ≈ a → R @ x ≈ ⌜R⌝ @ a.
@@ -326,7 +326,7 @@ Qed.
 
 Lemma 相似保宇宙 x a : x ≈ a → 宇宙 x → 宇宙 a.
 Proof.
-  intros xa xU. exists (λ b, b ∈ a). split. 2: easy. split.
+  intros xa xU. exists (λ b, b ∈ a). split. 2:easy. split.
   - now apply 宇宙传递, (相似保传递 xa) in xU.
   - now apply 宇宙对空集封闭, (相似保空集封闭 xa) in xU.
   - now apply 宇宙对并集封闭, (相似保并集封闭 xa) in xU.
@@ -424,7 +424,7 @@ Lemma 外层相似 x a :
 Proof.
   intros H1 H2. split.
   - apply 外层嵌入. apply H1. apply H2. apply H2.
-  - apply 嵌入对称, 外层嵌入. apply H2. apply H1. apply H1.
+  - apply 嵌入的对称性, 外层嵌入. apply H2. apply H1. apply H1.
 Qed.
 
 Lemma 相似对层的完全性 : 层 ⊑ 𝕯 𝓜 𝓝 ∨ 层 ⊑ 𝕯 𝓝 𝓜.
@@ -440,7 +440,7 @@ Qed.
 Theorem 相似的完全性 : 左完全 (相似 𝓜 𝓝) ∨ 右完全 (相似 𝓜 𝓝).
 Proof.
   反证. apply not_or_and in 反设 as [H1 H2].
-  rewrite 相似的完全性性对称 in H2.
+  rewrite 相似的完全性对称 in H2.
   apply 存在外层 in H1 as [x [xS ndx]].
   apply 存在外层 in H2 as [a [aS nda]].
   destruct 相似对层的完全性; auto.
@@ -455,10 +455,10 @@ Proof.
   排中 (右完全 (相似 𝓜 𝓝)) as [r|nr].
   - now left.
   - right. left. split. apply l.
-    rewrite 相似的完全性性对称 in nr.
+    rewrite 相似的完全性对称 in nr.
     now apply 值域域集化.
   - right. right. split. apply r.
-    rewrite 相似的完全性性对称 in r.
+    rewrite 相似的完全性对称 in r.
     now apply 定义域集化.
   - destruct 相似的完全性; easy.
 Qed.

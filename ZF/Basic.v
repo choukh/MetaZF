@@ -235,6 +235,15 @@ Qed.
 Lemma δ规范 P x : P x → uniqueness P → P (δ P).
 Proof. intros xP uq. now rewrite (δ求值 xP uq). Qed.
 
+(** 唯一性 **)
+
+Lemma 集化唯一 P : uniqueness (集化 P).
+Proof.
+  intros a b H1 H2. apply 外延; intros x.
+  - now intros H3 % H1 % H2.
+  - now intros H3 % H2 % H1.
+Qed.
+
 (** 正则 **)
 
 Lemma 无循环1 x : x ∉ x.

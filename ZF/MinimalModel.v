@@ -5,7 +5,7 @@ Require Import Universe InnerModel.
 
 (** 极小模型 **)
 
-Lemma 内模型的宇宙是原模型的宇宙 {𝓜 : ZF} {P : 𝓜 → Prop} {PC : 封闭类 P}
+Local Lemma 内模型的宇宙是原模型的宇宙 {𝓜 : ZF} {P : 𝓜 → Prop} {PC : 封闭类 P}
   (U : 内模型 PC) : 宇宙 U → 宇宙 (proj1_sig U).
 Proof.
   intros UU. destruct U as [u uP]. set (exist P u uP : 内模型 PC) as U.

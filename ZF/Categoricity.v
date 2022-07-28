@@ -24,14 +24,14 @@ Proof.
     set (i (g b)) as c.
     assert (ca: c ∈ a) by apply s, i值域, l.
     assert (H: c ∈ b ↔ c ∈ a ∧ c ∉ f (j c)). unfold b. now rewrite 分离.
-    unfold c in H at 4. rewrite ji, fg in H. 2: apply l.
+    unfold c in H at 4. rewrite ji, fg in H. 2:apply l.
     intuition.
   - exfalso.
     set (x ∩ₚ (λ y, y ∉ g (i y))) as y.
     set (j (f y)) as z.
     assert (zx: z ∈ x) by apply s, j定义域, r.
     assert (H: z ∈ y ↔ z ∈ x ∧ z ∉ g (i z)). unfold y. now rewrite 分离.
-    unfold z in H at 4. rewrite ij, gf in H. 2: apply r.
+    unfold z in H at 4. rewrite ij, gf in H. 2:apply r.
     intuition.
 Qed.
 

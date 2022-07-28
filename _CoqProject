@@ -19,3 +19,5 @@ ZF/MinimalModel.v
 
 ZF/Embedding.v
 ZF/Categoricity.v
+
+ZF/Infinity.v

@@ -81,7 +81,7 @@ Proof.
   - intros R [a aP] FR [y yP]. split; intros H.
     + apply 并集 in H. rewrite 全分离 in H; auto.
       apply 并集 in H. rewrite 并单 in H.
-      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2: now apply 嵌入的函数性.
+      apply 替代 in H as [x[xa[xP[yP' RXY]]]]. 2:now apply 嵌入的函数性.
       exists (exist P x (成员封闭类 xa aP)).
       replace (成员封闭类 xa aP) with xP. replace yP with yP'. now split.
       apply proof_irrelevance. apply proof_irrelevance.

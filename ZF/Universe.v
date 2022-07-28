@@ -77,7 +77,7 @@ Proof.
       * constructor. apply ρ规范.
 Qed.
 
-Theorem 宇宙是对替代封闭的非空极限层 u : 宇宙 u ↔ (替代封闭 u ∧ 非空 u ∧ 极限层 u).
+Theorem 宇宙等价于对替代封闭的非空极限层 u : 宇宙 u ↔ (替代封闭 u ∧ 非空 u ∧ 极限层 u).
 Proof.
   split; intros H.
   - repeat split.

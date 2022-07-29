@@ -14,7 +14,7 @@ Variable P : 𝓜 → Prop.
 Hypothesis P为封闭类 : 封闭类 P.
 
 (* 类的类型化 *)
-Definition ℙ : Type := {x | x ∈ₚ P}.
+Definition ℙ : Type := Σ x, x ∈ₚ P.
 
 (* 类P中关系R到𝓜的嵌入 *)
 Definition 嵌入 (R : ℙ → ℙ → Prop) : 𝓜 → 𝓜 → Prop :=
@@ -23,7 +23,7 @@ Notation "⌜ R ⌝" := (嵌入 R) (format "⌜ R ⌝").
 
 (* 𝓜中关系R到类P的投影 *)
 Definition 投影 (R : 𝓜 → 𝓜 → Prop) : ℙ → ℙ → Prop :=
-  λ X Y : {x | P x}, R (proj1_sig X) (proj1_sig Y).
+  λ X Y : (Σ x, x ∈ₚ P), R (proj1_sig X) (proj1_sig Y).
 
 Lemma 嵌入的函数性 R : 函数性 R → 函数性 ⌜R⌝.
 Proof.
@@ -40,7 +40,7 @@ Proof.
 Qed.
 
 (* ⋃ {x ∊ { ⌜R⌝ @ A } | 函数性 R} *)
-Definition 替代嵌入 R A := ⋃ ([⌜R⌝ @ A] ∩ₚ (λ _, 函数性 R)).
+Definition 替代嵌入 R A := ⋃ ({⌜R⌝ @ A,} ∩ₚ (λ _, 函数性 R)).
 Notation "R ⌜@⌝ A" := (替代嵌入 R A) (at level 70).
 
 Lemma 替代嵌入_函数性 R A : 函数性 R → R ⌜@⌝ A = ⌜R⌝ @ A.

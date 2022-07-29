@@ -62,10 +62,10 @@ Qed.
 
 Local Definition R a b := λ x y, (x = ∅ ∧ y = a) ∨ (x = 𝒫 ∅ ∧ y = b).
 Definition 偶 a b := R a b @ 𝒫 𝒫 ∅.
-Notation "[ a , b ]" := (偶 a b).
+Notation "{ a , b }" := (偶 a b).
 
-Definition 单 a := [a, a].
-Notation "[ a ]" := (单 a).
+Definition 单 a := {a, a}.
+Notation "{ a , }" := (单 a) (format "{ a , }").
 
 Local Lemma 函数性R a b : 函数性 (R a b).
 Proof.
@@ -75,7 +75,7 @@ Proof.
   - apply 非非空 in H1. contradict H1. exists ∅. now apply 幂集.
 Qed.
 
-Lemma 配对 a b x : x ∈ [a, b] ↔ x = a ∨ x = b.
+Lemma 配对 a b x : x ∈ {a, b} ↔ x = a ∨ x = b.
 Proof.
   split; intros H.
   - apply 替代 in H as [y [_ [[_ A]|[_ A]]]]; auto. apply 函数性R.
@@ -84,7 +84,7 @@ Proof.
     + exists (𝒫 ∅). split. apply 幂集. zf. unfold R. now right.
 Qed.
 
-Lemma 单集 x a : x ∈ [a] ↔ x = a.
+Lemma 单集 x a : x ∈ {a,} ↔ x = a.
 Proof. unfold 单. rewrite 配对. firstorder. Qed.
 
 (** 并集 **)
@@ -114,7 +114,7 @@ Qed.
 Lemma 并空 : ⋃ ∅ = ∅.
 Proof. apply 并即上确界. zf. Qed.
 
-Lemma 并单 x : ⋃ [x] = x.
+Lemma 并单 x : ⋃ {x,} = x.
 Proof.
   apply 外延; intros y H.
   - apply 并集 in H as [z [zy yx%单集]]. congruence.
@@ -132,6 +132,36 @@ Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
 Proof.
   intros tr a y ya [b [ab bx]]%并集. apply 并集.
   exists b. split; auto. eapply tr; eauto.
+Qed.
+
+(** 二元并 **)
+
+Definition 偶并 := λ A B, ⋃ {A, B}.
+Notation "A ∪ B" := (偶并 A B) (at level 50).
+
+Lemma 左并 : ∀ x A B, x ∈ A → x ∈ A ∪ B.
+Proof.
+  intros. eapply 并集. exists A. split; auto. apply 配对. now left.
+Qed.
+
+Lemma 右并 : ∀ x A B, x ∈ B → x ∈ A ∪ B.
+Proof.
+  intros. eapply 并集. exists B. split; auto. apply 配对. now right.
+Qed.
+
+Lemma 二元并 : ∀ x A B, x ∈ A ∪ B → x ∈ A ∨ x ∈ B.
+Proof.
+  intros. apply 并集 in H as [a [Ha Hx]].
+  apply 配对 in Hx as []; subst; auto.
+Qed.
+
+Definition 继 := λ a, a ∪ {a,}.
+Notation "a ⁺" := (继 a) (at level 6, format "a ⁺").
+
+Lemma 后继 : ∀ a, ∀ x ∈ a⁺, x ∈ a ∨ x = a.
+Proof.
+  intros a x Hx. apply 二元并 in Hx as []. auto.
+  apply 单集 in H. auto.
 Qed.
 
 (** 幂集 **)
@@ -219,7 +249,7 @@ Qed.
 
 (** 描述 **)
 
-Definition δ P := ⋃ ((λ _ y, P y) @ [∅]).
+Definition δ P := ⋃ ((λ _ y, P y) @ {∅,}).
 
 Lemma δ求值 P x : P x → uniqueness P → δ P = x.
 Proof.
@@ -257,14 +287,16 @@ Proof. revert x y. induction (正则 z) as [z _ IH]. eauto. Qed.
 
 (** 封闭性 **)
 
-Definition 配对封闭 x := ∀ a b ∈ x, [a, b] ∈ x.
+Definition 配对封闭 x := ∀ a b ∈ x, {a, b} ∈ x.
 Definition 分离封闭 x := ∀ P, ∀ y ∈ x, y ∩ₚ P ∈ x.
 
 End Basic.
 
 Notation 非空 x := (∃ y, y ∈ x).
-Notation "[ a , b ]" := (偶 a b) : zf_scope.
-Notation "[ a ]" := (单 a) : zf_scope.
+Notation "{ a , b }" := (偶 a b) : zf_scope.
+Notation "{ a , }" := (单 a) (format "{ a , }") : zf_scope.
+Notation "A ∪ B" := (偶并 A B) (at level 50) : zf_scope.
+Notation "a ⁺" := (继 a) (at level 6, format "a ⁺") : zf_scope.
 Notation "F [ A ]" := (F替 F A) (at level 7, format "F [ A ]") : zf_scope.
 Notation "A ∩ₚ P" := (分 A P) (at level 60) : zf_scope.
 

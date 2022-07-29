@@ -7,16 +7,16 @@ Section SingPair.
 Context {𝓜 : HF}.
 Implicit Types x y a b : 𝓜.
 
-Lemma 单集 x a : x ∈ [a] ↔ x = a.
+Lemma 单集 x a : x ∈ {a,} ↔ x = a.
 Proof. hf. Qed.
 
-Lemma 单集单射 x y : [x] = [y] → x = y.
+Lemma 单集单射 x y : {x,} = {y,} → x = y.
 Proof. intros eq. apply 单集. rewrite <- eq. hf. Qed.
 
-Lemma 配对 x a b : x ∈ [a, b] ↔ x = a ∨ x = b.
+Lemma 配对 x a b : x ∈ {a, b} ↔ x = a ∨ x = b.
 Proof. hf. Qed.
 
-Lemma 配对单射 x y a b : [x, y] = [a, b] → x = a ∧ y = b ∨ x = b ∧ y = a.
+Lemma 配对单射 x y a b : {x, y} = {a, b} → x = a ∧ y = b ∨ x = b ∧ y = a.
 Proof.
   intros A.
   assert (B: x = a ∨ x = b). apply 配对. rewrite <- A. hf.

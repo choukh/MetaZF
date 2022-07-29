@@ -169,7 +169,7 @@ Proof.
     split; auto. eapply 层膨胀; eauto.
 Qed.
 
-Lemma 配对_升秩 a b x : a ∈ x → b ∈ x → [a, b] ∈ 𝒫 x.
+Lemma 配对_升秩 a b x : a ∈ x → b ∈ x → {a, b} ∈ 𝒫 x.
 Proof. intros ax bx. apply 幂集. intros c [ca|cb]%配对; now subst. Qed.
 
 (** 后继层与极限层 **)

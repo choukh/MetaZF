@@ -18,3 +18,8 @@ Definition 左完全 {X Y} (R : X → Y → Prop) :=
 
 Definition 右完全 {X Y} (R : X → Y → Prop) :=
   ∀ y, ∃ x, R x y.
+
+(* 存在量词式Σ类型记法 *)
+Notation "'Σ' x .. y , p" := (sig (fun x => .. (sig (fun y => p)) ..))
+  (at level 200, x binder, right associativity,
+    format "'[' 'Σ'  '/ ' x .. y ,  '/ ' p ']'") : type_scope.

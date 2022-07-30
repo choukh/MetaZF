@@ -35,6 +35,8 @@ Qed.
 Lemma n层 n : 幂迭代 n ∈ₚ 层.
 Proof. induction n. apply 空集层. now constructor. Qed.
 
+Section Omega.
+
 Definition 归纳集 A := ∅ ∈ A ∧ ∀ a ∈ A, a⁺ ∈ A.
 Definition 自然数 n := ∀ A, 归纳集 A → n ∈ A.
 Definition ω := Vω ∩ₚ 自然数.
@@ -60,6 +62,8 @@ Proof.
   - apply 分离. split; auto. apply H. apply ω层是归纳集.
 Qed.
 
+End Omega.
+
 Lemma n层属ω层 n : 幂迭代 n ∈ Vω.
 Proof.
   apply 并集. exists (幂迭代 (S n)). split.
@@ -72,5 +76,20 @@ Proof.
   replace ∅ with (幂迭代 0) by reflexivity.
   apply n层属ω层.
 Qed.
+
+Lemma ω层 : Vω ∈ₚ 层.
+Proof.
+  constructor. intros y Y.
+  apply 集化有限层 in Y as [n ->]. apply n层.
+Qed.
+
+Lemma ω层之并 : Vω ⊆ ⋃ Vω.
+Proof.
+  intros x X. apply ω层成员属某n层 in X as [n X].
+  apply 并集. exists (幂迭代 n). split; trivial. apply n层属ω层.
+Qed.
+
+Lemma ω层是极限层 : Vω ∈ₚ 极限层.
+Proof. split. apply ω层. apply ω层之并. Qed.
 
 End Infinity.

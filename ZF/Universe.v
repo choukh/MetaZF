@@ -125,7 +125,7 @@ Proof.
   - intros [x [u [ux [U H]]]]. eauto.
 Qed.
 
-Lemma ZFₙO 𝓜 : ZFₙ 0 𝓜 ↔ ¬ ∃ u : 𝓜, 宇宙 u.
+Lemma ZFₙO 𝓜 : ZFₙ 0 𝓜 ↔ ¬ ∃ u, 宇宙 u.
 Proof.
   split.
   - intros [_ H] [u U]. apply H. apply 等级S. now exists u.

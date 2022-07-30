@@ -334,7 +334,7 @@ Proof.
   - now apply 宇宙对替代封闭, (相似保替代封闭 xa) in xU.
 Qed.
 
-Lemma 相似保宇宙等级 n x a : x ≈ a → 强度 n x → 强度 n a.
+Lemma 相似保宇宙等级 n x a : x ≈ a → 等级 n x → 等级 n a.
 Proof.
   revert x a. induction n; simpl. auto.
   intros x a xa [y [yx [yU zfn]]].

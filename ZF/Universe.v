@@ -104,17 +104,21 @@ Section UniverseLevel.
 Implicit Type 𝓜 : ZF.
 
 (* x中至少有n个宇宙 *)
-Fixpoint 强度 {𝓜} n x := match n with
+Fixpoint 等级 {𝓜} n x := match n with
   | O => True
-  | S n => ∃ u ∈ x, 宇宙 u ∧ 强度 n u
+  | S n => ∃ u ∈ x, 宇宙 u ∧ 等级 n u
 end.
 
-Definition ZFₙ n 𝓜 := (∃ x, 强度 n x) ∧ (¬ ∃ x, 强度 (S n) x).
+(* 模型中正好有n个宇宙 *)
+Definition ZFₙ n 𝓜 := (∃ x, 等级 n x) ∧ (¬ ∃ x, 等级 (S n) x).
 
-Lemma 强度O {𝓜} : ∃ x, 强度 0 x.
+(* 模型中至少有ω个宇宙 *)
+Definition ZFω 𝓜 := ∀ n, ∃ x, 等级 n x.
+
+Lemma 等级O {𝓜} : ∃ x, 等级 0 x.
 Proof. now exists ∅. Qed.
 
-Lemma 强度S {𝓜} n : (∃ u ∈ₚ 宇宙, 强度 n u) ↔ (∃ x, 强度 (S n) x).
+Lemma 等级S {𝓜} n : (∃ u ∈ₚ 宇宙, 等级 n u) ↔ (∃ x, 等级 (S n) x).
 Proof.
   split.
   - intros [u [U H]]. exists {u,}. exists u. split. now apply 单集. easy.
@@ -124,16 +128,16 @@ Qed.
 Lemma ZFₙO 𝓜 : ZFₙ 0 𝓜 ↔ ¬ ∃ u : 𝓜, 宇宙 u.
 Proof.
   split.
-  - intros [_ H] [u U]. apply H. apply 强度S. now exists u.
-  - intros H. split. apply 强度O. intros H1%强度S. firstorder.
+  - intros [_ H] [u U]. apply H. apply 等级S. now exists u.
+  - intros H. split. apply 等级O. intros H1%等级S. firstorder.
 Qed.
 
-Lemma ZFₙS 𝓜 n : ZFₙ (S n) 𝓜 ↔ ∃ u ∈ₚ 宇宙, 强度 n u ∧ ¬ ∃ x, 强度 (S (S n)) x.
+Lemma ZFₙS 𝓜 n : ZFₙ (S n) 𝓜 ↔ ∃ u ∈ₚ 宇宙, 等级 n u ∧ ¬ ∃ x, 等级 (S (S n)) x.
 Proof.
   split.
-  - intros [[u [uU Hu]]%强度S HSS]. eauto.
+  - intros [[u [uU Hu]]%等级S HSS]. eauto.
   - intros [u [uU [Hu HS]]].
-    split; trivial. apply 强度S. eauto.
+    split; trivial. apply 等级S. eauto.
 Qed.
 
 End UniverseLevel.

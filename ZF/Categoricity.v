@@ -68,14 +68,14 @@ Proof.
   destruct (相似的完全性三歧 𝓜 𝓝) as [H|[[l[a s]]|[r[x s]]]].
   - apply H.
   - exfalso. apply ZFₙS in Mn as [u [U [H _]]].
-    apply Nn. apply 强度S. exists a. split.
+    apply Nn. apply 等级S. exists a. split.
     + apply (@集化值域是宇宙 𝓝 𝓜), s.
     + exists (i u). split. now apply s, i值域.
       assert (u ≈ i u) by apply i规范, l. split.
       * apply (相似保宇宙 (x:=u)); auto.
       * apply (相似保宇宙等级 (x:=u)); auto.
   - exfalso. apply ZFₙS in Nn as [u [U [H _]]].
-    apply Mn. apply 强度S. exists x. split.
+    apply Mn. apply 等级S. exists x. split.
     + apply 集化定义域是宇宙, s.
     + exists (j u). split. now apply s, j定义域.
       assert (u ≈ j u) by apply 相似的对称性, j规范, r. split.

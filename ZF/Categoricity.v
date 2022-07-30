@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import ZF.Basic Embedding Universe.
+From ZF Require Import Basic Embedding Universe.
 
 (*** 范畴性 ***)
 
@@ -43,9 +43,9 @@ Variable 𝓜 𝓝 : ZF.
 Arguments 𝕯 : clear implicits.
 Arguments 𝕹 : clear implicits.
 
-Theorem 极小模型同构 : ZF₀ 𝓜 → ZF₀ 𝓝 → 𝓜 ≅ 𝓝.
+Theorem 极小模型同构 : ZFₙ 0 𝓜 → ZFₙ 0 𝓝 → 𝓜 ≅ 𝓝.
 Proof.
-  intros minM minN.
+  intros minM%ZFₙO minN%ZFₙO.
   destruct (相似的完全性三歧 𝓜 𝓝) as [H|[[l[a s]]|[r[x s]]]].
   - apply H.
   - exfalso. apply minN. exists a.
@@ -62,20 +62,20 @@ Variable 𝓜 𝓝 : ZF.
 Notation i := (i 𝓝).
 Notation j := (j 𝓜).
 
-Theorem 有限序数宇宙模型同构 n : ZFₛₙ n 𝓜 → ZFₛₙ n 𝓝 → 𝓜 ≅ 𝓝.
+Theorem 有限序数宇宙模型同构 n : ZFₙ n 𝓜 → ZFₙ n 𝓝 → 𝓜 ≅ 𝓝.
 Proof.
-  intros Mn Nn.
+  intros Mn Nn. destruct n. apply 极小模型同构; trivial.
   destruct (相似的完全性三歧 𝓜 𝓝) as [H|[[l[a s]]|[r[x s]]]].
   - apply H.
-  - exfalso. destruct Mn as [[u[uU un]] _].
-    apply Nn. exists a; simpl. split.
+  - exfalso. apply ZFₙS in Mn as [u [U [H _]]].
+    apply Nn. apply 强度S. exists a. split.
     + apply (@集化值域是宇宙 𝓝 𝓜), s.
     + exists (i u). split. now apply s, i值域.
       assert (u ≈ i u) by apply i规范, l. split.
       * apply (相似保宇宙 (x:=u)); auto.
       * apply (相似保宇宙等级 (x:=u)); auto.
-  - exfalso. destruct Nn as [[u[uU un]] _].
-    apply Mn. exists x; simpl. split.
+  - exfalso. apply ZFₙS in Nn as [u [U [H _]]].
+    apply Mn. apply 强度S. exists x. split.
     + apply 集化定义域是宇宙, s.
     + exists (j u). split. now apply s, j定义域.
       assert (u ≈ j u) by apply 相似的对称性, j规范, r. split.

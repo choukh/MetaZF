@@ -20,4 +20,6 @@ ZF/MinimalModel.v
 ZF/Embedding.v
 ZF/Categoricity.v
 
+ZF/AdjunctionFacts.v
+ZF/HereditarilyFinite.v
 ZF/Infinity.v

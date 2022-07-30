@@ -1,6 +1,6 @@
 (** Coq coding by choukh, July 2022 **)
 
-Require Import ZF.Basic ZF.Hierarchy.
+From ZF Require Import Basic Hierarchy HereditarilyFinite.
 
 (** 无穷公理的定义 **)
 
@@ -20,13 +20,13 @@ Section Infinity.
 Context {𝓜 : ZF}.
 Hypothesis Inf : 无穷 𝓜.
 
-Definition V_ltω := δ (λ x, 集化 有限层 x).
-Definition V_ω := ⋃ V_ltω.
+Definition Vltω := δ (λ x, 集化 有限层 x).
+Definition Vω := ⋃ Vltω.
 
-Lemma 集化有限层 : 集化 有限层 V_ltω.
+Lemma 集化有限层 : 集化 有限层 Vltω.
 Proof. destruct Inf as [x H]. apply (δ规范 H), 集化唯一. Qed.
 
-Lemma ω层成员属某n层 x : x ∈ V_ω → ∃ n, x ∈ 幂迭代 n.
+Lemma ω层成员属某n层 x : x ∈ Vω → ∃ n, x ∈ 幂迭代 n.
 Proof.
   intros [y [xy yV]] % 并集.
   apply 集化有限层 in yV as [n ->]. now exists n.
@@ -37,9 +37,9 @@ Proof. induction n. apply 空集层. now constructor. Qed.
 
 Definition 归纳集 A := ∅ ∈ A ∧ ∀ a ∈ A, a⁺ ∈ A.
 Definition 自然数 n := ∀ A, 归纳集 A → n ∈ A.
-Definition ω := V_ω ∩ₚ 自然数.
+Definition ω := Vω ∩ₚ 自然数.
 
-Lemma ω层是归纳集 : 归纳集 V_ω.
+Lemma ω层是归纳集 : 归纳集 Vω.
 Proof.
   split.
   - apply 并集. exists (幂迭代 1). split.
@@ -48,8 +48,8 @@ Proof.
   - intros. apply ω层成员属某n层 in H as [n an].
     apply 并集. exists (幂迭代 (S n)). split.
     + simpl. apply 幂集. intros x xa. apply 后继 in xa as [].
-      * apply 层传递 with a; auto. apply n层.
       * congruence.
+      * apply 层传递 with a; auto. apply n层.
     + apply 集化有限层. now exists (S n).
 Qed.
 
@@ -60,14 +60,14 @@ Proof.
   - apply 分离. split; auto. apply H. apply ω层是归纳集.
 Qed.
 
-Lemma n层属ω层 n : 幂迭代 n ∈ V_ω.
+Lemma n层属ω层 n : 幂迭代 n ∈ Vω.
 Proof.
   apply 并集. exists (幂迭代 (S n)). split.
   - now apply 幂集.
   - apply 集化有限层. now exists (S n).
 Qed.
 
-Lemma 空集属ω层 : ∅ ∈ V_ω.
+Lemma 空集属ω层 : ∅ ∈ Vω.
 Proof.
   replace ∅ with (幂迭代 0) by reflexivity.
   apply n层属ω层.

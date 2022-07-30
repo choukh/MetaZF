@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import ZF.Basic.
+From ZF Require Import Basic.
 
 (*** 无穷公理 → 模型不可数 ***)
 Section Uncountability.

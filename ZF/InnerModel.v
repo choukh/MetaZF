@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import ZF.Basic.
+From ZF Require Import Basic.
 
 (*** 内模型 ***)
 Section InnerModel.

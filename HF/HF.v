@@ -1,6 +1,6 @@
 (** Coq coding by choukh, June 2022 **)
 
-Require Export HF.Meta.
+From HF Require Export Meta.
 
 Reserved Notation "x ⨮ y" (at level 65, right associativity).
 Reserved Notation "x ∈ y" (at level 70).
@@ -75,7 +75,7 @@ Proof.
   - intros [H1 H2] a [->|]%并运算规范; auto.
 Qed.
 
-Fact 只有空集是空集的子集 x : x ⊆ ∅ → x = ∅.
+Fact 空集的子集 x : x ⊆ ∅ → x = ∅.
 Proof.
   hf_ind x.
   - auto.
@@ -142,7 +142,7 @@ Ltac 消去 := match goal with
   |[H: _ ∈ ∅ |- _] => destruct (空集定理 H)
   |[H: ?z ∈ ?x ⨮ _ |- _] => apply 并运算规范 in H as [|]
   |[H: _ ⨮ _ ⊆ _ |- _ ] => apply 并作子集 in H as []
-  |[H: _ ⊆ ∅ |- _] => apply 只有空集是空集的子集 in H as ->
+  |[H: _ ⊆ ∅ |- _] => apply 空集的子集 in H as ->
   |[H: 传递 ?x, H': _ ∈ ?x |- _] => 加前提 (H _ H')
 end.
 

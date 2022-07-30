@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Export ZF.Meta.
+From ZF Require Export Meta.
 
 (** ZF模型的定义 **)
 
@@ -40,7 +40,7 @@ Notation "'𝒫' A" := (幂 A) (at level 9, right associativity, format "'𝒫' 
 Notation "R @ A" := (替 R A) (at level 60) : zf_scope.
 
 Inductive 良基 {𝓜 : ZF结构} (A : 𝓜) : Prop :=
-  | wf_intro : (∀ x ∈ A, 良基 x) → 良基 A.
+  | 良基引入 : (∀ x ∈ A, 良基 x) → 良基 A.
 
 Class ZF := {
   结构 :> ZF结构;

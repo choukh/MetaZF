@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import ZF.Basic Hierarchy Universe.
+From ZF Require Import Basic Hierarchy Universe.
 
 (** 不同模型的集合间的∈-相似关系 **)
 Section Bisimilarity.
@@ -334,7 +334,7 @@ Proof.
   - now apply 宇宙对替代封闭, (相似保替代封闭 xa) in xU.
 Qed.
 
-Lemma 相似保宇宙等级 n x a : x ≈ a → ZFₙ n x → ZFₙ n a.
+Lemma 相似保宇宙等级 n x a : x ≈ a → 强度 n x → 强度 n a.
 Proof.
   revert x a. induction n; simpl. auto.
   intros x a xa [y [yx [yU zfn]]].

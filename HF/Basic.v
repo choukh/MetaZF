@@ -1,6 +1,6 @@
 (** Coq coding by choukh, June 2022 **)
 
-Require Export HF.HF Extensionality.
+From HF Require Export HF Extensionality.
 
 (** 单集与配对 **)
 Section SingPair.

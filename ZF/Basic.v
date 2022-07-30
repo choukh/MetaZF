@@ -1,6 +1,7 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Export ZF.ZF Classical ProofIrrelevance.
+Require Export Classical ProofIrrelevance.
+From ZF Require Export ZF.
 
 (** 经典逻辑 **)
 
@@ -48,6 +49,9 @@ Proof.
   - intros y yx. firstorder.
   - apply 空集是子集.
 Qed.
+
+Lemma 空集的子集 x : x ⊆ ∅ → x = ∅.
+Proof. intros H. apply 空集唯一. intros y yx % H. zf. Qed.
 
 Notation 非空 x := (∃ y, y ∈ x).
 
@@ -139,30 +143,40 @@ Qed.
 Definition 偶并 := λ A B, ⋃ {A, B}.
 Notation "A ∪ B" := (偶并 A B) (at level 50).
 
-Lemma 左并 : ∀ x A B, x ∈ A → x ∈ A ∪ B.
+Lemma 二元并 : ∀ x A B, x ∈ A ∪ B ↔ x ∈ A ∨ x ∈ B.
 Proof.
-  intros. eapply 并集. exists A. split; auto. apply 配对. now left.
+  split; intros.
+  - apply 并集 in H as [a [Ha Hx]].
+    apply 配对 in Hx as []; subst; auto.
+  - destruct H; eapply 并集.
+    + exists A. split; auto. apply 配对. now left.
+    + exists B. split; auto. apply 配对. now right.
 Qed.
 
-Lemma 右并 : ∀ x A B, x ∈ B → x ∈ A ∪ B.
+Lemma 左并空 x : ∅ ∪ x = x.
 Proof.
-  intros. eapply 并集. exists B. split; auto. apply 配对. now right.
+  apply 外延; intros y yu.
+  - apply 二元并 in yu as []; zf.
+  - apply 二元并. auto.
 Qed.
 
-Lemma 二元并 : ∀ x A B, x ∈ A ∪ B → x ∈ A ∨ x ∈ B.
+Definition 入 x y := {x,} ∪ y.
+Notation "x ⨮ y" := (入 x y) (at level 65, right associativity).
+
+Lemma 并入 x y z : x ∈ y ⨮ z ↔ x = y ∨ x ∈ z.
 Proof.
-  intros. apply 并集 in H as [a [Ha Hx]].
-  apply 配对 in Hx as []; subst; auto.
+  split; intros H.
+  - apply 二元并 in H as []; auto. apply 单集 in H as ->. now left.
+  - destruct H as [->|]; apply 二元并.
+    + left. now apply 单集.
+    + now right.
 Qed.
 
-Definition 继 := λ a, a ∪ {a,}.
+Definition 继 := λ a, a ⨮ a.
 Notation "a ⁺" := (继 a) (at level 6, format "a ⁺").
 
-Lemma 后继 : ∀ a, ∀ x ∈ a⁺, x ∈ a ∨ x = a.
-Proof.
-  intros a x Hx. apply 二元并 in Hx as []. auto.
-  apply 单集 in H. auto.
-Qed.
+Lemma 后继 a x : x ∈ a⁺ ↔ x = a ∨ x ∈ a.
+Proof. apply 并入. Qed.
 
 (** 幂集 **)
 
@@ -238,6 +252,23 @@ Qed.
 
 (** 替代 **)
 
+Lemma 替代空 R : 函数性 R → R @ ∅ = ∅.
+Proof.
+  intros H. apply 空集的子集.
+  intros x [y [y0 _]] % 替代. zf. trivial.
+Qed.
+
+Definition 𝓕 R := λ x, ⋃ (R @ {x,}).
+
+Lemma 函数化 R a b : 函数性 R → R a b → 𝓕 R a = b.
+Proof.
+  intros Fun Rab. apply 并即上确界. split.
+  - intros x [y [->%单集 Ray]]%替代; trivial.
+    enough (b = x) by congruence. eapply Fun; eauto.
+  - intros x ubd. apply ubd. apply 替代; trivial.
+    exists a. split; auto. apply 单集; auto.
+Qed.
+
 Definition F替 F A := (λ x y, F x = y) @ A.
 Notation "F [ A ]" := (F替 F A) (at level 7, format "F [ A ]").
 
@@ -249,18 +280,10 @@ Qed.
 
 (** 描述 **)
 
-Definition δ P := ⋃ ((λ _ y, P y) @ {∅,}).
+Definition δ P := 𝓕 (λ _ y, P y) ∅.
 
 Lemma δ求值 P x : P x → uniqueness P → δ P = x.
-Proof.
-  intros xP uq. apply 并即上确界. split.
-  - intros y [z[zs yP]]%替代.
-    + now rewrite (uq x y xP yP).
-    + intros _. apply uq.
-  - intros y ubd. apply ubd. apply 替代.
-    + hnf. eauto.
-    + exists ∅. split; auto. apply 单集; auto.
-Qed.
+Proof. intros xP uq. apply 函数化; trivial. firstorder. Qed.
 
 Lemma δ规范 P x : P x → uniqueness P → P (δ P).
 Proof. intros xP uq. now rewrite (δ求值 xP uq). Qed.
@@ -296,6 +319,7 @@ Notation 非空 x := (∃ y, y ∈ x).
 Notation "{ a , b }" := (偶 a b) : zf_scope.
 Notation "{ a , }" := (单 a) (format "{ a , }") : zf_scope.
 Notation "A ∪ B" := (偶并 A B) (at level 50) : zf_scope.
+Notation "x ⨮ y" := (入 x y) (at level 65, right associativity) : zf_scope.
 Notation "a ⁺" := (继 a) (at level 6, format "a ⁺") : zf_scope.
 Notation "F [ A ]" := (F替 F A) (at level 7, format "F [ A ]") : zf_scope.
 Notation "A ∩ₚ P" := (分 A P) (at level 60) : zf_scope.

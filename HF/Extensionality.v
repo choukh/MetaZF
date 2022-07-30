@@ -1,6 +1,6 @@
 (** Coq coding by choukh, June 2022 **)
 
-Require Import HF.
+From HF Require Import HF.
 
 (** 外延定理 **)
 Section Extensionality.

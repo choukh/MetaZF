@@ -1,6 +1,6 @@
 (** Coq coding by choukh, June 2022 **)
 
-Require Import HF Extensionality.
+From HF Require Import HF Extensionality.
 
 (** 不同模型的集合间的相似关系 **)
 Inductive 相似 (𝓜 𝓝 : HF) : 𝓜 → 𝓝 → Prop :=

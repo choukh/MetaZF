@@ -1,6 +1,6 @@
 (** Coq coding by choukh, May 2022 **)
 
-Require Import ZF.Basic Hierarchy.
+From ZF Require Import Basic Hierarchy.
 
 (** 宇宙 **)
 Section Universe.
@@ -101,17 +101,39 @@ End Universe.
 
 (** 宇宙等级 **)
 Section UniverseLevel.
+Implicit Type 𝓜 : ZF.
 
-(* 极小模型 *)
-Definition ZF₀ (𝓜 : ZF) := ¬ ∃ u : 𝓜, 宇宙 u.
-
-(* x里有至少n个宇宙 *)
-Fixpoint ZFₙ {𝓜 : ZF} n x := match n with
+(* x中至少有n个宇宙 *)
+Fixpoint 强度 {𝓜} n x := match n with
   | O => True
-  | S n => ∃ u ∈ x, 宇宙 u ∧ ZFₙ n u
+  | S n => ∃ u ∈ x, 宇宙 u ∧ 强度 n u
 end.
 
-(* ZF_n+1 *)
-Definition ZFₛₙ n (𝓜 : ZF) := (∃ u, 宇宙 u ∧ ZFₙ n u) ∧ (¬ ∃ u, 宇宙 u ∧ ZFₙ (S n) u).
+Definition ZFₙ n 𝓜 := (∃ x, 强度 n x) ∧ (¬ ∃ x, 强度 (S n) x).
+
+Lemma 强度O {𝓜} : ∃ x, 强度 0 x.
+Proof. now exists ∅. Qed.
+
+Lemma 强度S {𝓜} n : (∃ u ∈ₚ 宇宙, 强度 n u) ↔ (∃ x, 强度 (S n) x).
+Proof.
+  split.
+  - intros [u [U H]]. exists {u,}. exists u. split. now apply 单集. easy.
+  - intros [x [u [ux [U H]]]]. eauto.
+Qed.
+
+Lemma ZFₙO 𝓜 : ZFₙ 0 𝓜 ↔ ¬ ∃ u : 𝓜, 宇宙 u.
+Proof.
+  split.
+  - intros [_ H] [u U]. apply H. apply 强度S. now exists u.
+  - intros H. split. apply 强度O. intros H1%强度S. firstorder.
+Qed.
+
+Lemma ZFₙS 𝓜 n : ZFₙ (S n) 𝓜 ↔ ∃ u ∈ₚ 宇宙, 强度 n u ∧ ¬ ∃ x, 强度 (S (S n)) x.
+Proof.
+  split.
+  - intros [[u [uU Hu]]%强度S HSS]. eauto.
+  - intros [u [uU [Hu HS]]].
+    split; trivial. apply 强度S. eauto.
+Qed.
 
 End UniverseLevel.

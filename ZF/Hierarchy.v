@@ -107,7 +107,7 @@ Proof.
 Qed.
 
 Definition ρ x := δ (秩关系 x).
-Definition ρ' x := ⋃ (幂[ρ[x]]).
+Definition ρ' x := ⋃ (𝒫[ρ[x]]).
 
 Lemma ρ规范_引理 x y : 秩关系 x y → 秩关系 x (ρ x).
 Proof.
@@ -120,20 +120,20 @@ Proof.
   induction (正则 x) as [x _ IH]. repeat split.
   - intros y yx. apply 并集. exists (𝒫 (ρ y)). split.
     + apply 幂集. eapply ρ规范_引理. apply IH. apply yx.
-    + apply 函数式替代. exists (ρ y). split; auto.
-      apply 函数式替代. now exists y.
+    + now apply 函数式替代2I.
   - intros [y[xy yp]]%并集.
-    apply 函数式替代 in yp as [z [zρ <-]].
-    apply 函数式替代 in zρ as [a [ax <-]]. apply 幂集 in xy.
+    apply 函数式替代2E in yp as [a [ax ->]]. apply 幂集 in xy.
     enough (秩关系 a (ρ a)). apply H, xy, ax.
     eapply ρ规范_引理. now apply IH.
-  - constructor. intros y [z [zρ <-]]%函数式替代.
-    apply 函数式替代 in zρ as [a [ax <-]].
+  - constructor. intros y [a [ax ->]]%函数式替代2E.
     constructor. eapply ρ规范_引理. now apply IH.
 Qed.
 
 Lemma ρ规范 x : 秩关系 x (ρ x).
 Proof. eapply ρ规范_引理. apply ρ'规范. Qed.
+
+Fact ρ_0 : ρ ∅ = ∅.
+Proof. eapply 秩关系的函数性. apply ρ规范. repeat split; zf. apply 空集层. Qed.
 
 Remark ρ等于ρ' x : ρ x = ρ' x.
 Proof. apply δ求值. apply ρ'规范. hnf. apply 秩关系的函数性. Qed.

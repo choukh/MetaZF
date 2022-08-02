@@ -5,7 +5,7 @@ From HF Require Export Meta.
 Reserved Notation "x ⨮ y" (at level 65, right associativity).
 Reserved Notation "x ∈ y" (at level 70).
 
-(** 遗传有限结构 **)
+(** 遗传有穷结构 **)
 Class HF := {
   集 : Type;
   空 : 集;

@@ -11,7 +11,6 @@ ZF/Meta.v
 ZF/ZF.v
 ZF/Basic.v
 ZF/InnerModel.v
-ZF/Uncountability.v
 
 ZF/Hierarchy.v
 ZF/Universe.v
@@ -21,5 +20,6 @@ ZF/Embedding.v
 ZF/Categoricity.v
 
 ZF/AdjunctionFacts.v
-ZF/HereditarilyFinite.v
+ZF/Finiteness.v
 ZF/Infinity.v
+ZF/Uncountability.v

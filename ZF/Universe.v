@@ -11,7 +11,7 @@ Implicit Type A a b x y z : 𝓜.
 Implicit Type P Q : 𝓜 → Prop.
 Implicit Type R : 𝓜 → 𝓜 → Prop.
 
-Definition 宇宙 u := ∃ P, 封闭类 P ∧ 集化 P u.
+Definition 宇宙 u := ∃ P, 封闭类 P ∧ u =ₚ P.
 
 Lemma 宇宙对空集封闭 : 宇宙 ⊑ 空集封闭.
 Proof. intros u [P [C S]]. apply S. apply C. Qed.
@@ -77,17 +77,23 @@ Proof.
       * constructor. apply ρ规范.
 Qed.
 
+Lemma 宇宙是非空极限层 u : 宇宙 u → 非空 u ∧ 极限层 u.
+Proof.
+  repeat split.
+  - exists ∅. now apply 宇宙对空集封闭.
+  - now apply 宇宙是层.
+  - intros x xu%宇宙对秩封闭; auto.
+    apply 并集. exists (𝒫 (ρ x)). split.
+    + apply 幂集, ρ规范.
+    + now apply 宇宙对幂集封闭.
+Qed.
+
 Theorem 宇宙等价于对替代封闭的非空极限层 u : 宇宙 u ↔ (替代封闭 u ∧ 非空 u ∧ 极限层 u).
 Proof.
   split; intros H.
-  - repeat split.
+  - split.
     + now apply 宇宙对替代封闭.
-    + exists ∅. now apply 宇宙对空集封闭.
-    + now apply 宇宙是层.
-    + intros x xu%宇宙对秩封闭; auto.
-      apply 并集. exists (𝒫 (ρ x)). split.
-      * apply 幂集, ρ规范.
-      * now apply 宇宙对幂集封闭.
+    + now apply 宇宙是非空极限层.
   - destruct H as [rc [ne [uS sub]]].
     exists (λ x, x ∈ u). split. 2:easy. split.
     + intros x y xy yu. eapply 层传递; eauto.
@@ -121,7 +127,7 @@ Proof. now exists ∅. Qed.
 Lemma 等级S {𝓜} n : (∃ u ∈ₚ 宇宙, 等级 n u) ↔ (∃ x, 等级 (S n) x).
 Proof.
   split.
-  - intros [u [U H]]. exists {u,}. exists u. split. now apply 单集. easy.
+  - intros [u [U H]]. exists {u,}. exists u. split. zf. easy.
   - intros [x [u [ux [U H]]]]. eauto.
 Qed.
 

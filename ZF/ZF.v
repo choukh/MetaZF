@@ -63,6 +63,8 @@ Notation "P ⊑ Q" := (∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scop
 Notation "P ⋢ Q" := (¬ ∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scope.
 Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → x ∈ₚ P) (at level 70) : zf_scope.
 Notation "P '⊆ₛ' A" := (∀ x, x ∈ₚ P → x ∈ A) (at level 70) : zf_scope.
+Notation "A =ₚ P" := (∀ x, x ∈ A ↔ x ∈ₚ P) (at level 70) : zf_scope.
+Notation "'可集化' P" := (∃ A, A =ₚ P) (only parsing, at level 10) : zf_scope.
 
 Notation "∀ x .. y ∈ₚ A , P" :=
   (∀ x, x ∈ₚ A → (.. (∀ y, y ∈ₚ A → P) ..))
@@ -77,9 +79,6 @@ Section Closure.
 Context {𝓜 : ZF}.
 Implicit Type A a b x y : 𝓜.
 Implicit Type P : 𝓜 → Prop.
-
-Definition 集化 P A := ∀ x, x ∈ A ↔ P x.
-Definition 可集化 P := ∃ A, 集化 P A.
 
 Definition 传递 x := ∀ y z, y ∈ z → z ∈ x → y ∈ x.
 Definition 膨胀 x := ∀ y z, y ⊆ z → z ∈ x → y ∈ x.

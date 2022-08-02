@@ -92,7 +92,7 @@ Qed.
 Lemma 域对称 x : x ∈ₚ 𝕯 ↔ x ∈ₚ @𝕹 𝓝 𝓜.
 Proof. split; intros [a xa]; exists a; now apply 相似的对称性. Qed.
 
-Lemma 域集化对称 x : 集化 (@𝕯 𝓜 𝓝) x ↔ 集化 (@𝕹 𝓝 𝓜) x.
+Lemma 域集化对称 x : x =ₚ @𝕯 𝓜 𝓝 ↔ x =ₚ @𝕹 𝓝 𝓜.
 Proof.
   split; intros sd; intros y; split; intros H.
   - apply 域对称, sd, H.
@@ -273,14 +273,11 @@ Proof.
     intros y [z [zx Rzy]]%替代; auto. eapply yD; eauto.
 Qed.
 
-Lemma 集化定义域是宇宙 : 集化 𝕯 ⊑ 宇宙.
-Proof.
-  intros u s. exists (λ x, x ∈ₚ 𝕯). split; auto.
-  apply 定义域是封闭类.
-Qed.
+Lemma 集化定义域是宇宙 u : u =ₚ 𝕯 → 宇宙 u.
+Proof. intros. exists 𝕯. split; auto. apply 定义域是封闭类. Qed.
 
-Lemma 集化值域是宇宙 : 集化 (@𝕹 𝓝 𝓜) ⊑ 宇宙.
-Proof. intros u s. apply 域集化对称 in s. apply 集化定义域是宇宙, s. Qed.
+Lemma 集化值域是宇宙 u : u =ₚ @𝕹 𝓝 𝓜 → 宇宙 u.
+Proof. intros. rewrite <- 域集化对称 in H. apply 集化定义域是宇宙, H. Qed.
 
 End Domain.
 
@@ -403,7 +400,7 @@ Qed.
 Lemma 值域域集化 : ¬ 左完全 (相似 𝓜 𝓝) → 左完全 (相似 𝓝 𝓜) → 可集化 (@𝕹 𝓝 𝓜).
 Proof.
   intros H1 H2. pose proof (定义域集化 H1 H2) as [x s].
-  apply 域集化对称 in s. now exists x.
+  rewrite 域集化对称 in s. now exists x.
 Qed.
 
 End Hierarchy.

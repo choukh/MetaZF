@@ -23,3 +23,5 @@ Definition 右完全 {X Y} (R : X → Y → Prop) :=
 Notation "'Σ' x .. y , p" := (sig (fun x => .. (sig (fun y => p)) ..))
   (at level 200, x binder, right associativity,
     format "'[' 'Σ'  '/ ' x .. y ,  '/ ' p ']'") : type_scope.
+
+Tactic Notation "split3" := split; [|split].

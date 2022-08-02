@@ -56,13 +56,13 @@ Qed.
 
 End Minimal.
 
-(** 有限序数宇宙模型 **)
+(** 有穷序数宇宙模型 **)
 Section ZFsn.
 Variable 𝓜 𝓝 : ZF.
 Notation i := (i 𝓝).
 Notation j := (j 𝓜).
 
-Theorem 有限序数宇宙模型同构 n : ZFₙ n 𝓜 → ZFₙ n 𝓝 → 𝓜 ≅ 𝓝.
+Theorem 有穷序数宇宙模型同构 n : ZFₙ n 𝓜 → ZFₙ n 𝓝 → 𝓜 ≅ 𝓝.
 Proof.
   intros Mn Nn. destruct n. apply 极小模型同构; trivial.
   destruct (相似的完全性三歧 𝓜 𝓝) as [H|[[l[a s]]|[r[x s]]]].

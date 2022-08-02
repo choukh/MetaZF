@@ -37,6 +37,13 @@ Qed.
 Lemma 传递_子集 x y : 传递 x → y ∈ x → y ⊆ x.
 Proof. intros tr yx z zy. eauto. Qed.
 
+(** ⊆链 **)
+
+Definition 链 A := ∀ x y ∈ A, x ⊆ y ∨ y ⊆ x.
+
+Lemma 链传递 x y : x ⊆ y → 链 y → 链 x.
+Proof. firstorder. Qed.
+
 (** 空集 **)
 
 Lemma 空集是子集 x : ∅ ⊆ x.
@@ -91,6 +98,10 @@ Qed.
 Lemma 单集 x a : x ∈ {a,} ↔ x = a.
 Proof. unfold 单. rewrite 配对. firstorder. Qed.
 
+Lemma 单集I x : x ∈ {x,}.
+Proof. now apply 单集. Qed.
+Hint Resolve 单集I : zf.
+
 (** 并集 **)
 
 Notation 上界 A U := (∀ x ∈ A, x ⊆ U).
@@ -122,7 +133,7 @@ Lemma 并单 x : ⋃ {x,} = x.
 Proof.
   apply 外延; intros y H.
   - apply 并集 in H as [z [zy yx%单集]]. congruence.
-  - apply 并集. exists x. split. apply H. now apply 单集.
+  - apply 并集. exists x. split. apply H. zf.
 Qed.
 
 Lemma 并幂 x : ⋃ (𝒫 x) = x.
@@ -167,9 +178,14 @@ Lemma 并入 x y z : x ∈ y ⨮ z ↔ x = y ∨ x ∈ z.
 Proof.
   split; intros H.
   - apply 二元并 in H as []; auto. apply 单集 in H as ->. now left.
-  - destruct H as [->|]; apply 二元并.
-    + left. now apply 单集.
-    + now right.
+  - destruct H as [->|]; apply 二元并. left; zf. now right.
+Qed.
+
+Lemma 并入空 x : x ⨮ ∅ = {x,}.
+Proof.
+  apply 外延; intros y Y.
+  - apply 并入 in Y as [->|]; zf.
+  - apply 单集 in Y as ->. apply 并入. auto.
 Qed.
 
 Definition 继 := λ a, a ⨮ a.
@@ -278,7 +294,16 @@ Proof.
   cbv. congruence.
 Qed.
 
-(** 描述 **)
+Lemma 函数式替代2I {F G} x A : x ∈ A → F (G x) ∈ F[G[A]].
+Proof.
+  intros xA. apply 函数式替代. exists (G x). split; auto.
+  apply 函数式替代. now exists x.
+Qed.
+
+Lemma 函数式替代2E {F G} y A : y ∈ F[G[A]] → ∃ x ∈ A, y = F (G x).
+Proof. intros [z [[x [xA <-]]%函数式替代 <-]]%函数式替代. eauto. Qed.
+
+(** 描述算子 (唯一选择) **)
 
 Definition δ P := 𝓕 (λ _ y, P y) ∅.
 
@@ -288,13 +313,19 @@ Proof. intros xP uq. apply 函数化; trivial. firstorder. Qed.
 Lemma δ规范 P x : P x → uniqueness P → P (δ P).
 Proof. intros xP uq. now rewrite (δ求值 xP uq). Qed.
 
-(** 唯一性 **)
-
-Lemma 集化唯一 P : uniqueness (集化 P).
+Lemma 集化唯一 P : uniqueness (λ A, A =ₚ P).
 Proof.
   intros a b H1 H2. apply 外延; intros x.
   - now intros H3 % H1 % H2.
   - now intros H3 % H2 % H1.
+Qed.
+
+Lemma 集化大消除 P : (∃ A, A =ₚ P) → Σ A, A =ₚ P.
+Proof.
+  intros. assert (δ (λ A, A =ₚ P) =ₚ P). {
+    destruct H. eapply δ规范. eauto. apply 集化唯一.
+  }
+  intros. now exists (δ (λ A, A =ₚ P)).
 Qed.
 
 (** 正则 **)
@@ -322,6 +353,8 @@ Notation "A ∪ B" := (偶并 A B) (at level 50) : zf_scope.
 Notation "x ⨮ y" := (入 x y) (at level 65, right associativity) : zf_scope.
 Notation "a ⁺" := (继 a) (at level 6, format "a ⁺") : zf_scope.
 Notation "F [ A ]" := (F替 F A) (at level 7, format "F [ A ]") : zf_scope.
+Notation "'𝒫[' A ]" := (幂[A]) (format "𝒫[ A ]") : zf_scope.
 Notation "A ∩ₚ P" := (分 A P) (at level 60) : zf_scope.
 
 Global Hint Resolve 空集是子集 : zf.
+Global Hint Resolve 单集I : zf.

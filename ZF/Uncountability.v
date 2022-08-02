@@ -8,10 +8,10 @@ Context {𝓜 : ZF}.
 
 Hypothesis ord : nat → 𝓜.
 Hypothesis ord单射 : ∀ m n, ord m = ord n → m = n.
-Definition 有限序数 x := ∃ n, x = ord n.
+Definition 有穷序数 x := ∃ n, x = ord n.
 
 Hypothesis ω : 𝓜.
-Hypothesis 无穷 : 集化 有限序数 ω.
+Hypothesis 无穷 : ω =ₚ 有穷序数.
 Hypothesis f : nat → 𝓜.
 Hypothesis f满射 : ∀ x, ∃ n, f n = x.
 

@@ -5,15 +5,13 @@ From ZF Require Import Basic Hierarchy Universe Finiteness.
 Section 宇宙蕴含无穷.
 Context {𝓜 : ZF}.
 
-(* 存在宇宙 *)
-Definition Univ := ∃ u, 宇宙 u.
-
 Definition Vₙ := 迭代 幂 ∅.
-
 (* V_<ω 类 *)
 Definition 有穷层 x := ∃ n, x = Vₙ n.
-(* 无穷公理变体: V_<ω 是集合 *)
-Definition Infⱽ := 可集化 有穷层.
+(* 无穷公理变体: V_<ω 类可集化 *)
+Definition Infⱽ := setLike 有穷层.
+(* 存在宇宙 *)
+Definition Univ := ∃ u, 宇宙 u.
 
 Lemma 宇宙蕴含无穷 : Univ → Infⱽ.
 Proof.
@@ -30,56 +28,38 @@ Section 无穷蕴含宇宙.
 Context {𝓜 : ZF}.
 
 Hypothesis inf : Infⱽ.
+(* V_<ω 集 *)
 Definition Vltω := proj1_sig (集化大消除 inf).
 (* Vltω =ₚ 有穷层 *)
 Definition 无穷 := proj2_sig (集化大消除 inf).
+
 Definition Vω := ⋃ Vltω.
 
 Lemma Vn是层 n : Vₙ n ∈ₚ 层.
 Proof. induction n. apply 空集层. now constructor. Qed.
 
+Lemma Vω是层 : Vω ∈ₚ 层.
+Proof.
+  constructor. intros x X.
+  apply 无穷 in X as [n ->]. apply Vn是层.
+Qed.
+
+Lemma Vn属Vltω n : Vₙ n ∈ Vltω.
+Proof. apply 无穷. now exists n. Qed.
+
+Lemma Vn属Vω n : Vₙ n ∈ Vω.
+Proof.
+  apply 并集. exists (Vₙ (S n)).
+  split. now apply 幂集. apply Vn属Vltω.
+Qed.
+
+Fact Vω对空集封闭 : ∅ ∈ Vω.
+Proof. replace ∅ with (Vₙ 0) by reflexivity. apply Vn属Vω. Qed.
+
 Lemma Vω成员属某Vn x : x ∈ Vω → ∃ n, x ∈ Vₙ n.
 Proof.
   intros [y [xy yV]] % 并集.
   apply 无穷 in yV as [n ->]. now exists n.
-Qed.
-
-Section 无穷公理原版.
-
-Definition 归纳集 A := ∅ ∈ A ∧ ∀ a ∈ A, a⁺ ∈ A.
-(* 无穷公理: 存在归纳集 *)
-Definition Inf := Σ I, 归纳集 I.
-
-Lemma Vω是归纳集 : 归纳集 Vω.
-Proof.
-  split.
-  - apply 并集. exists (Vₙ 1). split.
-    + now apply 幂集.
-    + apply 无穷. now exists 1.
-  - intros. apply Vω成员属某Vn in H as [n an].
-    apply 并集. exists (Vₙ (S n)). split.
-    + simpl. apply 幂集. intros x xa. apply 后继 in xa as [->|].
-      * apply an.
-      * apply 层传递 with a; auto. apply Vn是层.
-    + apply 无穷. now exists (S n).
-Qed.
-
-Fact Infⱽ_to_Inf : Inf.
-Proof. exists Vω. apply Vω是归纳集. Qed.
-
-End 无穷公理原版.
-
-Lemma Vω是层 : Vω ∈ₚ 层.
-Proof.
-  constructor. intros y Y.
-  apply 无穷 in Y as [n ->]. apply Vn是层.
-Qed.
-
-Lemma Vn属Vω n : Vₙ n ∈ Vω.
-Proof.
-  apply 并集. exists (Vₙ (S n)). split.
-  - now apply 幂集.
-  - apply 无穷. now exists (S n).
 Qed.
 
 Lemma Vω之并 : Vω ⊆ ⋃ Vω.
@@ -91,8 +71,25 @@ Qed.
 Lemma Vω是极限层 : Vω ∈ₚ 极限层.
 Proof. split. apply Vω是层. apply Vω之并. Qed.
 
-Lemma Vω对空集封闭 : ∅ ∈ Vω.
-Proof. replace ∅ with (Vₙ 0) by reflexivity. apply Vn属Vω. Qed.
+Section 无穷公理原版.
+
+Definition 归纳集 A := ∅ ∈ A ∧ ∀ a ∈ A, a⁺ ∈ A.
+(* 无穷公理: 存在归纳集 *)
+Definition Inf := Σ I, 归纳集 I.
+
+Lemma Vω是归纳集 : 归纳集 Vω.
+Proof.
+  split. apply Vω对空集封闭.
+  intros. apply Vω成员属某Vn in H as [n an].
+  apply 并集. exists (Vₙ (S n)). split.
+  - cbn. apply 后继_升秩. apply an. apply Vn是层.
+  - apply Vn属Vltω.
+Qed.
+
+Fact Infⱽ_to_Inf : Inf.
+Proof. exists Vω. apply Vω是归纳集. Qed.
+
+End 无穷公理原版.
 
 (** Vω集化HF **)
 

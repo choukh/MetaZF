@@ -17,7 +17,7 @@ end.
 (*** 基本部件 ***)
 Section Basic.
 Context {𝓜 : ZF}.
-Implicit Type A a b x y z : 𝓜.
+Implicit Type A a b c x y z : 𝓜.
 Implicit Type P Q : 𝓜 → Prop.
 
 (** 子集 **)
@@ -33,9 +33,6 @@ Proof.
   intros ns. 反证. apply ns. intros z zx.
   反证. apply 反设. now exists z.
 Qed.
-
-Lemma 传递_子集 x y : 传递 x → y ∈ x → y ⊆ x.
-Proof. intros tr yx z zy. eauto. Qed.
 
 (** ⊆链 **)
 
@@ -143,12 +140,6 @@ Proof.
   - intros y ubd. now apply ubd, 幂集.
 Qed.
 
-Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
-Proof.
-  intros tr a y ya [b [ab bx]]%并集. apply 并集.
-  exists b. split; auto. eapply tr; eauto.
-Qed.
-
 (** 二元并 **)
 
 Definition 偶并 := λ A B, ⋃ {A, B}.
@@ -169,6 +160,30 @@ Proof.
   apply 外延; intros y yu.
   - apply 二元并 in yu as []; zf.
   - apply 二元并. auto.
+Qed.
+
+Lemma 二元并交换律 a b : a ∪ b = b ∪ a.
+Proof.
+  intros. apply 外延; intros x X;
+  apply 二元并 in X as []; apply 二元并; auto.
+Qed.
+
+Lemma 二元并结合律 a b c : (a ∪ b) ∪ c = a ∪ (b ∪ c).
+Proof.
+  apply 外延; intros x X; apply 二元并; apply 二元并 in X as [].
+  - apply 二元并 in H as []. auto. right. apply 二元并. auto.
+  - right. apply 二元并. auto.
+  - left. apply 二元并. auto.
+  - apply 二元并 in H as []. left. apply 二元并. auto. auto.
+Qed.
+
+Lemma 并集分配律 a b : ⋃ (a ∪ b) = (⋃ a) ∪ (⋃ b).
+Proof.
+  intros. apply 外延; intros x X.
+  - apply 并集 in X as [y [xy Y]]. apply 二元并 in Y as [];
+    apply 二元并; [left|right]; eapply 并集; eauto.
+  - apply 二元并 in X as []; apply 并集 in H as [y [H1 H2]];
+    eapply 并集; exists y; split; auto; apply 二元并; auto.
 Qed.
 
 Definition 入 x y := {x,} ∪ y.
@@ -194,13 +209,10 @@ Notation "a ⁺" := (继 a) (at level 6, format "a ⁺").
 Lemma 后继 a x : x ∈ a⁺ ↔ x = a ∨ x ∈ a.
 Proof. apply 并入. Qed.
 
-(** 幂集 **)
+Lemma 后继非空 a : a⁺ ≠ ∅.
+Proof. intros H. eapply 空集. rewrite <- H. apply 后继. auto. Qed.
 
-Lemma 幂传递 x : x ∈ₚ 传递 → 𝒫 x ∈ₚ 传递.
-Proof.
-  intros tr y z zy yp. apply 幂集. apply 传递_子集. auto.
-  apply 幂集 in yp. auto.
-Qed.
+(** 幂集 **)
 
 Lemma 幂单调 x y : x ⊆ y → 𝒫 x ⊆ 𝒫 y.
 Proof. intros xy z zp. apply 幂集. apply 幂集 in zp. zf. Qed.
@@ -343,6 +355,53 @@ Proof. revert x y. induction (正则 z) as [z _ IH]. eauto. Qed.
 
 Definition 配对封闭 x := ∀ a b ∈ x, {a, b} ∈ x.
 Definition 分离封闭 x := ∀ P, ∀ y ∈ x, y ∩ₚ P ∈ x.
+
+(** 传递集 **)
+
+Definition 传递ₛ x := ∀ y ∈ x, y ⊆ x.
+Definition 传递ᵤ x := ⋃ x ⊆ x.
+Definition 传递ₚ x := x ⊆ 𝒫 x.
+
+Lemma 传递_子集表述 x : 传递 x ↔ 传递ₛ x.
+Proof. split; firstorder. Qed.
+
+Lemma 传递_并集表述 x : 传递 x ↔ 传递ᵤ x.
+Proof.
+  split.
+  - intros tr y Y. apply 并集 in Y as [z [yz zx]]. eapply tr; eauto.
+  - intros sub y z yz zx. apply sub. apply 并集. eauto.
+Qed.
+
+Lemma 传递_幂集表述 x : 传递 x ↔ 传递ₚ x.
+Proof.
+  split.
+  - intros tr y yx. apply 幂集. intros z zy. eapply tr; eauto.
+  - intros sub y z yz zx. apply sub in zx. eapply 幂集; eauto.
+Qed.
+
+Lemma 传递_后继表述 x : 传递 x ↔ ⋃ x⁺ = x.
+Proof.
+  rewrite 传递_并集表述.
+  unfold 继, 入. rewrite 并集分配律, 并单. split; intros.
+  - apply 外延; intros y yx.
+    + apply 二元并 in yx as []; auto.
+    + apply 二元并; auto.
+  - intros y yx. rewrite <- H. apply 二元并. auto.
+Qed.
+
+(* 传递集族之并是传递集 *)
+Lemma 并传递 x : x ⊆ₚ 传递 → ⋃ x ∈ₚ 传递.
+Proof.
+  intros tr a y ya [b [ab bx]]%并集. apply 并集.
+  exists b. split; auto. eapply tr; eauto.
+Qed.
+
+(* 传递集的幂集仍是传递集 *)
+Lemma 幂传递 x : x ∈ₚ 传递 → 𝒫 x ∈ₚ 传递.
+Proof.
+  intros tr y z zy yp. apply 幂集. apply 传递_子集表述. auto.
+  apply 幂集 in yp. auto.
+Qed.
 
 End Basic.
 

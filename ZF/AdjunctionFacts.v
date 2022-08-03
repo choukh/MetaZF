@@ -7,19 +7,6 @@ Section AdjunctionFacts.
 Context {𝓜 : ZF}.
 Implicit Type a b x y z : 𝓜.
 
-Lemma 并入二元并结合律 x y z : (x ⨮ y) ∪ z = x ⨮ (y ∪ z).
-Proof.
-  apply 外延; intros a H.
-  - apply 并入. apply 二元并 in H as [].
-    + apply 并入 in H as [->|]. auto.
-      right. apply 二元并. auto.
-    + right. apply 二元并. auto.
-  - apply 二元并. apply 并入 in H as [->|].
-    + left. apply 并入. auto.
-    + apply 二元并 in H as [].
-      left. apply 并入. auto. auto.
-Qed.
-
 Lemma 并入之并 a b : ⋃ (a ⨮ b) = a ∪ ⋃b.
 Proof.
   apply 外延; intros x xu.

@@ -64,7 +64,7 @@ Qed.
 Lemma 层线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ⊆ x.
 Proof.
   intros xS yS. destruct (层线序_引理 xS yS); auto.
-  right. enough (y ⊆ 𝒫 y). zf. apply 传递_子集. apply 层传递.
+  right. enough (y ⊆ 𝒫 y). zf. apply 传递_子集表述. apply 层传递.
   now constructor. now apply 幂集.
 Qed.
 

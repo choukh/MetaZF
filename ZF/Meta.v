@@ -5,6 +5,20 @@ Global Set Implicit Arguments.
 Global Unset Strict Implicit.
 Global Unset Printing Implicit Defensive.
 
+Tactic Notation "split3" := split; [|split].
+
+(* 存在量词式Σ类型记法 *)
+Notation "'Σ' x .. y , p" := (sig (fun x => .. (sig (fun y => p)) ..))
+  (at level 200, x binder, right associativity,
+    format "'[' 'Σ'  '/ ' x .. y ,  '/ ' p ']'") : type_scope.
+
+(* 元语言迭代 *)
+Fixpoint 迭代 {A} (f : A → A) a n :=
+  match n with
+  | O => a
+  | S m => f (迭代 f a m)
+  end.
+
 (** 关系的性质 **)
 
 Definition 函数性 {X Y} (R : X → Y → Prop) :=
@@ -18,10 +32,3 @@ Definition 左完全 {X Y} (R : X → Y → Prop) :=
 
 Definition 右完全 {X Y} (R : X → Y → Prop) :=
   ∀ y, ∃ x, R x y.
-
-(* 存在量词式Σ类型记法 *)
-Notation "'Σ' x .. y , p" := (sig (fun x => .. (sig (fun y => p)) ..))
-  (at level 200, x binder, right associativity,
-    format "'[' 'Σ'  '/ ' x .. y ,  '/ ' p ']'") : type_scope.
-
-Tactic Notation "split3" := split; [|split].

@@ -22,4 +22,5 @@ ZF/Categoricity.v
 ZF/AdjunctionFacts.v
 ZF/Finiteness.v
 ZF/Infinity.v
+ZF/Omega.v
 ZF/Uncountability.v

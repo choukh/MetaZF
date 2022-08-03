@@ -8,11 +8,7 @@ Context {𝓜 : ZF}.
 (* 存在宇宙 *)
 Definition Univ := ∃ u, 宇宙 u.
 
-Fixpoint Vₙ n :=
-  match n with
-  | O => ∅
-  | S m => 𝒫 (Vₙ m)
-  end.
+Definition Vₙ := 迭代 幂 ∅.
 
 (* V_<ω 类 *)
 Definition 有穷层 x := ∃ n, x = Vₙ n.
@@ -39,21 +35,20 @@ Definition Vltω := proj1_sig (集化大消除 inf).
 Definition 无穷 := proj2_sig (集化大消除 inf).
 Definition Vω := ⋃ Vltω.
 
+Lemma Vn是层 n : Vₙ n ∈ₚ 层.
+Proof. induction n. apply 空集层. now constructor. Qed.
+
 Lemma Vω成员属某Vn x : x ∈ Vω → ∃ n, x ∈ Vₙ n.
 Proof.
   intros [y [xy yV]] % 并集.
   apply 无穷 in yV as [n ->]. now exists n.
 Qed.
 
-Lemma Vn是层 n : Vₙ n ∈ₚ 层.
-Proof. induction n. apply 空集层. now constructor. Qed.
-
-(* sidetrack *)
-Section Omega.
+Section 无穷公理原版.
 
 Definition 归纳集 A := ∅ ∈ A ∧ ∀ a ∈ A, a⁺ ∈ A.
-Definition 自然数 n := ∀ A, 归纳集 A → n ∈ A.
-Definition ω := Vω ∩ₚ 自然数.
+(* 无穷公理: 存在归纳集 *)
+Definition Inf := Σ I, 归纳集 I.
 
 Lemma Vω是归纳集 : 归纳集 Vω.
 Proof.
@@ -63,35 +58,28 @@ Proof.
     + apply 无穷. now exists 1.
   - intros. apply Vω成员属某Vn in H as [n an].
     apply 并集. exists (Vₙ (S n)). split.
-    + simpl. apply 幂集. intros x xa. apply 后继 in xa as [].
-      * congruence.
+    + simpl. apply 幂集. intros x xa. apply 后继 in xa as [->|].
+      * apply an.
       * apply 层传递 with a; auto. apply Vn是层.
     + apply 无穷. now exists (S n).
 Qed.
 
-Fact ω里有且仅有自然数 : ∀ n, n ∈ ω ↔ 自然数 n.
-Proof.
-  split; intros.
-  - now apply 分离 in H.
-  - apply 分离. split; auto. apply H. apply Vω是归纳集.
-Qed.
+Fact Infⱽ_to_Inf : Inf.
+Proof. exists Vω. apply Vω是归纳集. Qed.
 
-End Omega.
+End 无穷公理原版.
+
+Lemma Vω是层 : Vω ∈ₚ 层.
+Proof.
+  constructor. intros y Y.
+  apply 无穷 in Y as [n ->]. apply Vn是层.
+Qed.
 
 Lemma Vn属Vω n : Vₙ n ∈ Vω.
 Proof.
   apply 并集. exists (Vₙ (S n)). split.
   - now apply 幂集.
   - apply 无穷. now exists (S n).
-Qed.
-
-Lemma Vω对空集封闭 : ∅ ∈ Vω.
-Proof. replace ∅ with (Vₙ 0) by reflexivity. apply Vn属Vω. Qed.
-
-Lemma Vω是层 : Vω ∈ₚ 层.
-Proof.
-  constructor. intros y Y.
-  apply 无穷 in Y as [n ->]. apply Vn是层.
 Qed.
 
 Lemma Vω之并 : Vω ⊆ ⋃ Vω.
@@ -103,9 +91,12 @@ Qed.
 Lemma Vω是极限层 : Vω ∈ₚ 极限层.
 Proof. split. apply Vω是层. apply Vω之并. Qed.
 
+Lemma Vω对空集封闭 : ∅ ∈ Vω.
+Proof. replace ∅ with (Vₙ 0) by reflexivity. apply Vn属Vω. Qed.
+
 (** Vω集化HF **)
 
-Notation HF := 遗传有穷集.
+Notation HF := 遗传有穷.
 
 Lemma Vn是遗传有穷集 n : HF (Vₙ n).
 Proof.
@@ -114,7 +105,7 @@ Proof.
   - apply HF是幂集封闭类. apply IH.
 Qed.
 
-Lemma 非空有穷链封闭 x : 非空 x → 有穷集 x → 链 x → ⋃ x ∈ x.
+Lemma 非空有穷链封闭 x : 非空 x → 有穷 x → 链 x → ⋃ x ∈ x.
 Proof.
   induction 2 as [|x y Fx IH]. destruct H. zf.
   intros Ch. 排中 (非空 y) as [NEy| ->%非非空].
@@ -196,7 +187,7 @@ Proof.
   apply 层线序; apply Vn是层.
 Qed.
 
-Lemma Vltω是无穷集 : ¬ 有穷集 Vltω.
+Lemma Vltω是无穷集 : ¬ 有穷 Vltω.
 Proof.
   intros H. apply 非空有穷链封闭 in H.
   - now apply Vω不属于Vltω.
@@ -212,19 +203,19 @@ Proof.
   - apply 极限层对幂集封闭; trivial.
 Qed.
 
-Lemma 非空极限层是无穷集 x : 非空 x → 极限层 x → ¬ 有穷集 x.
+Lemma 非空极限层是无穷集 x : 非空 x → 极限层 x → ¬ 有穷 x.
 Proof.
   intros H1 H2 H3. apply Vltω是无穷集.
   apply 有穷集对子集封闭 with x; trivial.
   apply 非空极限层不低于Vltω; trivial.
 Qed.
 
-Lemma Vn是有穷集 n : 有穷集 (Vₙ n).
+Lemma Vn是有穷集 n : 有穷 (Vₙ n).
 Proof. induction n. constructor. now apply 有穷集对幂集封闭. Qed.
 
-Lemma Vω只含有穷集 : Vω ⊆ₚ 有穷集.
+Lemma Vω只含有穷集 : Vω ⊆ₚ 有穷.
 Proof.
-  intros x [n X]%Vω成员属某Vn. destruct n. simpl in X. zf.
+  intros x [n X]%Vω成员属某Vn. destruct n. cbn in X. zf.
   eapply 有穷集对子集封闭 with (Vₙ n). now apply 幂集. apply Vn是有穷集.
 Qed.
 
@@ -242,3 +233,6 @@ End 无穷蕴含宇宙.
 
 Theorem 无穷公理等价于存在宇宙 (𝓜 : ZF) : Infⱽ ↔ Univ.
 Proof. split. apply 无穷蕴含宇宙. apply 宇宙蕴含无穷. Qed.
+
+Corollary 反无穷模型等价于极小模型 (𝓜 : ZF) : ¬ Infⱽ ↔ ¬ Univ.
+Proof. split; intros H1 H2; now apply 无穷公理等价于存在宇宙 in H2. Qed.

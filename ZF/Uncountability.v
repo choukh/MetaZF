@@ -10,7 +10,7 @@ Theorem 无穷模型不可数 {𝓜 : ZF} : Infʷ → ¬ Cnt.
 Proof.
   intros [] [f f满射].
   (* A = {⌜n⌝ ∈ ω | ⌜n⌝ ∉ f n} *)
-  set (ω ∩ₚ (λ x, ∃ n, x = 嵌入 n ∧ 嵌入 n ∉ f n)) as A.
+  set (A := ω ∩ₚ (λ x, ∃ n, x = 嵌入 n ∧ 嵌入 n ∉ f n)).
   pose proof (f满射 A) as [m fm].
   排中 (嵌入 m ∈ A) as [mA|false].
   - apply 分离 in mA as H. destruct H as [_ [m' [eq false]]].

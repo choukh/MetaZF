@@ -43,7 +43,7 @@ Lemma ω归纳 : ∀ n ∈ ω, n⁺ ∈ ω.
 Proof. apply ω是归纳集. Qed.
 
 (* 皮亚诺公理3 *)
-Fact 零不是任何自然数的后继 : ¬ ∃ n ∈ ω, n⁺ = ∅.
+Lemma 零不是任何自然数的后继 : ¬ ∃ n ∈ ω, n⁺ = ∅.
 Proof. intros [n [Hn H]]. eapply 后继非空; eauto. Qed.
 
 (* 皮亚诺公理5 *)
@@ -79,7 +79,7 @@ Tactic Notation "归纳" simple_intropattern(n) simple_intropattern(Hn) := 归�
 Tactic Notation "归纳" simple_intropattern(n) := 归纳 n ?Hn.
 Tactic Notation "归纳" := let n := fresh "n" in let Hn := fresh "Hn" in 归纳 n Hn.
 
-Fact ω是传递集 : ω ∈ₚ 传递.
+Lemma ω是传递集 : ω ∈ₚ 传递.
 Proof.
   apply 传递_子集表述. 归纳. zf.
   intros x Hx. apply 后继 in Hx as [->|]; auto.
@@ -93,7 +93,7 @@ Proof.
 Qed.
 
 (* 皮亚诺公理4 *)
-Lemma 后继是单射 : ∀ n m ∈ ω, n⁺ = m⁺ → n = m.
+Lemma 自然数后继单射 : ∀ n m ∈ ω, n⁺ = m⁺ → n = m.
 Proof.
   intros n Hn m Hm eq.
   apply 自然数是传递集 in Hn, Hm.
@@ -112,7 +112,7 @@ Proof.
   - (* 0, 0 *) reflexivity.
   - (* 0, S m *) exfalso. eapply 后继非空; eauto.
   - (* S n, 0 *) exfalso. eapply 后继非空; eauto.
-  - (* S n, S m *) apply 后继是单射 in H; auto.
+  - (* S n, S m *) apply 自然数后继单射 in H; auto.
 Qed.
 
 Lemma 投影存在 : ∀ n ∈ ω, ∃ m : nat, 嵌入 m = n.

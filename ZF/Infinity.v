@@ -13,7 +13,7 @@ Definition Infⱽ := setLike 有穷层.
 (* 存在宇宙 *)
 Definition Univ := ∃ u, 宇宙 u.
 
-Lemma 宇宙蕴含无穷 : Univ → Infⱽ.
+Fact 宇宙蕴含无穷 : Univ → Infⱽ.
 Proof.
   intros [u U]. exists (u ∩ₚ 有穷层).
   intros x. split; intros H.

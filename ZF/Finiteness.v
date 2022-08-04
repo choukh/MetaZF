@@ -2,7 +2,7 @@
 
 From ZF Require Import Basic AdjunctionFacts Hierarchy.
 
-(** 遗传有穷集 **)
+(** 有穷性 **)
 Section Finiteness.
 Context {𝓜 : ZF}.
 

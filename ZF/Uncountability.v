@@ -6,11 +6,10 @@ From ZF Require Import Basic Universe Embedding Categoricity
 (* 模型可数 *)
 Definition Cnt {𝓜 : ZF} := ∃ f : nat → 𝓜, ∀ x, ∃ n, f n = x.
 
-Lemma 无穷模型不可数 {𝓜 : ZF} : Infⱽ → ¬ Cnt.
+Theorem 无穷模型不可数 {𝓜 : ZF} : Infʷ → ¬ Cnt.
 Proof.
-  intros inf [f f满射].
-  apply Infⱽ_to_Infʷ in inf as [].
-  (* A = {n ∈ ω | n ∉ f n} *)
+  intros [] [f f满射].
+  (* A = {⌜n⌝ ∈ ω | ⌜n⌝ ∉ f n} *)
   set (ω ∩ₚ (λ x, ∃ n, x = 嵌入 n ∧ 嵌入 n ∉ f n)) as A.
   pose proof (f满射 A) as [m fm].
   排中 (嵌入 m ∈ A) as [mA|false].
@@ -43,7 +42,7 @@ Qed.
 Theorem 无穷模型等价于不可数模型 {𝓝 : ZF} : Infⱽ ↔ ¬ Cnt.
 Proof.
   split.
-  - apply 无穷模型不可数.
+  - intros. now apply 无穷模型不可数, Infⱽ_to_Infʷ.
   - intros cnt. 反证. apply 反无穷模型可数 in 反设. auto.
 Qed.
 

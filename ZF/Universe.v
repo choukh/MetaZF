@@ -118,9 +118,6 @@ end.
 (* 模型中正好有n个宇宙 *)
 Definition ZFₙ n 𝓜 := (∃ x, 等级 n x) ∧ (¬ ∃ x, 等级 (S n) x).
 
-(* 模型中至少有ω个宇宙 *)
-Definition ZFω 𝓜 := ∀ n, ∃ x, 等级 n x.
-
 Lemma 等级O {𝓜} : ∃ x, 等级 0 x.
 Proof. now exists ∅. Qed.
 
@@ -145,5 +142,20 @@ Proof.
   - intros [u [uU [Hu HS]]].
     split; trivial. apply 等级S. eauto.
 Qed.
+
+(* 模型中至少有ω个宇宙 *)
+Definition ZFgeω 𝓜 := ∀ n, ∃ x, 等级 n x.
+
+(* 集合中至少有 ω + n 个宇宙 *)
+Fixpoint 等级ω {𝓜} n x := match n with
+  | O => ∀ m, ∃ y ∈ x, 等级 m y
+  | S n => ∃ u ∈ x, 宇宙 u ∧ 等级ω n u
+end.
+
+(* 模型中正好有 ω + n 个宇宙 *)
+Definition ZFωₙ n 𝓜 := (∃ x, 等级ω n x) ∧ (¬ ∃ x, 等级ω (S n) x).
+
+(* 模型中正好有 ω 个宇宙 *)
+Definition ZFω := ZFωₙ 0.
 
 End UniverseLevel.

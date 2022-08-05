@@ -155,8 +155,8 @@ Qed.
 
 Lemma Vω对替代封闭 : 替代封闭 Vω.
 Proof.
-  intros R a Fun H A. apply Vω集化HF. apply HF是替代封闭类.
-  trivial. 2: now apply Vω集化HF.
+  intros R a Fun H A. apply Vω集化HF.
+  apply HF是替代封闭类. trivial. 2: now apply Vω集化HF.
   intros x y Rxy xa. apply Vω集化HF. eapply H; eauto.
 Qed.
 
@@ -174,8 +174,7 @@ Proof. exists Vω. apply Vω是宇宙. Qed.
 Lemma Vω不属于Vltω : Vω ∉ Vltω.
 Proof.
   intros H. apply 无穷 in H as [n H].
-  apply (无循环1 (x:=Vₙ n)).
-  rewrite <- H at 2. apply Vn属Vω.
+  apply (无循环1 (x:=Vₙ n)). rewrite <- H at 2. apply Vn属Vω.
 Qed.
 
 Lemma Vltω非空 : 非空 Vltω.
@@ -183,16 +182,13 @@ Proof. exists ∅. apply 无穷. now exists 0. Qed.
 
 Lemma Vltω是链 : 链 Vltω.
 Proof.
-  intros x [n ->]%无穷 y [m ->]%无穷.
-  apply 层线序; apply Vn是层.
+  intros x [n ->]%无穷 y [m ->]%无穷. apply 层线序; apply Vn是层.
 Qed.
 
 Lemma Vltω是无穷集 : ¬ 有穷 Vltω.
 Proof.
   intros H. apply 非空有穷链封闭 in H.
-  - now apply Vω不属于Vltω.
-  - apply Vltω非空.
-  - apply Vltω是链.
+  now apply Vω不属于Vltω. apply Vltω非空. apply Vltω是链.
 Qed.
 
 Lemma 非空极限层不低于Vltω x : 非空 x → 极限层 x → Vltω ⊆ x.
@@ -221,8 +217,7 @@ Qed.
 
 Lemma 非空极限层不低于Vω x : 非空 x → 极限层 x → Vω ⊆ x.
 Proof.
-  intros H1 H2.
-  destruct (层ϵ线序 Vω是层 (proj1 H2)); trivial.
+  intros H1 H2. destruct (层ϵ线序 Vω是层 (proj1 H2)); trivial.
   exfalso. eapply 非空极限层是无穷集; eauto. now apply Vω只含有穷集.
 Qed.
 
@@ -234,5 +229,5 @@ End 无穷蕴含宇宙.
 Theorem 无穷公理等价于存在宇宙 (𝓜 : ZF) : Infⱽ ↔ Univ.
 Proof. split. apply 无穷蕴含宇宙. apply 宇宙蕴含无穷. Qed.
 
-Corollary 反无穷模型等价于极小模型 (𝓜 : ZF) : ¬ Infⱽ ↔ ¬ Univ.
+Remark 反无穷模型等价于极小模型 (𝓜 : ZF) : ¬ Infⱽ ↔ ¬ Univ.
 Proof. split; intros H1 H2; now apply 无穷公理等价于存在宇宙 in H2. Qed.

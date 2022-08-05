@@ -104,10 +104,11 @@ Qed.
 
 Lemma 非空有穷链封闭 x : 非空 x → 有穷 x → 链 x → ⋃ x ∈ x.
 Proof.
-  induction 2 as [|x y Fx IH]. destruct H. zf.
-  intros Ch. 排中 (非空 y) as [NEy| ->%非非空].
+  induction 2 as [|x y _ IH]. destruct H. zf.
+  intros Ch. 排中 (y = ∅) as [->|NEy%非空提取].
+  - apply 并入. left. now rewrite 并入空, 并单.
   - assert (IH': ⋃ y ∈ y). {
-      apply IH; trivial. eapply 链传递. 2:apply Ch.
+      apply IH; trivial. eapply 链膨胀. 2:apply Ch.
       intros z zy. apply 并入. auto.
     }
     assert (X: x ∈ x ⨮ y). apply 并入. auto.
@@ -120,30 +121,32 @@ Proof.
       * apply 并得子集. intros z [->|Z]%并入. zf.
         intros w wz. apply YX, 并集. eauto.
       * apply 并得父集. apply 并入. auto.
-  - apply 并入. left. now rewrite 并入空, 并单.
+Qed.
+
+Lemma 非空有穷集的秩层 x : 非空 x → 有穷 x → ρ x ∈ 𝒫[ρ[x]].
+Proof.
+  intros [y yx] Fx. rewrite ρ等于ρ'. apply 非空有穷链封闭.
+  - exists (𝒫 (ρ y)). now apply 函数式替代2I.
+  - now repeat apply 有穷集对函数式替代封闭.
+  - intros a [a' [A ->]]%函数式替代2E b [b' [B ->]]%函数式替代2E.
+    apply 层线序; constructor; apply ρ规范.
 Qed.
 
 Lemma 遗传有穷集的秩层在Vω里 x : HF x → ρ x ∈ Vω.
 Proof.
-  induction 1 as [x Fx sub IH].
-  排中 (非空 x) as [[y yx]| ->%非非空].
-  - assert (ρ x ∈ 𝒫[ρ[x]]). {
-      rewrite ρ等于ρ'. apply 非空有穷链封闭.
-      + exists (𝒫 (ρ y)). now apply 函数式替代2I.
-      + now repeat apply 有穷集对函数式替代封闭.
-      + intros a [a' [A ->]]%函数式替代2E b [b' [B ->]]%函数式替代2E.
-        apply 层线序; constructor; apply ρ规范.
-    }
+  induction 1 as [x Fx _ IH].
+  排中 (x = ∅) as [->|[y yx]%非空提取].
+  - replace (ρ ∅) with ∅. apply Vω对空集封闭. now rewrite ρ_0.
+  - apply 非空有穷集的秩层 in Fx as H; eauto.
     apply 函数式替代2E in H as [z [zx ->]].
     apply 极限层对幂集封闭. apply Vω是极限层. now apply IH.
-  - replace (ρ ∅) with ∅. apply Vω对空集封闭. now rewrite ρ_0.
 Qed.
 
-Lemma Vω集化HF : Vω =ₚ HF.
+Theorem Vω集化HF : Vω =ₚ HF.
 Proof.
   intros x. split; intros H.
   - apply Vω成员属某Vn in H as [n H].
-    destruct (Vn是遗传有穷集 n) as [y _ sub]. now apply sub.
+    apply HF是成员封闭类 with (Vₙ n). trivial. apply Vn是遗传有穷集.
   - apply 层膨胀 with (ρ x). apply Vω是层.
     apply ρ规范. now apply 遗传有穷集的秩层在Vω里.
 Qed.

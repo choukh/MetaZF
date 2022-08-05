@@ -45,14 +45,7 @@ Proof.
     + apply 幂集 in X. apply 并入. auto.
 Qed.
 
-Lemma 幂空 : 𝒫 ∅ = ∅ ⨮ ∅.
-Proof.
-  apply 外延; intros x X.
-  - apply 幂集 in X. apply 空集的子集 in X as <-. apply 并入. auto.
-  - apply 并入 in X as [->|X]. apply 幂集. zf. zf.
-Qed.
-
-(* a在R中没定义的时候 (𝓕 R a) 还是一个集合 *)
+(* a在R中没定义的时候 (𝓕 R a) 还是一个集合, 所以反向不成立 *)
 Lemma 并入之替代 R a b : 函数性 R → R @ (a ⨮ b) ⊆ (𝓕 R a) ⨮ (R @ b).
 Proof.
   intros Fun y Y.

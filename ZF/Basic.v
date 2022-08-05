@@ -38,7 +38,8 @@ Qed.
 
 Definition 链 A := ∀ x y ∈ A, x ⊆ y ∨ y ⊆ x.
 
-Lemma 链传递 x y : x ⊆ y → 链 y → 链 x.
+(* 链对子集封闭 *)
+Lemma 链膨胀 : 膨胀类 链.
 Proof. firstorder. Qed.
 
 (** 空集 **)
@@ -59,12 +60,8 @@ Proof. intros H. apply 空集唯一. intros y yx % H. zf. Qed.
 
 Notation 非空 x := (∃ y, y ∈ x).
 
-Lemma 非非空 x : ¬ 非空 x ↔ x = ∅.
-Proof.
-  split.
-  - intros. apply 空集唯一. firstorder.
-  - intros -> [y H]. zf.
-Qed.
+Lemma 非空提取 x : x ≠ ∅ → 非空 x.
+Proof. intros. 反证. apply H. apply 空集唯一. firstorder. Qed.
 
 (** 配对 **)
 
@@ -78,9 +75,8 @@ Notation "{ a , }" := (单 a) (format "{ a , }").
 Local Lemma 函数性R a b : 函数性 (R a b).
 Proof.
   intros x y z [[]|[]] [[]|[]]; subst; auto.
-  - symmetry in H1.
-    apply 非非空 in H1. contradict H1. exists ∅. now apply 幂集.
-  - apply 非非空 in H1. contradict H1. exists ∅. now apply 幂集.
+  - exfalso. apply 空集 with ∅. rewrite H1 at 2. apply 幂集. zf.
+  - exfalso. apply 空集 with ∅. rewrite <- H1 at 2. apply 幂集. zf.
 Qed.
 
 Lemma 配对 a b x : x ∈ {a, b} ↔ x = a ∨ x = b.
@@ -219,6 +215,13 @@ Proof. intros xy z zp. apply 幂集. apply 幂集 in zp. zf. Qed.
 
 Lemma 幂并 x : x ⊆ 𝒫 ⋃ x.
 Proof. intros y Hy. apply 幂集. now apply 并得父集. Qed.
+
+Lemma 幂空 : 𝒫 ∅ = {∅,}.
+Proof.
+  apply 外延; intros x X.
+  - apply 幂集 in X. apply 空集的子集 in X as ->. now apply 单集.
+  - apply 单集 in X as ->. apply 幂集. zf.
+Qed.
 
 (** 分离 **)
 

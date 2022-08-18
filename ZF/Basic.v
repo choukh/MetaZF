@@ -3,7 +3,7 @@
 Require Export Classical ProofIrrelevance.
 From ZF Require Export ZF.
 
-(** 经典逻辑 **)
+(** LEM逻辑 **)
 
 Tactic Notation "排中" constr(P) :=
   destruct (classic P).
@@ -37,6 +37,7 @@ Qed.
 (** ⊆链 **)
 
 Definition 链 A := ∀ x y ∈ A, x ⊆ y ∨ y ⊆ x.
+Definition 最小 P x := x ∈ₚ P ∧ ∀ y ∈ₚ P, x ⊆ y.
 
 (* 链对子集封闭 *)
 Lemma 链膨胀 : 膨胀类 链.
@@ -58,10 +59,13 @@ Qed.
 Lemma 空集的子集 x : x ⊆ ∅ → x = ∅.
 Proof. intros H. apply 空集唯一. intros y yx % H. zf. Qed.
 
-Notation 非空 x := (∃ y, y ∈ x).
+Definition 非空 x := ∃ y, y ∈ x.
 
-Lemma 非空提取 x : x ≠ ∅ → 非空 x.
+Lemma 非空I x : x ≠ ∅ → 非空 x.
 Proof. intros. 反证. apply H. apply 空集唯一. firstorder. Qed.
+
+Lemma 非非空 x : ¬ 非空 x → x = ∅.
+Proof. intros H. 反证. apply 非空I in 反设. auto. Qed.
 
 (** 配对 **)
 
@@ -205,13 +209,16 @@ Notation "a ⁺" := (继 a) (at level 6, format "a ⁺").
 Lemma 后继 a x : x ∈ a⁺ ↔ x = a ∨ x ∈ a.
 Proof. apply 并入. Qed.
 
+Lemma 后继IL a : a ∈ a⁺.
+Proof. apply 后继; auto. Qed.
+
+Lemma 后继IR x a : x ∈ a → x ∈ a⁺.
+Proof. intros H. apply 后继. auto. Qed.
+
 Lemma 后继非空 a : a⁺ ≠ ∅.
 Proof. intros H. eapply 空集. rewrite <- H. apply 后继. auto. Qed.
 
 (** 幂集 **)
-
-Lemma 幂单调 x y : x ⊆ y → 𝒫 x ⊆ 𝒫 y.
-Proof. intros xy z zp. apply 幂集. apply 幂集 in zp. zf. Qed.
 
 Lemma 幂并 x : x ⊆ 𝒫 ⋃ x.
 Proof. intros y Hy. apply 幂集. now apply 并得父集. Qed.
@@ -222,6 +229,9 @@ Proof.
   - apply 幂集 in X. apply 空集的子集 in X as ->. now apply 单集.
   - apply 单集 in X as ->. apply 幂集. zf.
 Qed.
+
+Lemma 幂单调 x y : x ⊆ y → 𝒫 x ⊆ 𝒫 y.
+Proof. intros xy z zp. apply 幂集. apply 幂集 in zp. zf. Qed.
 
 (** 分离 **)
 
@@ -406,9 +416,15 @@ Proof.
   apply 幂集 in yp. auto.
 Qed.
 
+(* 传递集的后继为传递集 *)
+Lemma 后继传递 x : x ∈ₚ 传递 → x⁺ ∈ₚ 传递.
+Proof.
+  intros tr a b ab [->|]%后继; apply 后继; auto.
+  right. eapply tr; eauto.
+Qed.
+
 End Basic.
 
-Notation 非空 x := (∃ y, y ∈ x).
 Notation "{ a , b }" := (偶 a b) : zf_scope.
 Notation "{ a , }" := (单 a) (format "{ a , }") : zf_scope.
 Notation "A ∪ B" := (偶并 A B) (at level 50) : zf_scope.
@@ -418,5 +434,4 @@ Notation "F [ A ]" := (F替 F A) (at level 7, format "F [ A ]") : zf_scope.
 Notation "'𝒫[' A ]" := (幂[A]) (format "𝒫[ A ]") : zf_scope.
 Notation "A ∩ₚ P" := (分 A P) (at level 60) : zf_scope.
 
-Global Hint Resolve 空集是子集 : zf.
-Global Hint Resolve 单集I : zf.
+Global Hint Resolve 空集是子集 单集I 后继IL 后继IR : zf.

@@ -50,7 +50,7 @@ Theorem 任意模型存在极小内模型 (𝓜 : ZF) :
 Proof.
   排中 (∃ u, 宇宙 u) as [[u uU]|H].
   - apply 宇宙是层 in uU as uS.
-    destruct (层良基 uS uU) as [v [[vS [p [pc s]]] min]].
+    destruct (层良基 (conj uS uU)) as [v [[vS [p [pc s]]] min]].
     exists p, pc. apply ZFₙO.
     intros [[x xp] XU]. apply 内模型的宇宙是原模型的宇宙 in XU.
     apply (无循环1 (x:=x)). apply min; auto using 宇宙是层. now apply s.

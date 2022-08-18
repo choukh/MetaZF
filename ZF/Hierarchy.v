@@ -40,9 +40,9 @@ Lemma 层对关系的归纳法 R :
   ∀ x y ∈ₚ 层, R x y.
 Proof.
   intros H1 H2 x xS y. revert y.
-  induction xS as [x xS IHx|x xS IHx]; intros y yS.
+  induction xS as [x _ IHx|x xS IHx]; intros y yS.
   - apply H1. apply IHx. apply yS.
-    induction yS as [y yS IHy|y yS IHy].
+    induction yS as [y yS IHy|y _ IHy].
     + apply H1. apply IHy. apply IHx. apply yS.
     + apply H2. apply IHy.
   - apply H2. intros z zx. now apply IHx.
@@ -61,36 +61,35 @@ Proof.
       apply false. now exists z.
 Qed.
 
-Lemma 层线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ⊆ x.
+Lemma 层弱线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ⊆ x.
 Proof.
   intros xS yS. destruct (层线序_引理 xS yS); auto.
   right. enough (y ⊆ 𝒫 y). zf. apply 传递_子集表述. apply 层传递.
   now constructor. now apply 幂集.
 Qed.
 
-Lemma 层ϵ线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ∈ x.
+Lemma 层线序 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ⊆ y ∨ y ∈ x.
 Proof.
   intros xS yS. destruct (层线序_引理 xS yS); auto.
   right. apply H. now apply 幂集.
 Qed.
 
-Lemma 层ϵ三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x ∈ y ∨ x = y ∨ y ∈ x.
+Lemma 层三歧 x y : x ∈ₚ 层 → y ∈ₚ 层 → x = y ∨ x ∈ y ∨ y ∈ x.
 Proof.
-  intros xS yS. destruct (层ϵ线序 xS yS); auto.
-  destruct (层ϵ线序 yS xS); auto. right. left. now apply 外延.
+  intros xS yS. destruct (层线序 xS yS); auto.
+  destruct (层线序 yS xS); auto. left. now apply 外延.
 Qed.
 
 (** 良基 **)
 
-Definition 最小 P x := x ∈ₚ P ∧ ∀ y ∈ₚ P, x ⊆ y.
-
-Lemma 层良基 x P : x ∈ₚ 层 → x ∈ₚ P → ex (最小 (λ y, y ∈ₚ 层 ∧ y ∈ₚ P)).
+(* 层与任意类的非空交有⊆最小元 *)
+Lemma 层良基 P x : x ∈ₚ 层 ⊓ P → ex (最小 (层 ⊓ P)).
 Proof.
-  intros xS xP. induction (正则 x) as [x _ IH].
+  intros [xS xP]. induction (正则 x) as [x _ IH].
   排中 (∃ y ∈ x, y ∈ₚ 层 ∧ y ∈ₚ P) as [[y [yx [yS yP]]]|].
   - now apply (IH y).
   - exists x. repeat split; auto. intros y [yS yP].
-    destruct (层ϵ线序 xS yS). auto.
+    destruct (层线序 xS yS). auto.
     contradict H. now exists y.
 Qed.
 
@@ -101,7 +100,7 @@ Definition 秩关系 x y := x ⊆ y ∧ x ∉ y ∧ y ∈ₚ 层.
 Lemma 秩关系的函数性 : 函数性 秩关系.
 Proof.
   intros x a b [xsa [xa aS]] [xsb [xb bS]].
-  destruct (层ϵ三歧 aS bS) as [|[]]; auto; exfalso.
+  destruct (层三歧 aS bS) as [|[]]; auto; exfalso.
   - apply xb. apply 层膨胀 with a; auto.
   - apply xa. apply 层膨胀 with b; auto.
 Qed.
@@ -197,7 +196,7 @@ Proof.
   apply 非子集 in H as [y[yx yns]].
   replace (⋃ x) with y; auto. symmetry.
   apply 并即上确界. split; auto.
-  intros z zx. destruct (层ϵ线序 (sub z zx) (sub y yx)); auto.
+  intros z zx. destruct (层线序 (sub z zx) (sub y yx)); auto.
   exfalso. apply yns. apply 并集. now exists z.
 Qed.
 
@@ -227,7 +226,7 @@ Qed.
 Lemma 非空层对空集封闭 x : x ∈ₚ 层 → 非空 x → 空集封闭 x.
 Proof.
   intros xS [y yx].
-  destruct (层ϵ线序 xS 空集层); auto. apply H in yx. zf.
+  destruct (层线序 xS 空集层); auto. apply H in yx. zf.
 Qed.
 
 Lemma 极限层对并集封闭 : 极限层 ⊑ 并集封闭.
@@ -237,7 +236,7 @@ Lemma 极限层对幂集封闭 : 极限层 ⊑ 幂集封闭.
 Proof.
   intros x xL y yx.
   destruct (极限层对秩封闭 xL yx) as [z [zS [yz zx]]].
-  destruct xL as [xS _]. destruct (层ϵ线序 (幂层 zS) xS).
+  destruct xL as [xS _]. destruct (层线序 (幂层 zS) xS).
   - apply (幂_升秩 yz) in zS as pypz. auto.
   - exfalso. apply 幂集 in H. specialize (H z zx).
     now apply 无循环1 in H.
@@ -248,7 +247,7 @@ Proof.
   intros x xL a ax b bx.
   destruct (极限层对秩封闭 xL ax) as [y [yS [ay yx]]].
   destruct (极限层对秩封闭 xL bx) as [z [zS [bz zx]]].
-  destruct (层线序 yS zS).
+  destruct (层弱线序 yS zS).
   - apply 层传递 with (z:=𝒫 z). apply xL.
     + apply 配对_升秩; auto.
     + now apply 极限层对幂集封闭.

@@ -33,6 +33,7 @@ Notation "∃ x .. y ∈ A , P" :=
 Definition 包含关系 {𝓜 : ZF结构} (A B : 𝓜) := ∀ x, x ∈ A → x ∈ B.
 Notation "A ⊆ B" := (  包含关系 A B) (at level 70) : zf_scope.
 Notation "A ⊈ B" := (¬ 包含关系 A B) (at level 70) : zf_scope.
+Notation "p ⊂ q" := (p ⊆ q ∧ q ⊈ p) (at level 70) : zf_scope.
 
 Notation "∅" := 空 : zf_scope.
 Notation "⋃ A" := (并 A) (at level 8, right associativity, format "⋃  A") : zf_scope.
@@ -61,6 +62,7 @@ Notation "x ∈ₚ P" := (P x) (only parsing, at level 70) : zf_scope.
 Notation "x ∉ₚ P" := (¬ P x) (only parsing, at level 70) : zf_scope.
 Notation "P ⊑ Q" := (∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scope.
 Notation "P ⋢ Q" := (¬ ∀ x, x ∈ₚ P → x ∈ₚ Q) (at level 70) : zf_scope.
+Notation "P ⊓ Q" := (λ x, x ∈ₚ P ∧ x ∈ₚ Q) (at level 60) : zf_scope.
 Notation "A '⊆ₚ' P" := (∀ x, x ∈ A → x ∈ₚ P) (at level 70) : zf_scope.
 Notation "P '⊆ₛ' A" := (∀ x, x ∈ₚ P → x ∈ A) (at level 70) : zf_scope.
 Notation "A =ₚ P" := (∀ x, x ∈ A ↔ x ∈ₚ P) (at level 70) : zf_scope.

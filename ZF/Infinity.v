@@ -105,7 +105,7 @@ Qed.
 Lemma 非空有穷链封闭 x : 非空 x → 有穷 x → 链 x → ⋃ x ∈ x.
 Proof.
   induction 2 as [|x y _ IH]. destruct H. zf.
-  intros Ch. 排中 (y = ∅) as [->|NEy%非空提取].
+  intros Ch. 排中 (y = ∅) as [->|NEy%非空I].
   - apply 并入. left. now rewrite 并入空, 并单.
   - assert (IH': ⋃ y ∈ y). {
       apply IH; trivial. eapply 链膨胀. 2:apply Ch.
@@ -129,15 +129,15 @@ Proof.
   - exists (𝒫 (ρ y)). now apply 函数式替代2I.
   - now repeat apply 有穷集对函数式替代封闭.
   - intros a [a' [A ->]]%函数式替代2E b [b' [B ->]]%函数式替代2E.
-    apply 层线序; constructor; apply ρ规范.
+    apply 层弱线序; constructor; apply ρ规范.
 Qed.
 
 Lemma 遗传有穷集的秩层在Vω里 x : HF x → ρ x ∈ Vω.
 Proof.
   induction 1 as [x Fx _ IH].
-  排中 (x = ∅) as [->|[y yx]%非空提取].
+  排中 (x = ∅) as [->|[y yx]%非空I].
   - replace (ρ ∅) with ∅. apply Vω对空集封闭. now rewrite ρ_0.
-  - apply 非空有穷集的秩层 in Fx as H; eauto.
+  - apply 非空有穷集的秩层 in Fx as H. 2:now exists y.
     apply 函数式替代2E in H as [z [zx ->]].
     apply 极限层对幂集封闭. apply Vω是极限层. now apply IH.
 Qed.
@@ -182,7 +182,7 @@ Proof. exists ∅. apply 无穷. now exists 0. Qed.
 
 Lemma Vltω是链 : 链 Vltω.
 Proof.
-  intros x [n ->]%无穷 y [m ->]%无穷. apply 层线序; apply Vn是层.
+  intros x [n ->]%无穷 y [m ->]%无穷. apply 层弱线序; apply Vn是层.
 Qed.
 
 Lemma Vltω是无穷集 : ¬ 有穷 Vltω.
@@ -217,7 +217,7 @@ Qed.
 
 Lemma 非空极限层不低于Vω x : 非空 x → 极限层 x → Vω ⊆ x.
 Proof.
-  intros H1 H2. destruct (层ϵ线序 Vω是层 (proj1 H2)); trivial.
+  intros H1 H2. destruct (层线序 Vω是层 (proj1 H2)); trivial.
   exfalso. eapply 非空极限层是无穷集; eauto. now apply Vω只含有穷集.
 Qed.
 

@@ -362,7 +362,7 @@ Proof.
   - destruct (层之集二分 xS) as [suc|lim]. apply IH; auto.
     intros y [z [yz zx]]%并集. 排中 (z ∈ₚ 𝕯) as [[c zc]|].
     + assert (cS : c ∈ₚ 层). apply 相似保层 with z; auto.
-      destruct (层ϵ线序 aS cS) as [ac|ca].
+      destruct (层线序 aS cS) as [ac|ca].
       * exfalso. apply aR, 定义域是膨胀类 with c.
         apply ac. exists z. now apply 相似的对称性.
       * destruct (左嵌入 zc yz) as [b [ba yb]].
@@ -387,7 +387,7 @@ Proof.
   destruct (sur b) as [z bz].
   assert (zS : z ∈ₚ 层). eapply 相似保层; eauto. apply 相似的对称性 in bz.
   assert (yz : y ∈ z). eapply 相似保ϵ; eauto.
-  destruct (层ϵ线序 zS xS); auto. contradict ndx.
+  destruct (层线序 zS xS); auto. contradict ndx.
   apply 定义域是传递类 with z; auto. now exists b.
 Qed.
 
@@ -429,8 +429,8 @@ Proof.
   反证. apply not_or_and in 反设 as [H1 H2].
   apply 非子类 in H1 as [x [xS ndx]].
   apply 非子类 in H2 as [a [aS nda]].
-  destruct (层良基 (P:=(λ x, x ∉ₚ 𝕯 𝓜 𝓝)) xS ndx) as [y my].
-  destruct (层良基 (P:=(λ a, a ∉ₚ 𝕯 𝓝 𝓜)) aS nda) as [b mb].
+  destruct (层良基 (P:=(λ x, x ∉ₚ 𝕯 𝓜 𝓝)) (conj xS ndx)) as [y my].
+  destruct (层良基 (P:=(λ a, a ∉ₚ 𝕯 𝓝 𝓜)) (conj aS nda)) as [b mb].
   apply my. exists b. now apply 外层相似.
 Qed.
 
